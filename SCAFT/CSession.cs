@@ -10,7 +10,11 @@ namespace SCAFT
 {
     public static class CSession
     {
-        public static string sUserName { get; set; }
+        public static string sUserName
+        {
+            get { return "ALICE"; }
+            
+        }
 
         public static int iPort { get; set; }
 

@@ -39,6 +39,8 @@
             this.btnBrowse = new System.Windows.Forms.Button();
             this.txtFilePath = new System.Windows.Forms.TextBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.tbLog = new System.Windows.Forms.TextBox();
+            this.btnJoin = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // listBoxConnectedUsers
@@ -135,11 +137,31 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // tbLog
+            // 
+            this.tbLog.Location = new System.Drawing.Point(136, 143);
+            this.tbLog.Multiline = true;
+            this.tbLog.Name = "tbLog";
+            this.tbLog.Size = new System.Drawing.Size(417, 220);
+            this.tbLog.TabIndex = 10;
+            // 
+            // btnJoin
+            // 
+            this.btnJoin.Location = new System.Drawing.Point(136, 31);
+            this.btnJoin.Name = "btnJoin";
+            this.btnJoin.Size = new System.Drawing.Size(75, 23);
+            this.btnJoin.TabIndex = 11;
+            this.btnJoin.Text = "Join ";
+            this.btnJoin.UseVisualStyleBackColor = true;
+            this.btnJoin.Click += new System.EventHandler(this.btnJoin_Click);
+            // 
             // SCAFTForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(571, 377);
+            this.Controls.Add(this.btnJoin);
+            this.Controls.Add(this.tbLog);
             this.Controls.Add(this.txtFilePath);
             this.Controls.Add(this.btnBrowse);
             this.Controls.Add(this.btnSendFile);
@@ -170,5 +192,7 @@
         private System.Windows.Forms.Button btnBrowse;
         private System.Windows.Forms.TextBox txtFilePath;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.TextBox tbLog;
+        private System.Windows.Forms.Button btnJoin;
     }
 }

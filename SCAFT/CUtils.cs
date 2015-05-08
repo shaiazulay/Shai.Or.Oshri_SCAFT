@@ -104,5 +104,24 @@ namespace SCAFT
 
             return baOutput;
         }
+        public static string getRequestType(string sentence)
+        {
+            return sentence.Split(' ').FirstOrDefault();
+        }
+        public static string getOnlyString(string sentence)
+        {
+            return Remove(sentence, getRequestType(sentence), 1).TrimStart(' ');
+        }
+        // metod to cut first substring.
+         private static string Remove(this string source, string remove, int firstN)
+        {
+            if (firstN <= 0 || string.IsNullOrEmpty(source) || string.IsNullOrEmpty(remove))
+            {
+                return source;
+            }
+            int index = source.IndexOf(remove);
+            return index < 0 ? source : source.Remove(index, remove.Length).Remove(remove, --firstN);
+        }
     }
+
 }
