@@ -49,6 +49,8 @@ namespace SCAFT
             oUser = new User(oIp, saBits[1]);
 
             sStringContent = saBits[3];
+            for (int i = 4; i < saBits.Length; i++)
+                sStringContent += " " + saBits[i];
         }
 
         public byte[] GetEncMessage()
