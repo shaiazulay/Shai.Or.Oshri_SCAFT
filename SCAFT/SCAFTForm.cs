@@ -169,7 +169,7 @@ namespace SCAFT
                     {
                         User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                        if (oUser == null)
+                        if (oUser == null && oCurrentMsg.oUser.sUserName != oCurrentUser.sUserName)
                             listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
                         break;
