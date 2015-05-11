@@ -172,6 +172,9 @@ namespace SCAFT
                         if (oUser == null && oCurrentMsg.oUser.sUserName != oCurrentUser.sUserName)
                             listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
+                        if (oUser != null)
+                            oUser.oIP = oCurrentMsg.oUser.oIP;
+
                         break;
                     }
                 case EMessageType.Bye:
