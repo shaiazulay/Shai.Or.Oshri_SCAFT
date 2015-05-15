@@ -140,7 +140,7 @@ namespace SCAFT
                 return;
             }
 
-            // start to listen for incoming messages udp too
+            // start to listen for incoming messages udp 
             bwListener = new BackgroundWorker();
             bwListener.WorkerReportsProgress = true;
             bwListener.WorkerSupportsCancellation = true;
