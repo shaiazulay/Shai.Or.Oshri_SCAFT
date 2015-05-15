@@ -26,7 +26,16 @@ namespace SCAFT
               (connectionSocket.Client.RemoteEndPoint as IPEndPoint).Port;
             try
             {
-                while(me.CancellationPending)
+                while (me.CancellationPending)
+                {
+                    string message = srIn.ReadLine();
+                    //todo hundle client requests here!
+
+                }
+            }
+            catch
+            {
+                
             }
 
 
