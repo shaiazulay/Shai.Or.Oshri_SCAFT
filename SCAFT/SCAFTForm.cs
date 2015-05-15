@@ -15,8 +15,9 @@ namespace SCAFT
         Timer oHellowTimer;
         private User oCurrentUser;
         private static UdpClient udp;
-        private BackgroundWorker bwListener; 
-          
+        private BackgroundWorker bwUDP;
+        private BackgroundWorker bwTCP;
+        private static TcpListener tcp;  
         private static IPEndPoint multicastEP
         {
             get
@@ -141,14 +142,25 @@ namespace SCAFT
             }
 
             // start to listen for incoming messages udp too
-            bwListener = new BackgroundWorker();
-            bwListener.WorkerReportsProgress = true;
-            bwListener.WorkerSupportsCancellation = true;
-            bwListener.ProgressChanged += new ProgressChangedEventHandler(ReceivedMessage);
-            bwListener.DoWork += ListeningBroadcast.ListenForMessages;
-            bwListener.RunWorkerAsync(udp);
+            bwUDP = new BackgroundWorker();
+            bwUDP.WorkerReportsProgress = true;
+            bwUDP.WorkerSupportsCancellation = true;
+            bwUDP.ProgressChanged += new ProgressChangedEventHandler(ReceivedMessage);
+            bwUDP.DoWork += ListeningBroadcast.ListenForMessages;
+            bwUDP.RunWorkerAsync(udp);
+
+            ListenTCP();
         }
 
+        private void ListenTCP()
+        {
+            bwTCP = new BackgroundWorker();
+            bwTCP.WorkerReportsProgress = true;
+            bwTCP.WorkerSupportsCancellation = true;
+            //bwTCP.ProgressChanged += new ProgressChangedEventHandler(ReceivedMessage);
+            bwTCP.DoWork += ListeningUnicast.ListenForPrivateSession;
+            bwTCP.RunWorkerAsync(tcp);
+        }
         private void ReceivedMessage(object sender, ProgressChangedEventArgs e)
         {
             // show the new message in the textbox
