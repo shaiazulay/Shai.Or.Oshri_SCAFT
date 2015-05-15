@@ -14,12 +14,13 @@ namespace SCAFT
     static class ListeningUnicast
     {
         private static List<TcpClient> clientList;
+
         public static void ListenForPrivateSession(object sender, DoWorkEventArgs e)
         {
             clientList = new List<TcpClient>();
-            TcpClient client = (TcpClient)e.Argument;
+            TcpListener listener = (TcpListener) e.Argument;
 
-            BackgroundWorker me = (BackgroundWorker)sender;
+            BackgroundWorker me = (BackgroundWorker) sender;
 
             // read data
             try
@@ -27,48 +28,46 @@ namespace SCAFT
                 while (!me.CancellationPending)
                 {
                     TcpClient connectionSocket = null;
-                    try
+                    connectionSocket = listener.AcceptTcpClient();
+                    if (connectionSocket != null)
                     {
-                        if (connectionSocket != null)
-                        {
-                            me.ReportProgress(0,
-                           "Received connection from " +
-                          (connectionSocket.Client.RemoteEndPoint as
-                          IPEndPoint).Address.ToString()
-                          + ":" +
-                          (connectionSocket.Client.RemoteEndPoint as
-                           IPEndPoint).Port);
-                            BackgroundWorker bw = new BackgroundWorker();
-                            clientList.Add(connectionSocket);
-                            bw.DoWork += HandleClient.TcpSession;
-                            bw.WorkerSupportsCancellation = true;
+                        me.ReportProgress(0,
+                            "Received connection from " +
+                            (connectionSocket.Client.RemoteEndPoint as
+                                IPEndPoint).Address.ToString()
+                            + ":" +
+                            (connectionSocket.Client.RemoteEndPoint as
+                                IPEndPoint).Port);
+                        BackgroundWorker bw = new BackgroundWorker();
+                        clientList.Add(connectionSocket);
+                        bw.DoWork += HandleClient.TcpSession;
+                        bw.WorkerSupportsCancellation = true;
 
-                            bw.WorkerReportsProgress = true;
-                           // bw.ProgressChanged += bw_ProgressChanged;
-                            bw.RunWorkerAsync(connectionSocket);
-
-                        }
-                    }
-                    catch
-                    {
+                        bw.WorkerReportsProgress = true;
+                        // bw.ProgressChanged += bw_ProgressChanged;
+                        bw.RunWorkerAsync(connectionSocket);
 
                     }
-                    // read data
-                   // IPEndPoint messageCameFrom = new IPEndPoint(IPAddress.Any, 0);
-                   // byte[] packet = client.Receive(ref messageCameFrom);
-                    // convert to string
-                   // string fullMessage = UnicodeEncoding.UTF8.GetString(packet);
-                    // log it up to the screen
-                  //  object[] param = { DateTime.Now.ToLongTimeString(), messageCameFrom.Address.ToString(), packet};
-                    me.ReportProgress(0,""); 
+                  
                 }
+                cloaseAll();
+                // read data
+                // IPEndPoint messageCameFrom = new IPEndPoint(IPAddress.Any, 0);
+                // byte[] packet = client.Receive(ref messageCameFrom);
+                // convert to string
+                // string fullMessage = UnicodeEncoding.UTF8.GetString(packet);
+                // log it up to the screen
+                //  object[] param = { DateTime.Now.ToLongTimeString(), messageCameFrom.Address.ToString(), packet};
+                me.ReportProgress(0, "");
             }
+
             catch (Exception ex)
             {
                 Console.WriteLine("Error in communication: " + ex.Message);
+                cloaseAll();
             }
+       
 
-            return;
         }
         public static void cloaseAll()
         {
