@@ -51,6 +51,8 @@
     <Compile Include="ConfigurationDetailsForm.Designer.cs">
       <DependentUpon>ConfigurationDetailsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="HandleClient.cs" />
+    <Compile Include="ListeningUnicast.cs" />
     <Compile Include="User.cs" />
     <Compile Include="CUtils.cs" />
     <Compile Include="InsertUserNameForm.cs">
@@ -59,7 +61,7 @@
     <Compile Include="InsertUserNameForm.Designer.cs">
       <DependentUpon>InsertUserNameForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Listening.cs" />
+    <Compile Include="ListeningBroadcast.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

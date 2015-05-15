@@ -145,7 +145,7 @@ namespace SCAFT
             bwListener.WorkerReportsProgress = true;
             bwListener.WorkerSupportsCancellation = true;
             bwListener.ProgressChanged += new ProgressChangedEventHandler(ReceivedMessage);
-            bwListener.DoWork += Listening.ListenForMessages;
+            bwListener.DoWork += ListeningBroadcast.ListenForMessages;
             bwListener.RunWorkerAsync(udp);
         }
 

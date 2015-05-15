@@ -10,7 +10,7 @@ using System.Net;
 namespace SCAFT
 
 {
-    static class Listening
+    static class ListeningBroadcast
     {
         public static void ListenForMessages(object sender, DoWorkEventArgs e)
         {
