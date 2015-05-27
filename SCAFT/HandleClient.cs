@@ -23,7 +23,7 @@ namespace SCAFT
             SCAFTForm scaftForm = (SCAFTForm) param[1];
             StreamReader srIn = new StreamReader(connectionSocket.GetStream());
             StreamWriter swOut = new StreamWriter(connectionSocket.GetStream());
-            //NetworkStream netStream = connectionSocket.GetStream();
+            NetworkStream ns = connectionSocket.GetStream();
             string clientInfo =
               (connectionSocket.Client.RemoteEndPoint as IPEndPoint).
                   Address.ToString()
@@ -33,10 +33,10 @@ namespace SCAFT
             {
                 while (!me.CancellationPending)
                 {
-                    //byte[] packet = new byte[connectionSocket.ReceiveBufferSize];
+                    byte[] packet = new byte[connectionSocket.ReceiveBufferSize];
                     //netStream.Read(packet, 0, (int)connectionSocket.ReceiveBufferSize);
-                    
-                    Message oCurrentMsg = new Message(Convert.FromBase64String(srIn.ReadToEnd()));
+                    ns.Read(packet, 0, (int) connectionSocket.ReceiveBufferSize);
+                    Message oCurrentMsg = new Message(packet);
                     string s = oCurrentMsg.ToString();
                     switch (oCurrentMsg.eMessageType)
                    {
