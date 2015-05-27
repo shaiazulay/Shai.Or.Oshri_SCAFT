@@ -37,6 +37,7 @@ namespace SCAFT
                     //netStream.Read(packet, 0, (int)connectionSocket.ReceiveBufferSize);
                     
                     Message oCurrentMsg = new Message(Convert.FromBase64String(srIn.ReadToEnd()));
+                    string s = oCurrentMsg.ToString();
                     switch (oCurrentMsg.eMessageType)
                    {
                        case EMessageType.SENDFILE:
