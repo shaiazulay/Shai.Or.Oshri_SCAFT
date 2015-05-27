@@ -21,8 +21,6 @@ namespace SCAFT
 
             TcpClient connectionSocket = (TcpClient)param[0];
             SCAFTForm scaftForm = (SCAFTForm) param[1];
-            StreamReader srIn = new StreamReader(connectionSocket.GetStream());
-            StreamWriter swOut = new StreamWriter(connectionSocket.GetStream());
             NetworkStream ns = connectionSocket.GetStream();
             string clientInfo =
               (connectionSocket.Client.RemoteEndPoint as IPEndPoint).
@@ -33,36 +31,47 @@ namespace SCAFT
             {
                 while (!me.CancellationPending)
                 {
-                    byte[] packet = new byte[connectionSocket.ReceiveBufferSize];
+                    byte[] packet = new byte[64];
                     //netStream.Read(packet, 0, (int)connectionSocket.ReceiveBufferSize);
-                    ns.Read(packet, 0, (int) connectionSocket.ReceiveBufferSize);
+                    ns.Read(packet, 0, 64);
                     Message oCurrentMsg = new Message(packet);
                     switch (oCurrentMsg.eMessageType)
                    {
                        case EMessageType.SENDFILE:
                            {
                                bool accept = scaftForm.ProcessSendFileMessage(oCurrentMsg);
-                               if (!accept) swOut.WriteLine(new Message(scaftForm.oCurrentUser.oIP, scaftForm.oCurrentUser.sUserName,EMessageType.NO, "").GetEncMessage());
-                               else swOut.WriteLine(new Message(scaftForm.oCurrentUser.oIP, scaftForm.oCurrentUser.sUserName, EMessageType.OK, "").GetEncMessage());
-                               //TODO recive file here! 
+                               if (accept)
+                               {
+                                   byte[] okMessage = new Message(scaftForm.oCurrentUser.oIP,
+                                                                         scaftForm.oCurrentUser.sUserName,
+                                                                         EMessageType.OK, "").GetEncMessage();
+                                   ns.Write(okMessage, 0, okMessage.Length);
+                                   //TODO recive file here!
+                               }
+                               else
+                               {
+                                   byte[] noMessage = new Message(scaftForm.oCurrentUser.oIP,
+                                       scaftForm.oCurrentUser.sUserName, EMessageType.NO, "").GetEncMessage();
+                                   ns.Write(noMessage, 0, noMessage.Length);
+                               }
                                break;
                            }
-                       //case EMessageType.OK:
-                       //    {
-                            
-                       //        User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
+                       case EMessageType.OK:
+                           {
 
-                       //        if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
-                       //        {
+                               User oUser = scaftForm.GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                       //            //TODO CHECK ABOUT CONFLICTS WITH SENDING TO MORE THEN ONE USER BEFORE ACCEPTING
-                       //            SendFileToUser(File.ReadAllBytes(txtFilePath.Text), oUser);
-                       //        }
-                       //        break;
-                       //    }
-                       //case EMessageType.NO:
-                       //    MessageBox.Show("The user did not accept the file transfer", "", MessageBoxButtons.OK);
-                       //    break;
+                               if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
+                               {
+
+                                   //TODO CHECK ABOUT CONFLICTS WITH SENDING TO MORE THEN ONE USER BEFORE ACCEPTING
+                                   //SendFileToUser(File.ReadAllBytes(txtFilePath.Text), oUser);
+                               }
+                               break;
+                           }
+                       case EMessageType.NO:
+                           MessageBox.Show("The user did not accept the file transfer", "", MessageBoxButtons.OK);
+                           break;
                          
                    }
 

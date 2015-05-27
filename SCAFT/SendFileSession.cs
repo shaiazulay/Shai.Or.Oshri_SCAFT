@@ -19,18 +19,15 @@ namespace SCAFT
             TcpClient client = new TcpClient();
             User selectedUser = (User) param[1];
             User oCurrentUser = (User)param[0];
-            string filePath = (string) param[2];
+            string fileName = (string) param[2];
             client.Connect(selectedUser.oIP, 5000); //TODO, change the port.
-            var swOut = new StreamWriter(client.GetStream());
-            var srIn = new StreamReader(client.GetStream());
             byte[] msg  =
-                new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.SENDFILE, "sdfhsdfhsdfhdsfhdsfhdfhdfsh").GetEncMessage();
+                new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.SENDFILE, fileName).GetEncMessage();
             NetworkStream ns = client.GetStream();
-         
             ns.Write(msg, 0, msg.Length);
            
-            swOut.Flush();
-            srIn.ReadLine();
+            
+            
         }
 
     }

@@ -61,6 +61,7 @@ namespace SCAFT
         {
             if (udp != null && multicastEP != null) //if udp is running.
                 SendHellow();
+            
         }
          
         private void btnSendMessage_Click(object sender, EventArgs e)
@@ -109,7 +110,7 @@ namespace SCAFT
                 BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
                 sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
                 User selectedUser = (User)listBoxConnectedUsers.SelectedItem;
-                object[] param = {oCurrentUser, selectedUser, txtFilePath.Text};
+                object[] param = {oCurrentUser, selectedUser, Path.GetFileName(txtFilePath.Text)};
                 sendFileTcpWorker.RunWorkerAsync(param);
 
             }
