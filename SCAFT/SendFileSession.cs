@@ -23,7 +23,12 @@ namespace SCAFT
             client.Connect(selectedUser.oIP, 5000); //TODO, change the port.
             var swOut = new StreamWriter(client.GetStream());
             var srIn = new StreamReader(client.GetStream());
-            swOut.WriteLine(new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.SENDFILE, "" ).GetEncMessage());
+            string msg  = Convert.ToBase64String(
+                new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.SENDFILE, "").GetEncMessage());
+                
+
+            swOut.Write(msg, 0, msg.Length);
+           
             swOut.Flush();
             srIn.ReadLine();
         }
