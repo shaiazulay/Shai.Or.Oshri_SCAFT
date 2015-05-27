@@ -17,9 +17,10 @@ namespace SCAFT
         private static BackgroundWorker me;
         public static void ListenForPrivateSession(object sender, DoWorkEventArgs e)
         {
+            object[] param = (object[])e.Argument;
             clientList = new List<TcpClient>();
-            TcpListener listener = (TcpListener) e.Argument;
-
+            TcpListener listener = (TcpListener) param[0];
+            SCAFTForm scaftForm = (SCAFTForm) param[1];
              me = (BackgroundWorker) sender;
 
             // read data
@@ -39,7 +40,10 @@ namespace SCAFT
 
                         bw.WorkerReportsProgress = true;
                         bw.ProgressChanged += bw_ProgressChanged;
-                        bw.RunWorkerAsync(connectionSocket);
+                        param[0] = connectionSocket;
+                        param[1] = scaftForm;
+                  
+                        bw.RunWorkerAsync(param);
 
                     }
                   

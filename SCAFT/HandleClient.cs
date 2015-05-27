@@ -16,7 +16,10 @@ namespace SCAFT
         internal static void TcpSession(object sender, DoWorkEventArgs doe)
         {
             BackgroundWorker me = (BackgroundWorker)sender;
-            TcpClient connectionSocket = (TcpClient)doe.Argument;
+            object[] param = (object[]) doe.Argument;
+
+            TcpClient connectionSocket = (TcpClient)param[0];
+            SCAFTForm scaftForm = (SCAFTForm) param[1];
             StreamReader srIn = new StreamReader(connectionSocket.GetStream());
             StreamWriter swOut = new StreamWriter(connectionSocket.GetStream());
             NetworkStream netStream = connectionSocket.GetStream();
@@ -31,15 +34,37 @@ namespace SCAFT
                 {
                     byte[] packet = new byte[connectionSocket.ReceiveBufferSize];
                     netStream.Read(packet, 0, (int)connectionSocket.ReceiveBufferSize);
-           //        switch (oCurrentMsg.eMessageType)
-           //        {
+                     Message oCurrentMsg = new Message(packet);
+                    switch (oCurrentMsg.eMessageType)
+                   {
+                       case EMessageType.SENDFILE:
+                           {
+                               bool accept = scaftForm.ProcessSendFileMessage(oCurrentMsg);
+                               if(!accept) swOut.WriteLine("NO");
+                               break;
+                           }
+                       //case EMessageType.OK:
+                       //    {
+                       //        User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-           //        }
+                       //        if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
+                       //        {
 
-                    object[] param = { DateTime.Now.ToLongTimeString(),   
-                                  (connectionSocket.Client.RemoteEndPoint as IPEndPoint).Address.ToString(),
-                                    packet };
-                    me.ReportProgress(0, param); 
+                       //            //TODO CHECK ABOUT CONFLICTS WITH SENDING TO MORE THEN ONE USER BEFORE ACCEPTING
+                       //            SendFileToUser(File.ReadAllBytes(txtFilePath.Text), oUser);
+                       //        }
+                       //        break;
+                       //    }
+                       //case EMessageType.NO:
+                       //    MessageBox.Show("The user did not accept the file transfer", "", MessageBoxButtons.OK);
+                       //    break;
+                         
+                   }
+
+                  //  object[] package = { DateTime.Now.ToLongTimeString(),   
+                  //                (connectionSocket.Client.RemoteEndPoint as IPEndPoint).Address.ToString(),
+                 //                   packet };
+                   // me.ReportProgress(0, package); 
                     //todo hundle client requests here!
 
                 }

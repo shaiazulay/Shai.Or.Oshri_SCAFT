@@ -101,9 +101,16 @@ namespace SCAFT
 
             try
             { // send file to a user by using his ip address
-                Send.SendUDPMessage(udp, multicastEP,
-                    (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName, 
-                        EMessageType.SENDFILE, Path.GetFileName(txtFilePath.Text)).GetEncMessage()));
+                //Send.SendUDPMessage(udp, multicastEP,
+                //    (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName, 
+                //        EMessageType.SENDFILE, Path.GetFileName(txtFilePath.Text)).GetEncMessage()));
+
+                TcpClient client = new TcpClient();
+                User selectedUser  = (User)listBoxConnectedUsers.SelectedItem;
+                client.Connect(selectedUser.oIP, 5000); //TODO, change the port.
+                var swOut = new StreamWriter(client.GetStream());
+                var srIn = new StreamReader(client.GetStream());
+
             }
             catch (Exception ex)
             {
@@ -145,7 +152,7 @@ namespace SCAFT
             bwUDP = new BackgroundWorker();
             bwUDP.WorkerReportsProgress = true;
             bwUDP.WorkerSupportsCancellation = true;
-            bwUDP.ProgressChanged += new ProgressChangedEventHandler(ReceivedUDPMessage);
+            bwUDP.ProgressChanged += ReceivedUDPMessage;
             bwUDP.DoWork += ListeningBroadcast.ListenForMessages;
             bwUDP.RunWorkerAsync(udp);
 
@@ -157,9 +164,10 @@ namespace SCAFT
             bwTCP = new BackgroundWorker();
             bwTCP.WorkerReportsProgress = true;
             bwTCP.WorkerSupportsCancellation = true;
-            bwTCP.ProgressChanged += new ProgressChangedEventHandler(ReceivedUDPMessage);
+            bwTCP.ProgressChanged += ReceivedUDPMessage;
             bwTCP.DoWork += ListeningUnicast.ListenForPrivateSession;
-            bwTCP.RunWorkerAsync(tcp);
+            object[] param = {tcp, this};
+            bwTCP.RunWorkerAsync(param);
         }
         private void ReceivedUDPMessage(object sender, ProgressChangedEventArgs e)
         {
@@ -197,26 +205,26 @@ namespace SCAFT
                             listBoxConnectedUsers.Items.Remove(oUser);
                         break;
                     }
-                case EMessageType.SENDFILE:
-                    {
-                        ProcessSendFileMessage(oCurrentMsg);
-                        break;
-                    }
-                case EMessageType.OK:
-                    {
-                        User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
+                //case EMessageType.SENDFILE:
+                //    {
+                //        ProcessSendFileMessage(oCurrentMsg);
+                //        break;
+                //    }
+                //case EMessageType.OK:
+                //    {
+                //        User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                        if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
-                        {
+                //        if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
+                //        {
 
-                            //TODO CHECK ABOUT CONFLICTS WITH SENDING TO MORE THEN ONE USER BEFORE ACCEPTING
-                            SendFileToUser(File.ReadAllBytes(txtFilePath.Text), oUser);
-                        }
-                        break;
-                    }
-                case EMessageType.NO:
-                    MessageBox.Show("The user did not accept the file transfer", "", MessageBoxButtons.OK);
-                    break;
+                //            //TODO CHECK ABOUT CONFLICTS WITH SENDING TO MORE THEN ONE USER BEFORE ACCEPTING
+                //            SendFileToUser(File.ReadAllBytes(txtFilePath.Text), oUser);
+                //        }
+                //        break;
+                //    }
+                //case EMessageType.NO:
+                //    MessageBox.Show("The user did not accept the file transfer", "", MessageBoxButtons.OK);
+                //    break;
                 default:
                     break;
             }
@@ -233,31 +241,39 @@ namespace SCAFT
             return null;
         }
 
-        private void ProcessSendFileMessage(Message oMsg)
+        public bool ProcessSendFileMessage(Message oMsg)
         {
             User oUser = GetConnectedUserByName(oMsg.oUser.sUserName);
             if (oUser != null)
             {
-                var result = MessageBox.Show("Hello " + CSession.sUserName + " do you want to recive the file: " + oMsg.sStringContent +
-                                " from user name: " + oMsg.oUser.sUserName, "New File Is Waiting for approval",
-                                MessageBoxButtons.YesNo);
+                var result =
+                    MessageBox.Show(
+                        "Hello " + CSession.sUserName + " do you want to recive the file: " + oMsg.sStringContent +
+                        " from user name: " + oMsg.oUser.sUserName, "New File Is Waiting for approval",
+                        MessageBoxButtons.YesNo);
                 if (result == DialogResult.Yes)
                 {
                     oUser.sIApprovedThisFileNameToSendMe = oMsg.sStringContent;
+                    return true;
                     // the user want to recive the file return ok to the spacifiec ip address
-                    Send.SendUDPMessage(udp, multicastEP,
-                        (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName,
-                            EMessageType.OK, oMsg.sStringContent).GetEncMessage())); 
+                    // Send.SendUDPMessage(udp, multicastEP,
+                    //     (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName,
+                    //        EMessageType.OK, oMsg.sStringContent).GetEncMessage())); 
                 }
                 else
                 {
+
                     // the user dosnt approve the file transfer and return no to the specifiec address
-                    Send.SendUDPMessage(udp, multicastEP,
-                        (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName,
-                            EMessageType.NO, oMsg.sStringContent).GetEncMessage()));
-                } 
+                    //Send.SendUDPMessage(udp, multicastEP,
+                    //    (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName,
+                    //        EMessageType.NO, oMsg.sStringContent).GetEncMessage()));
+                }
+
+
             }
-        } 
+            return false;
+        }
+
     }
 
 
