@@ -158,8 +158,10 @@ namespace SCAFT
             bwUDP.DoWork += ListeningBroadcast.ListenForMessages;
             bwUDP.RunWorkerAsync(udp);
 
-            ListenTCP();
             tcpListener = new TcpListener(oCurrentUser.oIP, 5000); //todo change the port
+            tcpListener.Start();
+            ListenTCP();
+           
         }
 
         private void ListenTCP()
