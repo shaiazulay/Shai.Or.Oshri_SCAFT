@@ -13,7 +13,7 @@ namespace SCAFT
     public partial class SCAFTForm : Form
     {
         Timer oHellowTimer;
-        private User oCurrentUser;
+        internal User oCurrentUser;
         private static UdpClient udp;
         private BackgroundWorker bwUDP;
         private BackgroundWorker bwTCP;
@@ -79,7 +79,7 @@ namespace SCAFT
             } 
         }
 
-        private void SendFileToUser(byte[] baFileBytes, User oUserToSendTo)
+        internal void SendFileToUser(byte[] baFileBytes, User oUserToSendTo)
         {
             //TODO SETUP  connection and send the file with tcp
             MessageBox.Show("send the file now!!!");
@@ -105,14 +105,12 @@ namespace SCAFT
                 //    (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName, 
                 //        EMessageType.SENDFILE, Path.GetFileName(txtFilePath.Text)).GetEncMessage()));
 
-                TcpClient client = new TcpClient();
-                User selectedUser  = (User)listBoxConnectedUsers.SelectedItem;
-                client.Connect(selectedUser.oIP, 5000); //TODO, change the port.
-                var swOut = new StreamWriter(client.GetStream());
-                var srIn = new StreamReader(client.GetStream());
-                swOut.WriteLine(new Message(oCurrentUser.oIP, oCurrentUser.sUserName,EMessageType.SENDFILE, "c").GetEncMessage());
-                swOut.Flush();
-                srIn.ReadLine();
+                
+                BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
+                sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
+                User selectedUser = (User)listBoxConnectedUsers.SelectedItem;
+                object[] param = {oCurrentUser, selectedUser, txtFilePath.Text};
+                sendFileTcpWorker.RunWorkerAsync(param);
 
             }
             catch (Exception ex)
@@ -237,7 +235,7 @@ namespace SCAFT
 
         }
 
-        private User GetConnectedUserByName(string _sUserName)
+        internal User GetConnectedUserByName(string _sUserName)
         {
             foreach (User oUser in listBoxConnectedUsers.Items)
             {

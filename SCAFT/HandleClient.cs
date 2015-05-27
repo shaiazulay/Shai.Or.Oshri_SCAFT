@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SCAFT
 {
@@ -40,11 +41,14 @@ namespace SCAFT
                        case EMessageType.SENDFILE:
                            {
                                bool accept = scaftForm.ProcessSendFileMessage(oCurrentMsg);
-                               if (!accept) swOut.WriteLine(EMessageType.NO);
+                               if (!accept) swOut.WriteLine(new Message(scaftForm.oCurrentUser.oIP, scaftForm.oCurrentUser.sUserName,EMessageType.NO, "").GetEncMessage());
+                               else swOut.WriteLine(new Message(scaftForm.oCurrentUser.oIP, scaftForm.oCurrentUser.sUserName, EMessageType.OK, "").GetEncMessage());
+                               //TODO recive file here! 
                                break;
                            }
                        //case EMessageType.OK:
                        //    {
+                            
                        //        User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
                        //        if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.

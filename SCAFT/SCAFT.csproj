@@ -53,6 +53,7 @@
     </Compile>
     <Compile Include="HandleClient.cs" />
     <Compile Include="ListeningUnicast.cs" />
+    <Compile Include="SendFileSession.cs" />
     <Compile Include="User.cs" />
     <Compile Include="CUtils.cs" />
     <Compile Include="InsertUserNameForm.cs">
