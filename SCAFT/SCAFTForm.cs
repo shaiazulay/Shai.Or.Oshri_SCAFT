@@ -145,7 +145,7 @@ namespace SCAFT
             bwUDP = new BackgroundWorker();
             bwUDP.WorkerReportsProgress = true;
             bwUDP.WorkerSupportsCancellation = true;
-            bwUDP.ProgressChanged += new ProgressChangedEventHandler(ReceivedMessage);
+            bwUDP.ProgressChanged += new ProgressChangedEventHandler(ReceivedUDPMessage);
             bwUDP.DoWork += ListeningBroadcast.ListenForMessages;
             bwUDP.RunWorkerAsync(udp);
 
@@ -157,11 +157,11 @@ namespace SCAFT
             bwTCP = new BackgroundWorker();
             bwTCP.WorkerReportsProgress = true;
             bwTCP.WorkerSupportsCancellation = true;
-            //bwTCP.ProgressChanged += new ProgressChangedEventHandler(ReceivedMessage);
+            bwTCP.ProgressChanged += new ProgressChangedEventHandler(ReceivedUDPMessage);
             bwTCP.DoWork += ListeningUnicast.ListenForPrivateSession;
             bwTCP.RunWorkerAsync(tcp);
         }
-        private void ReceivedMessage(object sender, ProgressChangedEventArgs e)
+        private void ReceivedUDPMessage(object sender, ProgressChangedEventArgs e)
         {
             // show the new message in the textbox
             //tbLog.Text = e.UserState.ToString() + Environment.NewLine + tbLog.Text;

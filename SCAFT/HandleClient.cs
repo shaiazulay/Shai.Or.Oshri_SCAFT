@@ -19,6 +19,7 @@ namespace SCAFT
             TcpClient connectionSocket = (TcpClient)doe.Argument;
             StreamReader srIn = new StreamReader(connectionSocket.GetStream());
             StreamWriter swOut = new StreamWriter(connectionSocket.GetStream());
+            NetworkStream netStream = connectionSocket.GetStream();
             string clientInfo =
               (connectionSocket.Client.RemoteEndPoint as IPEndPoint).
                   Address.ToString()
@@ -28,7 +29,17 @@ namespace SCAFT
             {
                 while (me.CancellationPending)
                 {
-                    string message = srIn.ReadLine();
+                    byte[] packet = new byte[connectionSocket.ReceiveBufferSize];
+                    netStream.Read(packet, 0, (int)connectionSocket.ReceiveBufferSize);
+           //        switch (oCurrentMsg.eMessageType)
+           //        {
+
+           //        }
+
+                    object[] param = { DateTime.Now.ToLongTimeString(),   
+                                  (connectionSocket.Client.RemoteEndPoint as IPEndPoint).Address.ToString(),
+                                    packet };
+                    me.ReportProgress(0, param); 
                     //todo hundle client requests here!
 
                 }

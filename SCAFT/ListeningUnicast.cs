@@ -14,13 +14,13 @@ namespace SCAFT
     static class ListeningUnicast
     {
         private static List<TcpClient> clientList;
-
+        private static BackgroundWorker me;
         public static void ListenForPrivateSession(object sender, DoWorkEventArgs e)
         {
             clientList = new List<TcpClient>();
             TcpListener listener = (TcpListener) e.Argument;
 
-            BackgroundWorker me = (BackgroundWorker) sender;
+             me = (BackgroundWorker) sender;
 
             // read data
             try
@@ -31,20 +31,14 @@ namespace SCAFT
                     connectionSocket = listener.AcceptTcpClient();
                     if (connectionSocket != null)
                     {
-                        me.ReportProgress(0,
-                            "Received connection from " +
-                            (connectionSocket.Client.RemoteEndPoint as
-                                IPEndPoint).Address.ToString()
-                            + ":" +
-                            (connectionSocket.Client.RemoteEndPoint as
-                                IPEndPoint).Port);
+            
                         BackgroundWorker bw = new BackgroundWorker();
                         clientList.Add(connectionSocket);
                         bw.DoWork += HandleClient.TcpSession;
                         bw.WorkerSupportsCancellation = true;
 
                         bw.WorkerReportsProgress = true;
-                        // bw.ProgressChanged += bw_ProgressChanged;
+                        bw.ProgressChanged += bw_ProgressChanged;
                         bw.RunWorkerAsync(connectionSocket);
 
                     }
@@ -58,7 +52,7 @@ namespace SCAFT
                 // string fullMessage = UnicodeEncoding.UTF8.GetString(packet);
                 // log it up to the screen
                 //  object[] param = { DateTime.Now.ToLongTimeString(), messageCameFrom.Address.ToString(), packet};
-                me.ReportProgress(0, "");
+             
             }
 
             catch (Exception ex)
@@ -68,6 +62,11 @@ namespace SCAFT
             }
        
 
+        }
+
+        private static void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            me.ReportProgress(0, e.UserState);
         }
         public static void cloaseAll()
         {
