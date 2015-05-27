@@ -30,17 +30,17 @@ namespace SCAFT
               (connectionSocket.Client.RemoteEndPoint as IPEndPoint).Port;
             try
             {
-                while (me.CancellationPending)
+                while (!me.CancellationPending)
                 {
                     byte[] packet = new byte[connectionSocket.ReceiveBufferSize];
                     netStream.Read(packet, 0, (int)connectionSocket.ReceiveBufferSize);
-                     Message oCurrentMsg = new Message(packet);
+                    Message oCurrentMsg = new Message(packet);
                     switch (oCurrentMsg.eMessageType)
                    {
                        case EMessageType.SENDFILE:
                            {
                                bool accept = scaftForm.ProcessSendFileMessage(oCurrentMsg);
-                               if(!accept) swOut.WriteLine("NO");
+                               if (!accept) swOut.WriteLine(EMessageType.NO);
                                break;
                            }
                        //case EMessageType.OK:
@@ -69,7 +69,7 @@ namespace SCAFT
 
                 }
             }
-            catch
+            catch(Exception e)
             {
                 
             }

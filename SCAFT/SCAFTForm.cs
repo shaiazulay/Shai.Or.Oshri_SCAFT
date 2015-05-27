@@ -110,8 +110,9 @@ namespace SCAFT
                 client.Connect(selectedUser.oIP, 5000); //TODO, change the port.
                 var swOut = new StreamWriter(client.GetStream());
                 var srIn = new StreamReader(client.GetStream());
-                swOut.WriteLine(EMessageType.SENDFILE);
+                swOut.WriteLine(new Message(oCurrentUser.oIP, oCurrentUser.sUserName,EMessageType.SENDFILE, "c").GetEncMessage());
                 swOut.Flush();
+                srIn.ReadLine();
 
             }
             catch (Exception ex)
