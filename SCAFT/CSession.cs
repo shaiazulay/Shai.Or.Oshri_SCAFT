@@ -12,7 +12,7 @@ namespace SCAFT
     {
         public static string sUserName
         {
-            get { return "shai2"; }
+            get { return "shai"; }
             
         }
 
