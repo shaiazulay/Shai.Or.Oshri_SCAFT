@@ -17,7 +17,7 @@ namespace SCAFT
         private static UdpClient udp;
         private BackgroundWorker bwUDP;
         private BackgroundWorker bwTCP;
-        private static TcpListener tcp;  
+        private static TcpListener tcpListener;  
         private static IPEndPoint multicastEP
         {
             get
@@ -110,6 +110,8 @@ namespace SCAFT
                 client.Connect(selectedUser.oIP, 5000); //TODO, change the port.
                 var swOut = new StreamWriter(client.GetStream());
                 var srIn = new StreamReader(client.GetStream());
+                swOut.WriteLine(EMessageType.SENDFILE);
+                swOut.Flush();
 
             }
             catch (Exception ex)
@@ -157,6 +159,7 @@ namespace SCAFT
             bwUDP.RunWorkerAsync(udp);
 
             ListenTCP();
+            tcpListener = new TcpListener(oCurrentUser.oIP, 5000); //todo change the port
         }
 
         private void ListenTCP()
@@ -166,7 +169,7 @@ namespace SCAFT
             bwTCP.WorkerSupportsCancellation = true;
             bwTCP.ProgressChanged += ReceivedUDPMessage;
             bwTCP.DoWork += ListeningUnicast.ListenForPrivateSession;
-            object[] param = {tcp, this};
+            object[] param = {tcpListener, this};
             bwTCP.RunWorkerAsync(param);
         }
         private void ReceivedUDPMessage(object sender, ProgressChangedEventArgs e)
