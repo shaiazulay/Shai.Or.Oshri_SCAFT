@@ -72,8 +72,9 @@ namespace SCAFT
                                             tatalRead += read;
                                         }
                                         ns.Flush();
+                                        fsIn.Close();
                                         ns.Close();
-                                            fsIn.Close();
+                                         
                                        
 
                                   //  }
