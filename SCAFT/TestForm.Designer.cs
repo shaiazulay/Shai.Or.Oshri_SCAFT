@@ -40,6 +40,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.txtPlainText2 = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnEncrypt
@@ -147,11 +148,16 @@
             this.label5.TabIndex = 11;
             this.label5.Text = "plain text 2";
             // 
+            // button1
+            // 
+       
+            // 
             // TestForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(447, 492);
+            this.ClientSize = new System.Drawing.Size(804, 492);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.txtPlainText2);
             this.Controls.Add(this.label4);
@@ -185,5 +191,6 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtPlainText2;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Button button1;
     }
 }

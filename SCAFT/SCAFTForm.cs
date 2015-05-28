@@ -110,7 +110,7 @@ namespace SCAFT
                 BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
                 sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
                 User selectedUser = (User)listBoxConnectedUsers.SelectedItem;
-                object[] param = {oCurrentUser, selectedUser, Path.GetFileName(txtFilePath.Text)};
+                object[] param = {oCurrentUser, selectedUser, txtFilePath.Text, this};
                 sendFileTcpWorker.RunWorkerAsync(param);
 
             }
@@ -194,7 +194,8 @@ namespace SCAFT
                     {
                         User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                        if (oUser == null && oCurrentMsg.oUser.sUserName != oCurrentUser.sUserName)
+                       // if (oUser == null && oCurrentMsg.oUser.sUserName != oCurrentUser.sUserName)
+                        if (oUser == null)
                             listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
                         if (oUser != null)
@@ -277,6 +278,16 @@ namespace SCAFT
 
             }
             return false;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
+            sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
+            User selectedUser = new User(IPAddress.Loopback, "SHAI");
+
+            object[] param = { selectedUser, oCurrentUser, "dd.txt", this };
+            sendFileTcpWorker.RunWorkerAsync(param);
         }
 
     }
