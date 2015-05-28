@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -58,7 +59,7 @@ namespace SCAFT
 
                                    // if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
                                  //   {
-                                        MessageBox.Show("Trying to send the file now", "", MessageBoxButtons.OK);
+                                        
                                         byte[] fileArray = File.ReadAllBytes(filePath);
                                         //TODO CHECK ABOUT CONFLICTS WITH SENDING TO MORE THEN ONE USER BEFORE ACCEPTING
                                         // SendFileToUser(, oUser);
@@ -66,14 +67,16 @@ namespace SCAFT
                                         byte[] buf = new byte[1024];
                                         int read = 0;
                                         int tatalRead = 0;
+                                       
                                         while ((read = fsIn.Read(buf, 0, buf.Length)) > 0 && !me.CancellationPending)
                                         {
                                             ns.Write(buf, 0, read);
                                             tatalRead += read;
+                                            ns.Flush();
                                         }
-                                        ns.Flush();
-                                        fsIn.Close();
                                         ns.Close();
+                                        fsIn.Close();
+                                     
                                          
                                        
 

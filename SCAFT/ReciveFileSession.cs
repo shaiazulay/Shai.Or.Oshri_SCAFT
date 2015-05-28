@@ -14,7 +14,7 @@ namespace SCAFT
         internal static void SendFileTcpSession(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             BackgroundWorker me = (BackgroundWorker)sender;
-            int defaultPacketSize = 1024;
+            int defaultPacketSize = 16384;
             object[] param = (object[])e.Argument;
             NetworkStream ns = (NetworkStream)param[0];
             string fileName = (string)param[1];
@@ -27,14 +27,15 @@ namespace SCAFT
                 byte[] buffer = new byte[defaultPacketSize];
                 int read = 0;
                 int reportCount = 0;
-                while ((read = ns.Read(buffer, 0, buffer.Length)) > 0)
+                while ((read = ns.Read(buffer, 0, defaultPacketSize)) > 0)
                 {
                     totalRead += read;
                     reportCount++;
                     output.Write(buffer, 0, read);
                 }
-                output.Close();
                 ns.Close();
+                output.Close();
+                
             }
 
             catch (IOException iox)
