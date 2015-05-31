@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,15 +51,17 @@ namespace SCAFT
                         bool accept = scaftForm.ProcessSendFileMessage(oCurrentMsg);
                         if (accept)
                         {
+                            Random rand = new Random();
+                            int randomePort = rand.Next()%3000 + 1000;
                             byte[] okMessage = new Message(scaftForm.oCurrentUser.oIP,
                                 scaftForm.oCurrentUser.sUserName,
-                                EMessageType.OK, "").GetEncMessage();
+                                EMessageType.OK, "randomePort").GetEncMessage();
                             ns.Write(okMessage, 0, okMessage.Length);
 
                             //after sending ok, wait for the file in onther thread.
                             BackgroundWorker reciveFileTcpWorker = new BackgroundWorker();
                             reciveFileTcpWorker.DoWork += ReciveFileSession.SendFileTcpSession;
-                            object[] par = {ns, Path.GetFileName(oCurrentMsg.sStringContent)};
+                            object[] par = {randomePort, Path.GetFileName(oCurrentMsg.sStringContent) };
                             reciveFileTcpWorker.RunWorkerAsync(par);
                         }
                         else

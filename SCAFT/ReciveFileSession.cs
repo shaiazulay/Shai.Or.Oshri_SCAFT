@@ -14,9 +14,10 @@ namespace SCAFT
         internal static void SendFileTcpSession(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             BackgroundWorker me = (BackgroundWorker)sender;
-            int defaultPacketSize = 16384;
+            int defaultPacketSize = 1024;
             object[] param = (object[])e.Argument;
-            NetworkStream ns = (NetworkStream)param[0];
+            //NetworkStream ns = (NetworkStream)param[0];
+            int randomePort = (int)param[0];
             string fileName = (string)param[1];
             //FileStream output = File.Create(fileName);
             FileStream output = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write);

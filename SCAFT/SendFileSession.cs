@@ -59,16 +59,16 @@ namespace SCAFT
 
                                    // if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
                                  //   {
-                                        
+                                        int defaultPacketSize = 1024;
                                         byte[] fileArray = File.ReadAllBytes(filePath);
                                         //TODO CHECK ABOUT CONFLICTS WITH SENDING TO MORE THEN ONE USER BEFORE ACCEPTING
                                         // SendFileToUser(, oUser);
                                         FileStream fsIn = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-                                        byte[] buf = new byte[1024];
+                                        byte[] buf = new byte[defaultPacketSize];
                                         int read = 0;
                                         int tatalRead = 0;
-                                       
-                                        while ((read = fsIn.Read(buf, 0, buf.Length)) > 0 && !me.CancellationPending)
+
+                                        while ((read = fsIn.Read(buf, 0, defaultPacketSize)) > 0 && !me.CancellationPending)
                                         {
                                             ns.Write(buf, 0, read);
                                             tatalRead += read;

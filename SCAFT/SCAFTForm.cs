@@ -17,7 +17,8 @@ namespace SCAFT
         private static UdpClient udp;
         private BackgroundWorker bwUDP;
         private BackgroundWorker bwTCP;
-        private static TcpListener tcpListener;  
+        private static TcpListener tcpListener;
+        private List<BackgroundWorker> list;
         private static IPEndPoint multicastEP
         {
             get
@@ -106,7 +107,7 @@ namespace SCAFT
                 //    (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName, 
                 //        EMessageType.SENDFILE, Path.GetFileName(txtFilePath.Text)).GetEncMessage()));
 
-                
+               
                 BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
                 sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
                 User selectedUser = (User)listBoxConnectedUsers.SelectedItem;
