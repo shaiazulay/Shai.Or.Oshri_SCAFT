@@ -55,13 +55,13 @@ namespace SCAFT
                             int randomePort = rand.Next()%3000 + 1000;
                             byte[] okMessage = new Message(scaftForm.oCurrentUser.oIP,
                                 scaftForm.oCurrentUser.sUserName,
-                                EMessageType.OK, "randomePort").GetEncMessage();
+                                EMessageType.OK, randomePort.ToString()).GetEncMessage();
                             ns.Write(okMessage, 0, okMessage.Length);
 
                             //after sending ok, wait for the file in onther thread.
                             BackgroundWorker reciveFileTcpWorker = new BackgroundWorker();
-                            reciveFileTcpWorker.DoWork += ReciveFileSession.SendFileTcpSession;
-                            object[] par = {randomePort, Path.GetFileName(oCurrentMsg.sStringContent) };
+                            reciveFileTcpWorker.DoWork += ReciveFileSession.ReciveFileTcpSession;
+                            object[] par = { randomePort, Path.GetFileName(oCurrentMsg.sStringContent), scaftForm.oCurrentUser };
                             reciveFileTcpWorker.RunWorkerAsync(par);
                         }
                         else

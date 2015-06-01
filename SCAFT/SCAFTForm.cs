@@ -185,7 +185,10 @@ namespace SCAFT
 
             byte[] bafullMessage = (byte[])param[2];
             Message oCurrentMsg = new Message(bafullMessage);
-            tbLog.Text = time + " - " + sourceIp + ": " + oCurrentMsg.sStringContent + Environment.NewLine + tbLog.Text;
+            if (oCurrentMsg.eMessageType != EMessageType.Hellow)
+            {
+                tbLog.Text = time + " - " + sourceIp + ": " + oCurrentMsg.sStringContent + Environment.NewLine + tbLog.Text;
+            }
             //TODO print only msg from peaple in the group, add group password, add AES AND CBC for all the commands, etc.
              
          //   string msg = CUtils.getOnlyString(oCurrentMsg.sStringContent);
@@ -212,26 +215,6 @@ namespace SCAFT
                             listBoxConnectedUsers.Items.Remove(oUser);
                         break;
                     }
-                //case EMessageType.SENDFILE:
-                //    {
-                //        ProcessSendFileMessage(oCurrentMsg);
-                //        break;
-                //    }
-                //case EMessageType.OK:
-                //    {
-                //        User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
-
-                //        if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
-                //        {
-
-                //            //TODO CHECK ABOUT CONFLICTS WITH SENDING TO MORE THEN ONE USER BEFORE ACCEPTING
-                //            SendFileToUser(File.ReadAllBytes(txtFilePath.Text), oUser);
-                //        }
-                //        break;
-                //    }
-                //case EMessageType.NO:
-                //    MessageBox.Show("The user did not accept the file transfer", "", MessageBoxButtons.OK);
-                //    break;
                 default:
                     break;
             }
@@ -262,18 +245,6 @@ namespace SCAFT
                 {
                     oUser.sIApprovedThisFileNameToSendMe = oMsg.sStringContent;
                     return true;
-                    // the user want to recive the file return ok to the spacifiec ip address
-                    // Send.SendUDPMessage(udp, multicastEP,
-                    //     (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName,
-                    //        EMessageType.OK, oMsg.sStringContent).GetEncMessage())); 
-                }
-                else
-                {
-
-                    // the user dosnt approve the file transfer and return no to the specifiec address
-                    //Send.SendUDPMessage(udp, multicastEP,
-                    //    (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName,
-                    //        EMessageType.NO, oMsg.sStringContent).GetEncMessage()));
                 }
 
 
