@@ -23,8 +23,8 @@ namespace SCAFT
             //FileStream output = File.Create(fileName);
             FileStream output = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write);
             NetworkStream ns = null;
-           // try
-          //  {
+            try
+            {
                 int defaultPacketSize = 1024;
                 TcpListener tcpServer = new TcpListener(oCorrentUser.oIP, randomePort);
                 tcpServer.Start();
@@ -51,12 +51,12 @@ namespace SCAFT
                 ns.Close();
                 output.Close();
                 
-          //  }
+            }
 
-        //    catch (IOException iox)
-        //    {  
+            catch (IOException iox)
+            {  
                 //      me.ReportProgress(NetworkTimingGui.TCP_PRINT_LOG, "Error reading from " + clientInfo + " on TCP: " + iox.Message);
-        //    }
+            }
         }
     }
 }

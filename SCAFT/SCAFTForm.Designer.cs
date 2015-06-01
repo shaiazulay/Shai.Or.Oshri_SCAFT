@@ -175,6 +175,7 @@
             this.Controls.Add(this.listBoxConnectedUsers);
             this.Name = "SCAFTForm";
             this.Text = "SCAFTForm";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SCAFTForm_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

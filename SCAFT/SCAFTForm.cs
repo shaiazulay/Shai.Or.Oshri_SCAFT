@@ -54,6 +54,11 @@ namespace SCAFT
 
         private void btnExitSCAFT_Click(object sender, EventArgs e)
         {
+            CloseScaft();
+        }
+
+        private void CloseScaft()
+        {
             Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage());
             CSession.OrderedExit();
         }
@@ -261,6 +266,16 @@ namespace SCAFT
             object[] param = { selectedUser, oCurrentUser, "dd.txt", this };
             sendFileTcpWorker.RunWorkerAsync(param);
         }
+
+        private void SCAFTForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (udp != null) 
+            CloseScaft();
+        }
+
+     
+
+
 
     }
 
