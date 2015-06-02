@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace SCAFT
 {
@@ -24,7 +25,7 @@ namespace SCAFT
             TcpClient connectionSocket = (TcpClient) param[0];
             SCAFTForm scaftForm = (SCAFTForm) param[1];
             NetworkStream ns = connectionSocket.GetStream();
-            Message oCurrentMsg;
+            Message oCurrentMsg=null;
             try
             {
                 using (MemoryStream messageStream = new MemoryStream())
@@ -80,6 +81,11 @@ namespace SCAFT
                                 }
 
                             }
+                            MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
+                                            "was transferd from: "
+                                            + oCurrentMsg.oUser.sUserName + " seccsesfuly");
+                            
+                            
                             tcpServer.Stop();
                             ns.Close();
                             output.Close();
@@ -101,7 +107,9 @@ namespace SCAFT
             }
             catch (Exception e)
             {
-                MessageBox.Show("File Transfer Error" + e.Message);
+                MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
+                                           "from: "
+                                           + oCurrentMsg.oUser.sUserName + "has faild to arrive: " + e.Message);
             }
 
 
