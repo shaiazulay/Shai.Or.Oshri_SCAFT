@@ -57,12 +57,34 @@ namespace SCAFT
                                 scaftForm.oCurrentUser.sUserName,
                                 EMessageType.OK, randomePort.ToString()).GetEncMessage();
                             ns.Write(okMessage, 0, okMessage.Length);
+                            FileStream output = new FileStream(Path.GetFileName(oCurrentMsg.sStringContent), FileMode.OpenOrCreate, FileAccess.Write);
+                            int defaultPacketSize = 1024;
+                            TcpListener tcpServer = new TcpListener(scaftForm.oCurrentUser.oIP, randomePort);
+                            tcpServer.Start();
+                            connectionSocket = new TcpClient();
+                            connectionSocket = tcpServer.AcceptTcpClient();
+                            if (connectionSocket != null)
+                            {
 
-                            //after sending ok, wait for the file in onther thread.
-                            BackgroundWorker reciveFileTcpWorker = new BackgroundWorker();
-                            reciveFileTcpWorker.DoWork += ReciveFileSession.ReciveFileTcpSession;
-                            object[] par = { randomePort, Path.GetFileName(oCurrentMsg.sStringContent), scaftForm.oCurrentUser };
-                            reciveFileTcpWorker.RunWorkerAsync(par);
+                                ns = connectionSocket.GetStream();
+                                int totalRead = 0;
+                                // read data while there is what to read
+                                byte[] buffer = new byte[defaultPacketSize];
+                                int read = 0;
+                                int reportCount = 0;
+                                while ((read = ns.Read(buffer, 0, defaultPacketSize)) > 0)
+                                {
+                                    totalRead += read;
+                                    reportCount++;
+                                    output.Write(buffer, 0, read);
+                                }
+
+                            }
+                            tcpServer.Stop();
+                            ns.Close();
+                            output.Close();
+
+
                         }
                         else
                         {
@@ -73,11 +95,6 @@ namespace SCAFT
                         break;
                     }
                 }
-
-                //  object[] package = { DateTime.Now.ToLongTimeString(),   
-                //                (connectionSocket.Client.RemoteEndPoint as IPEndPoint).Address.ToString(),
-                //                   packet };
-                // me.ReportProgress(0, package); 
 
 
 
