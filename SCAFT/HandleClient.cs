@@ -59,32 +59,72 @@ namespace SCAFT
                                 EMessageType.OK, randomePort.ToString()).GetEncMessage();
                             ns.Write(okMessage, 0, okMessage.Length);
                             FileStream output = new FileStream(Path.GetFileName(oCurrentMsg.sStringContent), FileMode.OpenOrCreate, FileAccess.Write);
-                            int defaultPacketSize = 100000;
+                            int defaultPacketSize = 1056;
                             TcpListener tcpServer = new TcpListener(scaftForm.oCurrentUser.oIP, randomePort);
                             tcpServer.Start();
                             connectionSocket = new TcpClient();
                             connectionSocket = tcpServer.AcceptTcpClient();
+                            Message fileChunkMsg = null;
                             if (connectionSocket != null)
                             {
+                                //TODO WRITE THIS AGAIN WITH SIZE FROM SENDER. 
 
                                 ns = connectionSocket.GetStream();
-                                int totalRead = 0;
-                                // read data while there is what to read
-                                byte[] buffer = new byte[defaultPacketSize];
-                                int read = 0;
-                                int reportCount = 0;
-                                while ((read = ns.Read(buffer, 0, defaultPacketSize)) > 0)
-                                {
-                                    Message recivedMsg = new Message(buffer);
-                                    if (recivedMsg.eMessageType != EMessageType.FileContent_InBytes)
-                                    {
-                                        HandleError(ns, oCurrentMsg, new Exception("wrong type of msg"));
-                                        return;
-                                    }
-                                    totalRead += read;
-                                    reportCount++;
-                                    output.Write(recivedMsg.baBytesContent, 0, recivedMsg.baBytesContent.Length);
-                                }
+                                //int totalRead = 0;
+                                //// read data while there is what to read
+                                ////byte[] buffer = new byte[defaultPacketSize];
+                                //int read = 0;
+                                //int reportCount = 0;
+
+
+                                ////using (MemoryStream messageStream = new MemoryStream())
+                                ////{
+                                ////    byte[] inbuffer = new byte[65535];
+
+                                ////    if (ns.CanRead)
+                                ////    {
+                                ////        do
+                                ////        {
+                                ////            int bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
+                                ////            messageStream.Write(inbuffer, 0, bytesRead);
+                                ////        } while (ns.DataAvailable);
+                                ////    }
+
+                                ////    /* msg is the final byte array from the stream */
+                                ////    byte[] msg = messageStream.ToArray();
+                                ////    fileChunkMsg = new Message(msg);
+                                ////}
+
+
+                                //Message recivedMsg;
+
+                                //using (MemoryStream messageStream = new MemoryStream())
+                                //{
+                                //    byte[] inbuffer = new byte[100000];
+
+                                //    if (ns.CanRead)
+                                //    {
+                                //        do
+                                //        {
+                                //            int bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
+                                //            messageStream.Write(inbuffer, 0, bytesRead);
+                                //        } while (ns.DataAvailable);
+                                //    }
+
+                                //    /* msg is the final byte array from the stream */
+                                //    byte[] msg = messageStream.ToArray();
+                                //    recivedMsg = new Message(msg);
+
+
+                                //    if (recivedMsg.eMessageType != EMessageType.FileContent_InBytes)
+                                //    {
+                                //        HandleError(ns, fileChunkMsg, new Exception("wrong type of msg"));
+                                //        return;
+                                //    }
+                                //    totalRead += read;
+                                //    reportCount++;
+                                //    output.Write(recivedMsg.baBytesContent, 0, recivedMsg.baBytesContent.Length);
+                                //}
 
                             }
                             DialogResult drslt = MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
@@ -94,9 +134,6 @@ namespace SCAFT
                             ns.Close();
                             output.Close();
                             if (drslt == DialogResult.Yes) System.Diagnostics.Process.Start(Path.GetFileName(oCurrentMsg.sStringContent));
-                            tcpServer.Stop();
-                            ns.Close();
-                            output.Close();
 
 
                         }
@@ -125,9 +162,16 @@ namespace SCAFT
 
         private static void HandleError(NetworkStream ns, Message oCurrentMsg, Exception e)
         {
-            MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
-                                       "from: "
-                                       + oCurrentMsg.oUser.sUserName + "has faild to arrive: " + e.Message);
+            try
+            {
+                MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
+                                           "from: "
+                                           + oCurrentMsg.oUser.sUserName + "has faild to arrive: " + e.Message);
+            }
+            catch
+            {
+
+            }
             ns.Close();
         }
 

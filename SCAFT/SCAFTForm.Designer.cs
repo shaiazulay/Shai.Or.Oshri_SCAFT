@@ -90,9 +90,8 @@
             this.lblUserName.AutoSize = true;
             this.lblUserName.Location = new System.Drawing.Point(82, 9);
             this.lblUserName.Name = "lblUserName";
-            this.lblUserName.Size = new System.Drawing.Size(35, 13);
+            this.lblUserName.Size = new System.Drawing.Size(0, 13);
             this.lblUserName.TabIndex = 3;
-            this.lblUserName.Text = "label3";
             // 
             // btnExitSCAFT
             // 

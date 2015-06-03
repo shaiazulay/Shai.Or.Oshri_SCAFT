@@ -62,8 +62,7 @@ namespace SCAFT
                                 int recivedRandomePort = int.Parse(oCurrentMsg.sStringContent);
                                 client.Connect(selectedUser.oIP, recivedRandomePort);
                                 ns = client.GetStream();
-                                //TODO CHECK ABOUT CONFLICTS WITH SENDING TO MORE THEN ONE USER BEFORE ACCEPTING
-                                // SendFileToUser(, oUser);
+                         
                                 FileStream fsIn = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                                 byte[] buf = new byte[defaultPacketSize];
                                 int read = 0;

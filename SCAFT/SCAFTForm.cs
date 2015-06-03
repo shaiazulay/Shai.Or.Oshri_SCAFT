@@ -66,13 +66,20 @@ namespace SCAFT
 
         private void LogOut()
         {
-            if (oTcpListener!=null)
+            Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage());
+            oHellowTimer.Stop();
+            if (bwTCP.IsBusy)
             {
-                oTcpListener.Stop();
+                bwTCP.CancelAsync();
+                tcpListener.Stop();
+            }
+            if(bwUDP.IsBusy)
+            {
+                bwUDP.CancelAsync();
+                udp.Close();
             }
 
-            oHellowTimer.Stop();
-            Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage());
+         
         }
         private void OnHellowTickEvent(Object source, EventArgs e)
         {
@@ -181,7 +188,7 @@ namespace SCAFT
             bwUDP.DoWork += ListeningBroadcast.ListenForMessages;
             bwUDP.RunWorkerAsync(udp);
 
-            tcpListener = new TcpListener(oCurrentUser.oIP, CSession.iPort); //todo change the port
+            tcpListener = new TcpListener(oCurrentUser.oIP, CSession.iPort); 
             tcpListener.Start();
             ListenTCP();
 
@@ -286,8 +293,7 @@ namespace SCAFT
 
         private void SCAFTForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (udp != null)
-                CloseScaft();
+            LogOut();
         }
 
         private void btnLogOut_Click(object sender, EventArgs e)
