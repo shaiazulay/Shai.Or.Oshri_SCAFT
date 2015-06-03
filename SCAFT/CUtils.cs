@@ -35,16 +35,17 @@ namespace SCAFT
 
         public static byte[] Encrypt(byte[] key, byte[] iv, string sPlainText)
         {
-            key = PaddingOrTrimming(key);
-            iv = PaddingOrTrimming(iv);
+            key = Trimming(key);
+             
 
             byte[] cipherText = null;
             try
             { 
                 AesCryptoServiceProvider aes = new AesCryptoServiceProvider();//
                 aes.BlockSize = BLOCK_AND_KEY_SIZE;
-                aes.Key = key; 
-                aes.IV = iv;
+                aes.Key = key;
+                aes.GenerateIV();
+                CSession.lCurrentIV = aes.IV;
                 aes.Mode = CipherMode.CBC;
                 
                 
@@ -69,8 +70,8 @@ namespace SCAFT
 
         public static string Decrypt(byte[] cipherText, byte[] key, byte[] iv)
         {
-            key = PaddingOrTrimming(key);
-            iv = PaddingOrTrimming(iv);
+            key = Trimming(key);
+            iv = Trimming(iv);
 
             string sResult = "Error Decrypting";
             try
@@ -109,14 +110,14 @@ namespace SCAFT
         //    Decrypt(enc, key, iv);
         //}
 
-        public static byte[] PaddingOrTrimming(byte[] baInput)
+        public static byte[] Trimming(byte[] baInput)
         {
-            int iBytNum = BLOCK_AND_KEY_SIZE/8;
-            byte[] baOutput = new byte[iBytNum];
+            int iByteNum = BLOCK_AND_KEY_SIZE/8;
+            byte[] baOutput = new byte[iByteNum];
 
-            for (int i = 0; i < iBytNum; i++)
+            for (int i = 0; i < iByteNum; i++)
             {
-                baOutput[i] = (i >= baInput.Length) ? KEY_AND_IV_PADDING : baInput[i];
+                baOutput[i] = baInput[i];
             } 
 
             return baOutput;
