@@ -10,6 +10,8 @@ namespace SCAFT
 {
     public static class CSession
     {
+        public static Encoding TextMessageContentEncoding { get { return Encoding.UTF8; } }
+
         public static string sUserName
         {
             get { return "shai"; }
@@ -42,10 +44,10 @@ namespace SCAFT
 
         private static List<Form> _olForms;
 
-        private static byte[] _lCurrentIV;
+        private static byte[] _baCurrentIV;
 
-        public static byte[] lCurrentIV { get { return _lCurrentIV; } 
-            set{_lCurrentIV = value;}
+        public static byte[] baCurrentIV { get { return _baCurrentIV; } 
+            set{_baCurrentIV = value;}
         }
 
         public static List<Form> olForms 

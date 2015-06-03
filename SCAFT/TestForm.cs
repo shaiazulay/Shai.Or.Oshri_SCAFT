@@ -23,16 +23,22 @@ namespace SCAFT
 
         private void btnString1Tobytes_Click(object sender, EventArgs e)
         {
-            CUtils.GetMyLocalIPAddress();
-            byte[] key = CUtils.ConvertUTF8_toBytes(txtKey.Text);
+            byte[] one = new byte[] { 0x0, 0x1};
+            byte[] t = new byte[] { 0x2, 0x3 };
+
+            byte[] s = CUtils.ConcatByteArrats(one, t);
+
+            one = new byte[] { 0x0, 0x1 };
+            //CUtils.GetMyLocalIPAddress();
+            //byte[] key = CUtils.ConvertUTF8_toBytes(txtKey.Text);
            
 
-             byte[] plaintext1 = CUtils.ConvertUTF8_toBytes(txtPlainText1.Text);
+            // byte[] plaintext1 = CUtils.ConvertUTF8_toBytes(txtPlainText1.Text);
 
-            byte[] iv =  BitConverter.GetBytes(int.Parse(txtIV.Text));
+            //byte[] iv =  BitConverter.GetBytes(int.Parse(txtIV.Text));
 
-            encrypted = CUtils.Encrypt(key, iv, txtPlainText1.Text);
-            txtCyperText.Text = CUtils.ConvertBytesToUTF8(encrypted); 
+            //encrypted = CUtils.Encrypt(key, txtPlainText1.Text);
+            //txtCyperText.Text = CUtils.ConvertBytesToUTF8(encrypted); 
         }
 
         private string WriteBytes(byte[] array)
@@ -58,7 +64,7 @@ namespace SCAFT
 
             byte[] cypertext1 = CUtils.ConvertUTF8_toBytes(txtCyperText.Text);
 
-            txtPlainText2.Text = CUtils.Decrypt(encrypted, key, iv);
+            txtPlainText2.Text = CUtils.Decrypt(encrypted, key);
         }
 
 
