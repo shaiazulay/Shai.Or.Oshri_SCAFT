@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Windows.Forms;
 
 
@@ -13,6 +14,7 @@ namespace SCAFT
     public partial class SCAFTForm : Form//
     {
         Timer oHellowTimer;
+        TcpListener oTcpListener;
         internal User oCurrentUser;
         private static UdpClient udp;
         private BackgroundWorker bwUDP;
@@ -33,16 +35,15 @@ namespace SCAFT
         public SCAFTForm()
         {
             InitializeComponent();
-
-            oCurrentUser = new User(CUtils.GetMyLocalIPAddress(), CSession.sUserName); 
-            CSession.olForms.Add(this);
-
+            
             oHellowTimer = new Timer();
             oHellowTimer.Interval = 1000;
             oHellowTimer.Tick += new EventHandler(OnHellowTickEvent);
-            oHellowTimer.Start();
 
-            lblUserName.Text = CSession.sUserName; 
+            MoveToChatOrConfigurationTabs(false);
+
+            
+            CSession.olForms.Add(this); 
         }
 
 
@@ -59,21 +60,31 @@ namespace SCAFT
 
         private void CloseScaft()
         {
-            Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage());
+            LogOut();
             CSession.OrderedExit();
         }
 
+        private void LogOut()
+        {
+            if (oTcpListener!=null)
+            {
+                oTcpListener.Stop();
+            }
+
+            oHellowTimer.Stop();
+            Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage());
+        }
         private void OnHellowTickEvent(Object source, EventArgs e)
         {
             if (udp != null && multicastEP != null) //if udp is running.
                 SendHellow();
-            
+
         }
-         
+
         private void btnSendMessage_Click(object sender, EventArgs e)
         {
-            Send.SendUDPMessage(udp, multicastEP, 
-                (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Text, 
+            Send.SendUDPMessage(udp, multicastEP,
+                (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Text,
                     txtMessageToSend.Text).GetEncMessage()));
         }
 
@@ -83,7 +94,7 @@ namespace SCAFT
             if (result == DialogResult.OK) // Test result.
             {
                 txtFilePath.Text = openFileDialog1.FileName;
-            } 
+            }
         }
 
         internal void SendFileToUser(byte[] baFileBytes, User oUserToSendTo)
@@ -112,11 +123,11 @@ namespace SCAFT
                 //    (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName, 
                 //        EMessageType.SENDFILE, Path.GetFileName(txtFilePath.Text)).GetEncMessage()));
 
-               
+
                 BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
                 sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
                 User selectedUser = (User)listBoxConnectedUsers.SelectedItem;
-                object[] param = {oCurrentUser, selectedUser, txtFilePath.Text, this};
+                object[] param = { oCurrentUser, selectedUser, txtFilePath.Text, this };
                 sendFileTcpWorker.RunWorkerAsync(param);
 
             }
@@ -126,9 +137,15 @@ namespace SCAFT
                 return;
             }
         }
-         
+
         private void btnJoin_Click(object sender, EventArgs e)
         {
+            if (!LogIn())
+                return;
+            else
+            {
+                MoveToChatOrConfigurationTabs(true);
+            }
 
             try
             {
@@ -139,7 +156,7 @@ namespace SCAFT
                 }
                 // create a new one on the listed port
 
-                udp = new UdpClient(5000, AddressFamily.InterNetwork);
+                udp = new UdpClient(CSession.iPort, AddressFamily.InterNetwork);
             }
             catch (Exception ex)
             {
@@ -164,10 +181,10 @@ namespace SCAFT
             bwUDP.DoWork += ListeningBroadcast.ListenForMessages;
             bwUDP.RunWorkerAsync(udp);
 
-            tcpListener = new TcpListener(oCurrentUser.oIP, 5000); //todo change the port
+            tcpListener = new TcpListener(oCurrentUser.oIP, CSession.iPort); //todo change the port
             tcpListener.Start();
             ListenTCP();
-           
+
         }
 
         private void ListenTCP()
@@ -177,7 +194,7 @@ namespace SCAFT
             bwTCP.WorkerSupportsCancellation = true;
             bwTCP.ProgressChanged += ReceivedUDPMessage;
             bwTCP.DoWork += ListeningUnicast.ListenForPrivateSession;
-            object[] param = {tcpListener, this};
+            object[] param = { tcpListener, this };
             bwTCP.RunWorkerAsync(param);
         }
         private void ReceivedUDPMessage(object sender, ProgressChangedEventArgs e)
@@ -192,18 +209,18 @@ namespace SCAFT
             Message oCurrentMsg = new Message(bafullMessage);
             if (oCurrentMsg.eMessageType != EMessageType.Hellow)
             {
-                tbLog.Text = time + " - " + sourceIp + "-"+oCurrentMsg.oUser.sUserName+": " + oCurrentMsg.sStringContent + Environment.NewLine + tbLog.Text;
+                tbLog.Text = time + " - " + sourceIp + "-" + oCurrentMsg.oUser.sUserName + ": " + oCurrentMsg.sStringContent + Environment.NewLine + tbLog.Text;
             }
             //TODO print only msg from peaple in the group, add group password, add AES AND CBC for all the commands, etc.
-             
-         //   string msg = CUtils.getOnlyString(oCurrentMsg.sStringContent);
+
+            //   string msg = CUtils.getOnlyString(oCurrentMsg.sStringContent);
             switch (oCurrentMsg.eMessageType)
             {
                 case EMessageType.Hellow:
                     {
                         User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                       // if (oUser == null && oCurrentMsg.oUser.sUserName != oCurrentUser.sUserName)
+                        // if (oUser == null && oCurrentMsg.oUser.sUserName != oCurrentUser.sUserName)
                         if (oUser == null)
                             listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
@@ -269,16 +286,100 @@ namespace SCAFT
 
         private void SCAFTForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (udp != null) 
-            CloseScaft();
+            if (udp != null)
+                CloseScaft();
         }
 
-     
+        private void btnLogOut_Click(object sender, EventArgs e)
+        {
+            LogOut();
+            MoveToChatOrConfigurationTabs(false);
+        }
+
+        public static void EnableTab(TabPage page, bool enable)
+        {
+            foreach (Control ctl in page.Controls) ctl.Enabled = enable;
+        }
+
+        private bool LogIn()
+        {
+            int iPort = -1;
+            if (txtUserName.Text.Trim().Length == 0)
+            {
+                MessageBox.Show("No User Name Inserted!!");
+                return false;
+            }
 
 
+            if (int.TryParse(txtPort.Text, out iPort))
+            {
+                if (iPort > IPEndPoint.MaxPort || iPort < 2000)
+                {
+                    MessageBox.Show("the port Needs to be between 2000 to" + IPEndPoint.MaxPort);
+                    return false;
+                }
+            }
+            else
+            {
+                MessageBox.Show("insert a whole number for the port!!");
+                return false;
+            }
+
+            IPAddress oMulticastIP;
+            if (!IPAddress.TryParse(txtMulticastIP.Text, out oMulticastIP))
+            {
+                MessageBox.Show("insert valid ip for Multicast!!");
+                return false;
+            }
+            else
+            {
+                string[] saBits = txtMulticastIP.Text.Split('.');
+                int firstIpNum = int.Parse(saBits[0]);
+                if (firstIpNum >= 234 || firstIpNum < 224)
+                {
+                    MessageBox.Show("Multicast Range is 224.0.0.0 to 239.255.255.255!!");
+                    return false;
+                }
+            }
+
+            byte[] baKey = Encoding.UTF8.GetBytes(txtKey.Text.Trim());
+
+            if(baKey.Length < 16)
+            {
+                MessageBox.Show("the Key is less then 16 byte (after converted from UTF8 Encoding to bytes)!!");
+                return false;
+            }
+
+            CSession.sUserName = txtUserName.Text.Trim();
+            CSession.iPort = iPort;
+            CSession.oMulticastIP = oMulticastIP;
+            CSession.baPasswordKey = CUtils.Trimming(baKey);
+
+
+            oCurrentUser = new User(CUtils.GetMyLocalIPAddress(), CSession.sUserName); 
+            oHellowTimer.Start();
+
+            lblUserName.Text = CSession.sUserName;
+
+            return true;
+        }
+
+         
+        private void MoveToChatOrConfigurationTabs(bool IsChat)
+        {
+            if (IsChat)
+            {
+                EnableTab(tabChate, true);
+                EnableTab(tabConfiguration, false);
+                tabControl.SelectedTab = tabChate;
+            }
+            else
+            {
+                EnableTab(tabChate, false);
+                EnableTab(tabConfiguration, true);
+                tabControl.SelectedTab = tabConfiguration;
+            }
+        }
 
     }
-
-
-    
 }    

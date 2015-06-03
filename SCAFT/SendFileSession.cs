@@ -23,7 +23,7 @@ namespace SCAFT
             User oCurrentUser = (User)param[0];
             string filePath = (string) param[2];
             SCAFTForm scaftForm = (SCAFTForm)param[3];
-            client.Connect(selectedUser.oIP, 5000); //TODO, change the port.
+            client.Connect(selectedUser.oIP, CSession.iPort); //TODO, change the port.
             byte[] msg  =
                 new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.SENDFILE, filePath).GetEncMessage();
             NetworkStream ns = client.GetStream();

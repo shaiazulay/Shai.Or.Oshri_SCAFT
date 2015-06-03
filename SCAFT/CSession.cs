@@ -12,22 +12,26 @@ namespace SCAFT
     {
         public static Encoding TextMessageContentEncoding { get { return Encoding.UTF8; } }
 
+        private static string _sUserName;
         public static string sUserName
         {
-            get { return "shai"; }
+            get { return _sUserName; }
+            set { _sUserName = value; }
             
         }
 
         private static int _iPort;
 
-        public static int iPort { get{return 5000;}
+        public static int iPort
+        {
+            get { return _iPort; }
             set { _iPort = value; } 
         }
 
         private static IPAddress _oMulticastIP;
         public static IPAddress oMulticastIP
         {
-            get { return IPAddress.Parse("224.1.1.77"); }
+            get { return _oMulticastIP; }//IPAddress.Parse("224.1.1.77"); 
             set { _oMulticastIP = value; }
         }
 
@@ -36,8 +40,7 @@ namespace SCAFT
         {
             get
             {
-                return CUtils.Trimming(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
-                                    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20});
+                return _baPasswordKey;
             }
             set { _baPasswordKey = value; } 
         }
