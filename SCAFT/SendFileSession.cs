@@ -27,7 +27,7 @@ namespace SCAFT
             byte[] msg  =
                 new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.SENDFILE, filePath).GetEncMessage();
             NetworkStream ns = client.GetStream();
-            Message oCurrentMsg;
+            Message oCurrentMsg= null;
             ns.Write(msg, 0, msg.Length);
             try
             {
@@ -94,6 +94,9 @@ namespace SCAFT
 
             catch (Exception e)
             {
+                MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
+                                          "was not sended to: "
+                                          + oCurrentMsg.oUser.sUserName + "becouse of an error: " + e.Message);
 
             }
 

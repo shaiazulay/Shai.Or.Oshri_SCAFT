@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace SCAFT
 {
@@ -24,7 +25,7 @@ namespace SCAFT
             TcpClient connectionSocket = (TcpClient) param[0];
             SCAFTForm scaftForm = (SCAFTForm) param[1];
             NetworkStream ns = connectionSocket.GetStream();
-            Message oCurrentMsg;
+            Message oCurrentMsg=null;
             try
             {
                 using (MemoryStream messageStream = new MemoryStream())
@@ -57,12 +58,39 @@ namespace SCAFT
                                 scaftForm.oCurrentUser.sUserName,
                                 EMessageType.OK, randomePort.ToString()).GetEncMessage();
                             ns.Write(okMessage, 0, okMessage.Length);
+                            FileStream output = new FileStream(Path.GetFileName(oCurrentMsg.sStringContent), FileMode.OpenOrCreate, FileAccess.Write);
+                            int defaultPacketSize = 1024;
+                            TcpListener tcpServer = new TcpListener(scaftForm.oCurrentUser.oIP, randomePort);
+                            tcpServer.Start();
+                            connectionSocket = new TcpClient();
+                            connectionSocket = tcpServer.AcceptTcpClient();
+                            if (connectionSocket != null)
+                            {
 
-                            //after sending ok, wait for the file in onther thread.
-                            BackgroundWorker reciveFileTcpWorker = new BackgroundWorker();
-                            reciveFileTcpWorker.DoWork += ReciveFileSession.ReciveFileTcpSession;
-                            object[] par = { randomePort, Path.GetFileName(oCurrentMsg.sStringContent), scaftForm.oCurrentUser };
-                            reciveFileTcpWorker.RunWorkerAsync(par);
+                                ns = connectionSocket.GetStream();
+                                int totalRead = 0;
+                                // read data while there is what to read
+                                byte[] buffer = new byte[defaultPacketSize];
+                                int read = 0;
+                                int reportCount = 0;
+                                while ((read = ns.Read(buffer, 0, defaultPacketSize)) > 0)
+                                {
+                                    totalRead += read;
+                                    reportCount++;
+                                    output.Write(buffer, 0, read);
+                                }
+
+                            }
+                            MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
+                                            "was transferd from: "
+                                            + oCurrentMsg.oUser.sUserName + " seccsesfuly");
+                            
+                            
+                            tcpServer.Stop();
+                            ns.Close();
+                            output.Close();
+
+
                         }
                         else
                         {
@@ -74,17 +102,14 @@ namespace SCAFT
                     }
                 }
 
-                //  object[] package = { DateTime.Now.ToLongTimeString(),   
-                //                (connectionSocket.Client.RemoteEndPoint as IPEndPoint).Address.ToString(),
-                //                   packet };
-                // me.ReportProgress(0, package); 
-
 
 
             }
             catch (Exception e)
             {
-                MessageBox.Show("File Transfer Error" + e.Message);
+                MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
+                                           "from: "
+                                           + oCurrentMsg.oUser.sUserName + "has faild to arrive: " + e.Message);
             }
 
 
