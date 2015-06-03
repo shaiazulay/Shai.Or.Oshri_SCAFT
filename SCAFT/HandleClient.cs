@@ -81,11 +81,13 @@ namespace SCAFT
                                 }
 
                             }
-                            MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
+                            DialogResult drslt = MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
                                             "was transferd from: "
-                                            + oCurrentMsg.oUser.sUserName + " seccsesfuly");
-                            
-                            
+                                            + oCurrentMsg.oUser.sUserName + " seccsesfuly, Would you like to open it? ", "New File Recived", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            tcpServer.Stop();
+                            ns.Close();
+                            output.Close();
+                            if (drslt == DialogResult.Yes) System.Diagnostics.Process.Start(Path.GetFileName(oCurrentMsg.sStringContent));
                             tcpServer.Stop();
                             ns.Close();
                             output.Close();
@@ -97,6 +99,7 @@ namespace SCAFT
                             byte[] noMessage = new Message(scaftForm.oCurrentUser.oIP,
                                 scaftForm.oCurrentUser.sUserName, EMessageType.NO, "").GetEncMessage();
                             ns.Write(noMessage, 0, noMessage.Length);
+                            ns.Close();
                         }
                         break;
                     }
@@ -110,6 +113,8 @@ namespace SCAFT
                 MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
                                            "from: "
                                            + oCurrentMsg.oUser.sUserName + "has faild to arrive: " + e.Message);
+                ns.Close();
+
             }
 
 
