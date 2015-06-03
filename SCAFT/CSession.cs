@@ -10,6 +10,8 @@ namespace SCAFT
 {
     public static class CSession
     {
+        public static Encoding TextMessageContentEncoding { get { return Encoding.UTF8; } }
+
         public static string sUserName
         {
             get { return "shai"; }
@@ -25,7 +27,7 @@ namespace SCAFT
         private static IPAddress _oMulticastIP;
         public static IPAddress oMulticastIP
         {
-            get { return IPAddress.Parse("224.1.1.1"); }
+            get { return IPAddress.Parse("224.1.1.77"); }
             set { _oMulticastIP = value; }
         }
 
@@ -34,7 +36,7 @@ namespace SCAFT
         {
             get
             {
-                return CUtils.PaddingOrTrimming(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+                return CUtils.Trimming(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
                                     0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20});
             }
             set { _baPasswordKey = value; } 
@@ -42,8 +44,10 @@ namespace SCAFT
 
         private static List<Form> _olForms;
 
-        public static byte[] lCurrentIV { get { return CUtils.PaddingOrTrimming(new byte[] {}); } 
-        //    set;
+        private static byte[] _baCurrentTxtMsgIV;
+
+        public static byte[] baCurrentTxtMsgIV { get { return _baCurrentTxtMsgIV; }
+            set { _baCurrentTxtMsgIV = value; }
         }
 
         public static List<Form> olForms 

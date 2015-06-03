@@ -23,16 +23,41 @@ namespace SCAFT
 
         private void btnString1Tobytes_Click(object sender, EventArgs e)
         {
-            CUtils.GetMyLocalIPAddress();
-            byte[] key = CUtils.ConvertUTF8_toBytes(txtKey.Text);
+            byte[] baTestPlainText = new byte[] { 0x0, 0x1, 0x3,0x4};
+
+            byte[] encripted = CUtils.EncryptBytesAndInsertIV(CSession.baPasswordKey, baTestPlainText);
+
+            byte[] decripted = CUtils.DecryptBytesWithIV(encripted, CSession.baPasswordKey);
+
+            bool IsEqual = true;
+
+            if (baTestPlainText.Length != decripted.Length)
+                IsEqual = false;
+
+            if (IsEqual)
+                for (int i = 0; i < baTestPlainText.Length; i++)
+                    if (baTestPlainText[i] != decripted[i])
+                        IsEqual = false;
+
+            int ii = 1;
+            if(IsEqual)
+            {
+                ii = 1;//put brake point is success.
+            }
+            else
+            {
+                ii = 0;//put break point if fail
+            }
+            //CUtils.GetMyLocalIPAddress();
+            //byte[] key = CUtils.ConvertUTF8_toBytes(txtKey.Text);
            
 
-             byte[] plaintext1 = CUtils.ConvertUTF8_toBytes(txtPlainText1.Text);
+            // byte[] plaintext1 = CUtils.ConvertUTF8_toBytes(txtPlainText1.Text);
 
-            byte[] iv =  BitConverter.GetBytes(int.Parse(txtIV.Text));
+            //byte[] iv =  BitConverter.GetBytes(int.Parse(txtIV.Text));
 
-            encrypted = CUtils.Encrypt(key, iv, txtPlainText1.Text);
-            txtCyperText.Text = CUtils.ConvertBytesToUTF8(encrypted); 
+            //encrypted = CUtils.Encrypt(key, txtPlainText1.Text);
+            //txtCyperText.Text = CUtils.ConvertBytesToUTF8(encrypted); 
         }
 
         private string WriteBytes(byte[] array)
@@ -58,7 +83,7 @@ namespace SCAFT
 
             byte[] cypertext1 = CUtils.ConvertUTF8_toBytes(txtCyperText.Text);
 
-            txtPlainText2.Text = CUtils.Decrypt(encrypted, key, iv);
+            txtPlainText2.Text = CUtils.Decrypt(encrypted, key);
         }
 
 

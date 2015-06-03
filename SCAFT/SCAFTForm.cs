@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace SCAFT
 {
-    public partial class SCAFTForm : Form
+    public partial class SCAFTForm : Form//
     {
         Timer oHellowTimer;
         internal User oCurrentUser;
@@ -192,7 +192,7 @@ namespace SCAFT
             Message oCurrentMsg = new Message(bafullMessage);
             if (oCurrentMsg.eMessageType != EMessageType.Hellow)
             {
-                tbLog.Text = time + " - " + sourceIp + ": " + oCurrentMsg.sStringContent + Environment.NewLine + tbLog.Text;
+                tbLog.Text = time + " - " + sourceIp + "-"+oCurrentMsg.oUser.sUserName+": " + oCurrentMsg.sStringContent + Environment.NewLine + tbLog.Text;
             }
             //TODO print only msg from peaple in the group, add group password, add AES AND CBC for all the commands, etc.
              

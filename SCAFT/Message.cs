@@ -37,7 +37,7 @@ namespace SCAFT
 
         public Message(byte[] baEnc)
         {
-            string sPlainText = CUtils.Decrypt(baEnc, CSession.baPasswordKey, CSession.lCurrentIV);
+            string sPlainText = CUtils.Decrypt(baEnc, CSession.baPasswordKey);
 
             string[] saBits = sPlainText.Split(' ');
 
@@ -59,8 +59,9 @@ namespace SCAFT
             sPlainMsg += oUser.sUserName + " ";
             sPlainMsg += oUser.oIP.ToString() + " ";
             sPlainMsg += sStringContent;
-
-            return CUtils.Encrypt(CSession.baPasswordKey, CSession.lCurrentIV, sPlainMsg);
+             
+            byte[] baEnc = CUtils.Encrypt(CSession.baPasswordKey, sPlainMsg);
+            return CUtils.ConcatByteArrats(CSession.baCurrentTxtMsgIV, baEnc);
         }
 
     } 

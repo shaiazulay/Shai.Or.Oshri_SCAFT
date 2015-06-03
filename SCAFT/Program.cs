@@ -16,7 +16,7 @@ namespace SCAFT
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SCAFTForm());//TestForm  SCAFTForm
+            Application.Run(new TestForm());//TestForm  SCAFTForm
 
         }
     }
