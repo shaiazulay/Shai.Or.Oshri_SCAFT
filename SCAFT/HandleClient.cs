@@ -82,7 +82,7 @@ namespace SCAFT
 
                             }
                             MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
-                                            "was transferd from: "
+                                            " was transferd from: "
                                             + oCurrentMsg.oUser.sUserName + " seccsesfuly");
                             
                             
