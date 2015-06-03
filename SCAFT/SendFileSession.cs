@@ -72,7 +72,9 @@ namespace SCAFT
 
                                 while ((read = fsIn.Read(buf, 0, defaultPacketSize)) > 0 && !me.CancellationPending)
                                 {
-                                    ns.Write(buf, 0, read);
+                                    Message sendBufEncMessage = new Message(oCurrentUser.oIP,
+                                        selectedUser.sUserName, EMessageType.FileTransfer, Encoding.UTF8.GetString(buf));
+                                    ns.Write(sendBufEncMessage.GetEncMessage(), 0, read);
                                     tatalRead += read;
                                     ns.Flush();
                                 }
