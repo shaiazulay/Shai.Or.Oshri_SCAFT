@@ -59,7 +59,6 @@ namespace SCAFT
                                 //   {
                                 client = new TcpClient();
                                 int defaultPacketSize = 1024;
-                                byte[] fileArray = File.ReadAllBytes(filePath);
                                 int recivedRandomePort = int.Parse(oCurrentMsg.sStringContent);
                                 client.Connect(selectedUser.oIP, recivedRandomePort);
                                 ns = client.GetStream();
@@ -73,8 +72,9 @@ namespace SCAFT
                                 while ((read = fsIn.Read(buf, 0, defaultPacketSize)) > 0 && !me.CancellationPending)
                                 {
                                     Message sendBufEncMessage = new Message(oCurrentUser.oIP,
-                                        selectedUser.sUserName, EMessageType.FileTransfer, Encoding.UTF8.GetString(buf));
-                                    ns.Write(sendBufEncMessage.GetEncMessage(), 0, read);
+                                        selectedUser.sUserName,buf);
+                                    byte[] encMsgBytes = sendBufEncMessage.GetEncMessage();
+                                    ns.Write(encMsgBytes, 0, encMsgBytes.Length);
                                     tatalRead += read;
                                     ns.Flush();
                                 }

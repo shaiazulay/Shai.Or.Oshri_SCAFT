@@ -45,14 +45,14 @@
             this.tabChate = new System.Windows.Forms.TabPage();
             this.btnLogOut = new System.Windows.Forms.Button();
             this.tabConfiguration = new System.Windows.Forms.TabPage();
-            this.label3 = new System.Windows.Forms.Label();
-            this.txtUserName = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.txtPort = new System.Windows.Forms.TextBox();
-            this.txtMulticastIP = new System.Windows.Forms.TextBox();
             this.txtKey = new System.Windows.Forms.TextBox();
+            this.txtMulticastIP = new System.Windows.Forms.TextBox();
+            this.txtPort = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtUserName = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.tabControl.SuspendLayout();
             this.tabChate.SuspendLayout();
             this.tabConfiguration.SuspendLayout();
@@ -230,39 +230,31 @@
             this.tabConfiguration.ToolTipText = "only when offline";
             this.tabConfiguration.UseVisualStyleBackColor = true;
             // 
-            // label3
+            // txtKey
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 25);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(63, 13);
-            this.label3.TabIndex = 12;
-            this.label3.Text = "User Name:";
+            this.txtKey.Location = new System.Drawing.Point(76, 121);
+            this.txtKey.Multiline = true;
+            this.txtKey.Name = "txtKey";
+            this.txtKey.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtKey.Size = new System.Drawing.Size(435, 55);
+            this.txtKey.TabIndex = 21;
+            this.txtKey.Text = "12345678912569854789";
             // 
-            // txtUserName
+            // txtMulticastIP
             // 
-            this.txtUserName.Location = new System.Drawing.Point(75, 22);
-            this.txtUserName.Name = "txtUserName";
-            this.txtUserName.Size = new System.Drawing.Size(181, 20);
-            this.txtUserName.TabIndex = 13;
+            this.txtMulticastIP.Location = new System.Drawing.Point(76, 86);
+            this.txtMulticastIP.Name = "txtMulticastIP";
+            this.txtMulticastIP.Size = new System.Drawing.Size(181, 20);
+            this.txtMulticastIP.TabIndex = 18;
+            this.txtMulticastIP.Text = "224.1.1.77";
             // 
-            // label4
+            // txtPort
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 57);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(29, 13);
-            this.label4.TabIndex = 14;
-            this.label4.Text = "Port:";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 86);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(64, 13);
-            this.label5.TabIndex = 15;
-            this.label5.Text = "Multicast Ip:";
+            this.txtPort.Location = new System.Drawing.Point(75, 57);
+            this.txtPort.Name = "txtPort";
+            this.txtPort.Size = new System.Drawing.Size(181, 20);
+            this.txtPort.TabIndex = 17;
+            this.txtPort.Text = "5000";
             // 
             // label6
             // 
@@ -273,28 +265,40 @@
             this.label6.TabIndex = 16;
             this.label6.Text = "Key:";
             // 
-            // txtPort
+            // label5
             // 
-            this.txtPort.Location = new System.Drawing.Point(75, 57);
-            this.txtPort.Name = "txtPort";
-            this.txtPort.Size = new System.Drawing.Size(181, 20);
-            this.txtPort.TabIndex = 17;
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 86);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(64, 13);
+            this.label5.TabIndex = 15;
+            this.label5.Text = "Multicast Ip:";
             // 
-            // txtMulticastIP
+            // label4
             // 
-            this.txtMulticastIP.Location = new System.Drawing.Point(76, 86);
-            this.txtMulticastIP.Name = "txtMulticastIP";
-            this.txtMulticastIP.Size = new System.Drawing.Size(181, 20);
-            this.txtMulticastIP.TabIndex = 18;
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(6, 57);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(29, 13);
+            this.label4.TabIndex = 14;
+            this.label4.Text = "Port:";
             // 
-            // txtKey
+            // txtUserName
             // 
-            this.txtKey.Location = new System.Drawing.Point(76, 121);
-            this.txtKey.Multiline = true;
-            this.txtKey.Name = "txtKey";
-            this.txtKey.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtKey.Size = new System.Drawing.Size(435, 55);
-            this.txtKey.TabIndex = 21;
+            this.txtUserName.Location = new System.Drawing.Point(75, 22);
+            this.txtUserName.Name = "txtUserName";
+            this.txtUserName.Size = new System.Drawing.Size(181, 20);
+            this.txtUserName.TabIndex = 13;
+            this.txtUserName.Text = "shai";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 25);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(63, 13);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "User Name:";
             // 
             // SCAFTForm
             // 

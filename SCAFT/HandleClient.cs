@@ -59,7 +59,7 @@ namespace SCAFT
                                 EMessageType.OK, randomePort.ToString()).GetEncMessage();
                             ns.Write(okMessage, 0, okMessage.Length);
                             FileStream output = new FileStream(Path.GetFileName(oCurrentMsg.sStringContent), FileMode.OpenOrCreate, FileAccess.Write);
-                            int defaultPacketSize = 1024;
+                            int defaultPacketSize = 100000;
                             TcpListener tcpServer = new TcpListener(scaftForm.oCurrentUser.oIP, randomePort);
                             tcpServer.Start();
                             connectionSocket = new TcpClient();
@@ -75,9 +75,15 @@ namespace SCAFT
                                 int reportCount = 0;
                                 while ((read = ns.Read(buffer, 0, defaultPacketSize)) > 0)
                                 {
+                                    Message recivedMsg = new Message(buffer);
+                                    if (recivedMsg.eMessageType != EMessageType.FileContent_InBytes)
+                                    {
+                                        HandleError(ns, oCurrentMsg, new Exception("wrong type of msg"));
+                                        return;
+                                    }
                                     totalRead += read;
                                     reportCount++;
-                                    output.Write(buffer, 0, read);
+                                    output.Write(recivedMsg.baBytesContent, 0, recivedMsg.baBytesContent.Length);
                                 }
 
                             }
@@ -110,14 +116,19 @@ namespace SCAFT
             }
             catch (Exception e)
             {
-                MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
-                                           "from: "
-                                           + oCurrentMsg.oUser.sUserName + "has faild to arrive: " + e.Message);
-                ns.Close();
+                HandleError(ns, oCurrentMsg, e);
 
             }
 
 
+        }
+
+        private static void HandleError(NetworkStream ns, Message oCurrentMsg, Exception e)
+        {
+            MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
+                                       "from: "
+                                       + oCurrentMsg.oUser.sUserName + "has faild to arrive: " + e.Message);
+            ns.Close();
         }
 
       
