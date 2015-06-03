@@ -44,10 +44,10 @@ namespace SCAFT
 
         private static List<Form> _olForms;
 
-        private static byte[] _baCurrentIV;
+        private static byte[] _baCurrentTxtMsgIV;
 
-        public static byte[] baCurrentIV { get { return _baCurrentIV; } 
-            set{_baCurrentIV = value;}
+        public static byte[] baCurrentTxtMsgIV { get { return _baCurrentTxtMsgIV; }
+            set { _baCurrentTxtMsgIV = value; }
         }
 
         public static List<Form> olForms 

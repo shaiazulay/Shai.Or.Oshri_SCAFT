@@ -23,12 +23,31 @@ namespace SCAFT
 
         private void btnString1Tobytes_Click(object sender, EventArgs e)
         {
-            byte[] one = new byte[] { 0x0, 0x1};
-            byte[] t = new byte[] { 0x2, 0x3 };
+            byte[] baTestPlainText = new byte[] { 0x0, 0x1, 0x3,0x4};
 
-            byte[] s = CUtils.ConcatByteArrats(one, t);
+            byte[] encripted = CUtils.EncryptBytesAndInsertIV(CSession.baPasswordKey, baTestPlainText);
 
-            one = new byte[] { 0x0, 0x1 };
+            byte[] decripted = CUtils.DecryptBytesWithIV(encripted, CSession.baPasswordKey);
+
+            bool IsEqual = true;
+
+            if (baTestPlainText.Length != decripted.Length)
+                IsEqual = false;
+
+            if (IsEqual)
+                for (int i = 0; i < baTestPlainText.Length; i++)
+                    if (baTestPlainText[i] != decripted[i])
+                        IsEqual = false;
+
+            int ii = 1;
+            if(IsEqual)
+            {
+                ii = 1;//put brake point is success.
+            }
+            else
+            {
+                ii = 0;//put break point if fail
+            }
             //CUtils.GetMyLocalIPAddress();
             //byte[] key = CUtils.ConvertUTF8_toBytes(txtKey.Text);
            

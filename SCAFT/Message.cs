@@ -61,7 +61,7 @@ namespace SCAFT
             sPlainMsg += sStringContent;
              
             byte[] baEnc = CUtils.Encrypt(CSession.baPasswordKey, sPlainMsg);
-            return CUtils.ConcatByteArrats(CSession.baCurrentIV, baEnc);
+            return CUtils.ConcatByteArrats(CSession.baCurrentTxtMsgIV, baEnc);
         }
 
     } 

@@ -46,7 +46,7 @@ namespace SCAFT
                 aes.BlockSize = BLOCK_AND_KEY_SIZE;
                 aes.Key = key;
                 aes.GenerateIV();
-                CSession.baCurrentIV = aes.IV;
+                CSession.baCurrentTxtMsgIV = aes.IV;
                 aes.Mode = CipherMode.CBC;
                 
                 
@@ -120,13 +120,7 @@ namespace SCAFT
 
             return sResult;
         }
-
-        //public bool Test(byte[] key, byte[] iv, byte[] baPlainText)
-        //{
-        //    byte[] enc = Encrypt( key, iv,  baPlainText);
-        //    Decrypt(enc, key, iv);
-        //}
-
+         
         public static byte[] Trimming(byte[] baInput)
         {
             int iByteNum = iKeyIvSizeInBytes;
@@ -231,10 +225,101 @@ namespace SCAFT
 
             return baNew;
         }
+
+        public static byte[] EncryptBytesAndInsertIV(byte[] key, byte[] baPlainText)
+        {
+            byte[] baRes;
+            byte[] cipherText = null;
+            byte[] baIV = new byte[iKeyIvSizeInBytes];
+
+            key = Trimming(key);
+
+
+            
+            try
+            {
+                AesCryptoServiceProvider aes = new AesCryptoServiceProvider();//
+                aes.BlockSize = BLOCK_AND_KEY_SIZE;
+                aes.Key = key;
+                aes.GenerateIV(); 
+                 Array.Copy(aes.IV, baIV,iKeyIvSizeInBytes);
+                aes.Mode = CipherMode.CBC;
+
+
+
+                MemoryStream ms = new MemoryStream();
+                CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(),
+                                              CryptoStreamMode.Write); 
+
+                cs.Write(baPlainText, 0, baPlainText.Length); 
+                cs.Close();
+                cipherText = ms.ToArray();
+                ms.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("encrypt Error!!!:" + ex.Message);
+            }
+
+            baRes = new byte[cipherText.Length + iKeyIvSizeInBytes];
+
+            baRes = CUtils.ConcatByteArrats(baIV, cipherText);
+             
+            return baRes;
+        }
+
+        public static byte[] DecryptBytesWithIV(byte[] _cipherText, byte[] key)
+        {
+            byte[] cipherText = new byte[0];
+            int iCyperLength = _cipherText.Length - iKeyIvSizeInBytes;
+            if (iCyperLength > 0)
+            {
+                cipherText = new byte[iCyperLength];
+
+                for (int i = iKeyIvSizeInBytes; i < _cipherText.Length; i++)
+                {
+                    cipherText[i - iKeyIvSizeInBytes] = _cipherText[i];
+                }
+            }
+
+            key = Trimming(key);
+
+            byte[] baResult = new byte[0];
+            try
+            {
+                MemoryStream ms = new MemoryStream();
+
+                /*DESCryptoServiceProvider des = new DESCryptoServiceProvider();*/
+                AesCryptoServiceProvider aes = new AesCryptoServiceProvider();//
+                aes.BlockSize = BLOCK_AND_KEY_SIZE;
+                aes.Key = key;
+                byte[] baIV = new byte[iKeyIvSizeInBytes];
+                for (int i = 0; i < iKeyIvSizeInBytes; i++)
+                {
+                    baIV[i] = _cipherText[i];
+                }
+                aes.IV = baIV;
+                aes.Mode = CipherMode.CBC;
+
+
+
+
+                CryptoStream cs = new CryptoStream(ms,
+                    aes.CreateDecryptor(), CryptoStreamMode.Write);
+
+                cs.Write(cipherText, 0, cipherText.Length);
+                cs.FlushFinalBlock();
+                  
+                baResult = ms.ToArray();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("encrypt dycrypting!!!:" + ex.Message);
+            }
+
+            return baResult;
+        }
     }
-
-    
-
      
     
 }
