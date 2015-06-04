@@ -46,13 +46,7 @@ namespace SCAFT
         }
 
         private static List<Form> _olForms;
-
-        private static byte[] _baCurrentTxtMsgIV;
-
-        public static byte[] baCurrentTxtMsgIV { get { return _baCurrentTxtMsgIV; }
-            set { _baCurrentTxtMsgIV = value; }
-        }
-
+         
         public static List<Form> olForms 
         { 
             get

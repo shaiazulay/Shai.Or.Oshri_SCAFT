@@ -23,30 +23,26 @@ namespace SCAFT
 
         private void btnString1Tobytes_Click(object sender, EventArgs e)
         {
-            byte[] baTestPlainText = new byte[] { 0x0, 0x1, 0x3,0x4};
+            long lMsgLength = 240000;
 
-            byte[] encripted = CUtils.EncryptBytesAndInsertIV(CSession.baPasswordKey, baTestPlainText);
+            
 
-            byte[] decripted = CUtils.DecryptBytesWithIV(encripted, CSession.baPasswordKey);
+            byte[] baMsgLength = BitConverter.GetBytes(lMsgLength);
 
-            bool IsEqual = true;
+            byte[] baMsgLength40;
 
-            if (baTestPlainText.Length != decripted.Length)
-                IsEqual = false;
+            byte[] baPadding = new byte[40 - baMsgLength.Length];
+            baMsgLength40 = CUtils.ConcatByteArrays(baMsgLength,baPadding);
 
-            if (IsEqual)
-                for (int i = 0; i < baTestPlainText.Length; i++)
-                    if (baTestPlainText[i] != decripted[i])
-                        IsEqual = false;
+            long res = BitConverter.ToInt64(baMsgLength40,0);
 
-            int ii = 1;
-            if(IsEqual)
+            if (res == lMsgLength)
             {
-                ii = 1;//put brake point is success.
+                int i = 2;
             }
             else
             {
-                ii = 0;//put break point if fail
+                int i = 2;
             }
             //CUtils.GetMyLocalIPAddress();
             //byte[] key = CUtils.ConvertUTF8_toBytes(txtKey.Text);
@@ -83,7 +79,7 @@ namespace SCAFT
 
             byte[] cypertext1 = CUtils.ConvertUTF8_toBytes(txtCyperText.Text);
 
-            txtPlainText2.Text = CUtils.Decrypt(encrypted, key);
+             
         }
 
 

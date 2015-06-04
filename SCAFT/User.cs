@@ -17,7 +17,7 @@ namespace SCAFT
 
         public override string ToString()
         {
-            return sUserName + "_Test";
+            return sUserName;
         }
 
         public string sIApprovedThisFileNameToSendMe { get; set; }

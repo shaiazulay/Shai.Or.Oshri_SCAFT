@@ -12,6 +12,20 @@ namespace SCAFT
 {
     public static class CUtils
     {
+        public static byte TCP_END_SINGLE_SIGN = 0x4;
+        public static byte TCP_END_SIGN_NUM_OF_SIGNS = 40;
+        private static byte[] TCP_END_MESSAGE_SIGN
+        {
+            get
+            {
+                byte[] baTCP_EndSignal = new byte[TCP_END_SIGN_NUM_OF_SIGNS];
+                for (int i = 0; i < TCP_END_SIGN_NUM_OF_SIGNS; i++)
+                {
+                    baTCP_EndSignal[i] = TCP_END_SINGLE_SIGN;
+                }
+                return baTCP_EndSignal;
+            }
+        }
         private static int BLOCK_AND_KEY_SIZE = 128;
 
         private static int iKeyIvSizeInBytes { get { return BLOCK_AND_KEY_SIZE / 8; } }
@@ -34,92 +48,91 @@ namespace SCAFT
             return Encoding.ASCII.GetString(baWin1252Bytes);
         }
 
-        public static byte[] Encrypt(byte[] key, string sPlainText)
-        {
-            key = Trimming(key);
-             
+        //public static byte[] Encrypt(byte[] key, string sPlainText)
+        //{
+        //    key = Trimming(key);
+        //    byte[] baIV;
 
-            byte[] cipherText = null;
-            try
-            { 
-                AesCryptoServiceProvider aes = new AesCryptoServiceProvider();//
-                aes.BlockSize = BLOCK_AND_KEY_SIZE;
-                aes.Key = key;
-                aes.GenerateIV();
-                CSession.baCurrentTxtMsgIV = aes.IV;
-                aes.Mode = CipherMode.CBC;
-                
-                
+        //    byte[] cipherText = null;
+        //    try
+        //    { 
+        //        AesCryptoServiceProvider aes = new AesCryptoServiceProvider();//
+        //        aes.BlockSize = BLOCK_AND_KEY_SIZE;
+        //        aes.Key = key;
+        //        aes.GenerateIV();
+        //        baIV = aes.IV; 
+        //        aes.Mode = CipherMode.CBC;
+                 
+        //        MemoryStream ms = new MemoryStream();
+        //        CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(),
+        //                                      CryptoStreamMode.Write);
+        //        StreamWriter swOut = new StreamWriter(cs, CSession.TextMessageContentEncoding);
 
-                MemoryStream ms = new MemoryStream();
-                CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(),
-                                              CryptoStreamMode.Write);
-                StreamWriter swOut = new StreamWriter(cs, CSession.TextMessageContentEncoding);
+        //        swOut.Write(sPlainText);
+        //        swOut.Close();
+        //        cs.Close(); 
+        //        cipherText = ms.ToArray();
+        //        cipherText = CUtils.ConcatByteArrays(baIV, cipherText);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception("encrypt Error!!!:" + ex.Message);
+        //    }
 
-                swOut.Write(sPlainText);
-                swOut.Close();
-                cs.Close(); 
-                cipherText = ms.ToArray(); 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("encrypt Error!!!:" + ex.Message);
-            }
+        //    return cipherText;
+        //}
 
-            return cipherText;
-        }
+        //public static string Decrypt(byte[] _encryptedText, byte[] key)
+        //{
+        //    byte[] encryptedText = new byte[0];
+        //    int iEncryptedLength = _encryptedText.Length - iKeyIvSizeInBytes;
+        //    if (iEncryptedLength > 0)
+        //    {
+        //        encryptedText = new byte[iEncryptedLength];
 
-        public static string Decrypt(byte[] _cipherText, byte[] key)
-        {
-            byte[] cipherText = new byte[0];
-            int iCyperLength = _cipherText.Length - iKeyIvSizeInBytes;
-            if (iCyperLength > 0)
-            {
-                cipherText = new byte[iCyperLength];
+        //        for (int i = iKeyIvSizeInBytes; i < _encryptedText.Length; i++)
+        //        {
+        //            encryptedText[i - iKeyIvSizeInBytes] = _encryptedText[i];
+        //        }
+        //    }
 
-                for(int i = iKeyIvSizeInBytes; i < _cipherText.Length; i++)
-                {
-                    cipherText[i - iKeyIvSizeInBytes] = _cipherText[i];
-                }
-            }
+        //    key = Trimming(key); 
 
-            key = Trimming(key); 
+        //    string sResult = "Error Decrypting";
+        //    try
+        //    {
+        //        MemoryStream ms = new MemoryStream(encryptedText);
 
-            string sResult = "Error Decrypting";
-            try
-            {
-                MemoryStream ms = new MemoryStream(cipherText);
-
-                /*DESCryptoServiceProvider des = new DESCryptoServiceProvider();*/
-                AesCryptoServiceProvider aes = new AesCryptoServiceProvider();//
-                aes.BlockSize = BLOCK_AND_KEY_SIZE;
-                aes.Key = key;
-                byte[] baIV = new byte[iKeyIvSizeInBytes]; 
-                for (int i = 0; i < iKeyIvSizeInBytes; i++)
-                {
-                    baIV[i] = _cipherText[i];
-                }
-                aes.IV = baIV;
-                aes.Mode = CipherMode.CBC;
+        //        /*DESCryptoServiceProvider des = new DESCryptoServiceProvider();*/
+        //        AesCryptoServiceProvider aes = new AesCryptoServiceProvider();//
+        //        aes.BlockSize = BLOCK_AND_KEY_SIZE;
+        //        aes.Key = key;
+        //        byte[] baIV = new byte[iKeyIvSizeInBytes]; 
+        //        for (int i = 0; i < iKeyIvSizeInBytes; i++)
+        //        {
+        //            baIV[i] = _encryptedText[i];
+        //        }
+        //        aes.IV = baIV;
+        //        aes.Mode = CipherMode.CBC;
 
                   
             
                  
-                CryptoStream cs = new CryptoStream(ms,
-                    aes.CreateDecryptor(), CryptoStreamMode.Read);
-                StreamReader srIn = new StreamReader(cs);
+        //        CryptoStream cs = new CryptoStream(ms,
+        //            aes.CreateDecryptor(), CryptoStreamMode.Read);
+        //        StreamReader srIn = new StreamReader(cs);
 
-                sResult = srIn.ReadToEnd();
-                srIn.Close();
-                cs.Close();
-            }
-            catch (Exception ex)
-            { 
-                throw new Exception("encrypt dycrypting!!!:" + ex.Message);
-            }
+        //        sResult = srIn.ReadToEnd();
+        //        srIn.Close();
+        //        cs.Close();
+        //    }
+        //    catch (Exception ex)
+        //    { 
+        //        throw new Exception("encrypt dycrypting!!!:" + ex.Message);
+        //    }
 
-            return sResult;
-        }
+        //    return sResult;
+        //}
          
         public static byte[] Trimming(byte[] baInput)
         {
@@ -145,49 +158,66 @@ namespace SCAFT
             return index < 0 ? source : source.Remove(index, remove.Length).Remove(remove, --firstN);
         }
 
-        public static string GetEMessageTypeDesc(EMessageType eMsgType)
-         {
-            switch (eMsgType)
-            {
-                case EMessageType.Hellow:
-                    return "HELLO";
-                case EMessageType.Bye:
-                    return "BYE";
-                case EMessageType.SENDFILE:
-                    return "SENDFILE";
-                case EMessageType.OK:
-                    return "OK";
-                case EMessageType.NO:
-                    return "NO";
-                case EMessageType.Text:
-                    return "Text";
-                case EMessageType.FileTransfer:
-                    return "FileTransfer";
-                default:
-                    return "Unknown";
-            }
-         }
-
-        public static EMessageType GetMessageType(string sMsgType)
+         public static byte GetTcpEMessageTypeDesc(EMessageType eMsgType)
         {
-            switch (sMsgType)
+            byte bRes;
+
+            switch(eMsgType)
             {
-                case "HELLO":
-                    return EMessageType.Hellow;
-                case "BYE":
-                    return EMessageType.Bye;
-                case "SENDFILE":
-                    return EMessageType.SENDFILE;
-                case "OK":
-                    return EMessageType.OK;
-                case "NO":
-                    return EMessageType.NO;
-                case "Text":
-                    return EMessageType.Text;
-                case "FileTransfer":
-                    return EMessageType.FileTransfer;
+                case EMessageType.FileContent_InBytes:
+                    bRes = 1;
+                    break;
+                case EMessageType.OK:
+                    bRes = 2;
+                    break;
+                case EMessageType.NO:
+                    bRes = 3;
+                    break;
+                case EMessageType.SENDFILE:
+                    bRes = 4;
+                    break;
+                case EMessageType.Bye:
+                    bRes = 5;
+                    break;
+                case EMessageType.FileTransfer:
+                    bRes = 6;
+                    break;
+                case EMessageType.Hellow:
+                    bRes = 7;
+                    break;
+                case EMessageType.Text:
+                    bRes = 8;
+                    break; 
                 default:
-                    return EMessageType.Unknown;
+                    bRes = 0;
+                    break;
+            }
+
+            return bRes;
+        }
+
+        public static EMessageType GetTcpEMessageTypeDesc(byte bMessageTypeByte)
+        { 
+            switch(bMessageTypeByte)
+            {
+                case 1:
+                    return EMessageType.FileContent_InBytes;
+                case 2:
+                    return EMessageType.OK;
+                case 3:
+                    return EMessageType.NO;
+                case 4:
+                    return EMessageType.SENDFILE;
+                case 5:
+                    return EMessageType.Bye;
+                case 6:
+                    return EMessageType.FileTransfer;
+                case 7:
+                    return EMessageType.Hellow;
+                case 8:
+                    return EMessageType.Text;
+                default:
+                    return EMessageType.Unknown; 
             }
         }
 
@@ -207,7 +237,7 @@ namespace SCAFT
             return IPAddress.Parse(localIP);
         }
 
-        public static byte[] ConcatByteArrats(byte[] baFirst, byte[] baSecond)
+        public static byte[] ConcatByteArrays(byte[] baFirst, byte[] baSecond)
         {
             byte[] baNew = new byte[baFirst.Length + baSecond.Length];
 
@@ -226,16 +256,15 @@ namespace SCAFT
             return baNew;
         }
 
-        public static byte[] EncryptBytesAndInsertIV(byte[] key, byte[] baPlainText)
+        public static byte[] EncryptBytesAndInsertIV_AndMsgType(byte[] key, byte[] baPlainText, EMessageType eMsgType)
         {
             byte[] baRes;
-            byte[] cipherText = null;
+            byte[] encryptedText = null;
             byte[] baIV = new byte[iKeyIvSizeInBytes];
 
+            baPlainText = InsertMessageTypeCode(baPlainText, eMsgType); 
             key = Trimming(key);
-
-
-            
+             
             try
             {
                 AesCryptoServiceProvider aes = new AesCryptoServiceProvider();//
@@ -244,47 +273,92 @@ namespace SCAFT
                 aes.GenerateIV(); 
                  Array.Copy(aes.IV, baIV,iKeyIvSizeInBytes);
                 aes.Mode = CipherMode.CBC;
-
-
-
+                 
                 MemoryStream ms = new MemoryStream();
                 CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(),
                                               CryptoStreamMode.Write); 
 
                 cs.Write(baPlainText, 0, baPlainText.Length); 
                 cs.Close();
-                cipherText = ms.ToArray();
+                encryptedText = ms.ToArray();
                 ms.Close();
             }
             catch (Exception ex)
             {
                 throw new Exception("encrypt Error!!!:" + ex.Message);
             }
-
-            baRes = new byte[cipherText.Length + iKeyIvSizeInBytes];
-
-            baRes = CUtils.ConcatByteArrats(baIV, cipherText);
              
+            baRes = new byte[encryptedText.Length + iKeyIvSizeInBytes]; 
+            ///////////////////////////////////////////////////////////////////////
+            List<long> olLocationSignalIn = new List<long>();
+            int iNumOfTimesPerSign = 0;
+            bool IsAddSignal = false;
+            for (int i = 0; i < encryptedText.Length; i++)
+            {
+                if (encryptedText[i] == TCP_END_SINGLE_SIGN)
+                {
+                    iNumOfTimesPerSign++;
+                    if (iNumOfTimesPerSign >= TCP_END_SIGN_NUM_OF_SIGNS)
+                        IsAddSignal = true;
+                }
+                else
+                {
+                    iNumOfTimesPerSign = 0;
+                    if (IsAddSignal)
+                    {
+                        IsAddSignal = false;
+                        olLocationSignalIn.Add(i-1);
+                    }
+                }
+            }
+            //////////////////////////////////////////////////////////////////////////////
+
+            baRes = CUtils.ConcatByteArrays(baIV, encryptedText);
+            baRes = CUtils.ConcatByteArrays(baRes, TCP_END_MESSAGE_SIGN);
+            //lMsgLength += baRes.Length + 40;
+
+           // byte[] baMsgLength40;
+
+           // byte[] baMsgLength = BitConverter.GetBytes(lMsgLength); 
+
+           // byte[] baPadding = new byte[40 - baMsgLength.Length];
+           // baMsgLength40 = CUtils.ConcatByteArrats(baMsgLength, baPadding);
+
+           // baRes = CUtils.ConcatByteArrats(baMsgLength40, baRes);
+
             return baRes;
         }
 
-        public static byte[] DecryptBytesWithIV(byte[] _cipherText, byte[] key)
+        private static byte[] InsertMessageTypeCode(byte[] baMsg, EMessageType eMsgType)
         {
-            byte[] cipherText = new byte[0];
-            int iCyperLength = _cipherText.Length - iKeyIvSizeInBytes;
+            byte[] baMsgCode = new byte[1];
+
+            byte b = CUtils.GetTcpEMessageTypeDesc(eMsgType);
+
+            baMsgCode[0] = b;
+
+            return CUtils.ConcatByteArrays(baMsgCode, baMsg);
+        }
+
+        public static byte[] DecryptBytes(byte[] _encryptedText, byte[] key, out EMessageType eMsgType)
+        {
+            _encryptedText = CUtils.GetMessageWithoutTcpEndSignal(_encryptedText);
+            byte[] baResult = new byte[0];
+            byte[] encryptedText = new byte[0];
+            byte bMsgType = 0;
+            int iCyperLength = _encryptedText.Length - iKeyIvSizeInBytes;
             if (iCyperLength > 0)
             {
-                cipherText = new byte[iCyperLength];
-
-                for (int i = iKeyIvSizeInBytes; i < _cipherText.Length; i++)
+                encryptedText = new byte[iCyperLength]; 
+                for (int i = iKeyIvSizeInBytes; i < _encryptedText.Length; i++)
                 {
-                    cipherText[i - iKeyIvSizeInBytes] = _cipherText[i];
+                    encryptedText[i - iKeyIvSizeInBytes] = _encryptedText[i];
                 }
             }
 
             key = Trimming(key);
 
-            byte[] baResult = new byte[0];
+            byte[] baDecrypted = new byte[0];
             try
             {
                 MemoryStream ms = new MemoryStream();
@@ -296,7 +370,7 @@ namespace SCAFT
                 byte[] baIV = new byte[iKeyIvSizeInBytes];
                 for (int i = 0; i < iKeyIvSizeInBytes; i++)
                 {
-                    baIV[i] = _cipherText[i];
+                    baIV[i] = _encryptedText[i];
                 }
                 aes.IV = baIV;
                 aes.Mode = CipherMode.CBC;
@@ -307,17 +381,51 @@ namespace SCAFT
                 CryptoStream cs = new CryptoStream(ms,
                     aes.CreateDecryptor(), CryptoStreamMode.Write);
 
-                cs.Write(cipherText, 0, cipherText.Length);
+                cs.Write(encryptedText, 0, encryptedText.Length);
                 cs.FlushFinalBlock();
                   
-                baResult = ms.ToArray();
+                baDecrypted = ms.ToArray(); 
+                bMsgType = baDecrypted[0];
+
+                baResult = new byte[baDecrypted.Length - 1];
+                Array.Copy(baDecrypted, 1, baResult, 0, baResult.Length); 
             }
             catch (Exception ex)
             {
                 throw new Exception("encrypt dycrypting!!!:" + ex.Message);
             }
 
+            eMsgType = CUtils.GetTcpEMessageTypeDesc(bMsgType);
             return baResult;
+        }
+
+        public static byte[] GetMessageWithoutTcpEndSignal(byte[] msgWithTcpSignal)
+        {
+
+            long lNumOfMsgContentBytes = msgWithTcpSignal.Length;
+            int iSignCount = 0;
+            for (long i = 0; i < msgWithTcpSignal.Length; i++)
+            {
+                if (msgWithTcpSignal[i] == CUtils.TCP_END_SINGLE_SIGN)
+                {
+                    iSignCount++;
+                    if (iSignCount == CUtils.TCP_END_SIGN_NUM_OF_SIGNS)
+                    {
+                        lNumOfMsgContentBytes = i - CUtils.TCP_END_SIGN_NUM_OF_SIGNS + 1;
+                        break;
+                    }
+                }
+                else
+                {
+                    iSignCount = 0;
+                }
+            }
+
+            byte[] baRes = new byte[lNumOfMsgContentBytes];
+
+            Array.Copy(msgWithTcpSignal, 0, baRes, 0, lNumOfMsgContentBytes);
+
+            return baRes;
         }
     }
      

@@ -41,9 +41,8 @@ namespace SCAFT
                         } while (ns.DataAvailable);
                     }
 
-                    /* msg is the final byte array from the stream */
-                    byte[] msg = messageStream.ToArray();
-                    oCurrentMsg = new Message(msg);
+                    /* msg is the final byte array from the stream */ 
+                    oCurrentMsg = Message.GetMessageFromTcpEncrypted(messageStream.ToArray());
                 }
                 switch (oCurrentMsg.eMessageType)
                 {
@@ -70,61 +69,57 @@ namespace SCAFT
                                 //TODO WRITE THIS AGAIN WITH SIZE FROM SENDER. 
 
                                 ns = connectionSocket.GetStream();
-                                //int totalRead = 0;
-                                //// read data while there is what to read
-                                ////byte[] buffer = new byte[defaultPacketSize];
-                                //int read = 0;
-                                //int reportCount = 0;
+                                int totalRead = 0;
+                                // read data while there is what to read
+                                byte[] buffer = new byte[defaultPacketSize];
+                                int read = 0;
+                                int reportCount = 0;
 
 
-                                ////using (MemoryStream messageStream = new MemoryStream())
-                                ////{
-                                ////    byte[] inbuffer = new byte[65535];
+                                using (MemoryStream messageStream = new MemoryStream())
+                                {
+                                    byte[] inbuffer = new byte[65535];
 
-                                ////    if (ns.CanRead)
-                                ////    {
-                                ////        do
-                                ////        {
-                                ////            int bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
-                                ////            messageStream.Write(inbuffer, 0, bytesRead);
-                                ////        } while (ns.DataAvailable);
-                                ////    }
+                                    if (ns.CanRead)
+                                    {
+                                        do
+                                        {
+                                            int bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
+                                            messageStream.Write(inbuffer, 0, bytesRead);
+                                        } while (ns.DataAvailable);
+                                    }
 
-                                ////    /* msg is the final byte array from the stream */
-                                ////    byte[] msg = messageStream.ToArray();
-                                ////    fileChunkMsg = new Message(msg);
-                                ////}
-
-
-                                //Message recivedMsg;
-
-                                //using (MemoryStream messageStream = new MemoryStream())
-                                //{
-                                //    byte[] inbuffer = new byte[100000];
-
-                                //    if (ns.CanRead)
-                                //    {
-                                //        do
-                                //        {
-                                //            int bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
-                                //            messageStream.Write(inbuffer, 0, bytesRead);
-                                //        } while (ns.DataAvailable);
-                                //    }
-
-                                //    /* msg is the final byte array from the stream */
-                                //    byte[] msg = messageStream.ToArray();
-                                //    recivedMsg = new Message(msg);
+                                    /* msg is the final byte array from the stream */
+                                    fileChunkMsg = Message.GetMessageFromTcpEncrypted(messageStream.ToArray());  
+                                }
 
 
-                                //    if (recivedMsg.eMessageType != EMessageType.FileContent_InBytes)
-                                //    {
-                                //        HandleError(ns, fileChunkMsg, new Exception("wrong type of msg"));
-                                //        return;
-                                //    }
-                                //    totalRead += read;
-                                //    reportCount++;
-                                //    output.Write(recivedMsg.baBytesContent, 0, recivedMsg.baBytesContent.Length);
-                                //}
+                                Message recivedMsg;
+
+                                using (MemoryStream messageStream = new MemoryStream())
+                                {
+                                    byte[] inbuffer = new byte[100000];
+
+                                    if (ns.CanRead)
+                                    {
+                                        do
+                                        {
+                                            int bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
+                                            messageStream.Write(inbuffer, 0, bytesRead);
+                                        } while (ns.DataAvailable);
+                                    }
+
+                                    /* msg is the final byte array from the stream */
+                                    recivedMsg = Message.GetMessageFromTcpEncrypted(messageStream.ToArray());  
+                                    if (recivedMsg.eMessageType != EMessageType.FileContent_InBytes)
+                                    {
+                                        HandleError(ns, fileChunkMsg, new Exception("wrong type of msg"));
+                                        return;
+                                    }
+                                    totalRead += read;
+                                    reportCount++;
+                                    output.Write(recivedMsg.baBytesContent, 0, recivedMsg.baBytesContent.Length);
+                                }
 
                             }
                             DialogResult drslt = MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
@@ -175,6 +170,6 @@ namespace SCAFT
             ns.Close();
         }
 
-      
+        
     }
 }

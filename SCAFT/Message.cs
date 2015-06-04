@@ -23,6 +23,7 @@ namespace SCAFT
 
     public class Message
     {
+        private const char DELIMITER = '{';
         public User oUser { get; set; }
 
         public EMessageType eMessageType { get; set; }
@@ -47,46 +48,64 @@ namespace SCAFT
 
         public Message(byte[] baEnc)
         {
-            string sPlainText = CUtils.Decrypt(baEnc, CSession.baPasswordKey);
+            EMessageType eMsgTypeTemp;
+            
+            byte[] baPlainBytes = CUtils.DecryptBytes(baEnc, CSession.baPasswordKey, out eMsgTypeTemp);
+            eMessageType = eMsgTypeTemp;
 
-            string[] saBits = sPlainText.Split(' ');
-
-            eMessageType = CUtils.GetMessageType(saBits[0]);
-            if (eMessageType != EMessageType.Unknown)
+            if (eMessageType == EMessageType.Bye || eMessageType == EMessageType.NO || 
+                    eMessageType == EMessageType.Hellow || eMessageType == EMessageType.OK ||
+                eMessageType == EMessageType.SENDFILE || eMessageType == EMessageType.Text)
             {
+                string sPlainText = CSession.TextMessageContentEncoding.GetString(baPlainBytes);
+
+                string[] saBits = sPlainText.Split(DELIMITER);
+
                 IPAddress oIp = null;
-                IPAddress.TryParse(saBits[2], out oIp);
+                IPAddress.TryParse(saBits[1], out oIp);
 
-                oUser = new User(oIp, saBits[1]);
+                oUser = new User(oIp, saBits[0]);
 
-                sStringContent = saBits[3];
-                for (int i = 4; i < saBits.Length; i++)
-                    sStringContent += " " + saBits[i];
-            }
+                sStringContent = saBits[2];
+                for (int i = 3; i < saBits.Length; i++)
+                    sStringContent += DELIMITER + saBits[i];
+            } 
             else
             {
-                baBytesContent = CUtils.DecryptBytesWithIV(baEnc, CSession.baPasswordKey);
-                eMessageType = EMessageType.FileContent_InBytes;
+                baBytesContent = baPlainBytes; 
             }
+        }
+
+        public static Message GetMessageFromTcpEncrypted(byte[] baEncrypted)
+        {
+            byte[] baMsg = CUtils.GetMessageWithoutTcpEndSignal(baEncrypted);
+            return new Message(baMsg);
+        }
+
+        public static Message GetMsgFromTcpEncrypted(byte[] baEncrypted)
+        {
+            Message oResMsg = null;
+            return oResMsg;
         }
 
         public byte[] GetEncMessage()
         {
             if (eMessageType != EMessageType.FileContent_InBytes)
             {
-                string sPlainMsg = CUtils.GetEMessageTypeDesc(eMessageType) + " ";
-                sPlainMsg += oUser.sUserName + " ";
-                sPlainMsg += oUser.oIP.ToString() + " ";
+                string sPlainMsg = "";
+                sPlainMsg += oUser.sUserName + DELIMITER;
+                sPlainMsg += oUser.oIP.ToString() + DELIMITER;
                 sPlainMsg += sStringContent;
-
-                byte[] baEnc = CUtils.Encrypt(CSession.baPasswordKey, sPlainMsg);
-                return CUtils.ConcatByteArrats(CSession.baCurrentTxtMsgIV, baEnc);
+                 
+                return CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, Encoding.UTF8.GetBytes(sPlainMsg), eMessageType);           
             }
             else
             {
-                return CUtils.EncryptBytesAndInsertIV(CSession.baPasswordKey, baBytesContent);
+                return CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, baBytesContent, eMessageType);
             }
         }
+
+        
 
 
 

@@ -45,9 +45,8 @@ namespace SCAFT
                         while (ns.DataAvailable);
                     }
 
-                    /* msg is the final byte array from the stream */
-                    msg = messageStream.ToArray();
-                    oCurrentMsg = new Message(msg);
+                    /* msg is the final byte array from the stream */ 
+                    oCurrentMsg = Message.GetMessageFromTcpEncrypted(messageStream.ToArray());
                     switch (oCurrentMsg.eMessageType)
                     {
                         case EMessageType.OK:
@@ -70,8 +69,21 @@ namespace SCAFT
 
                                 while ((read = fsIn.Read(buf, 0, defaultPacketSize)) > 0 && !me.CancellationPending)
                                 {
-                                    Message sendBufEncMessage = new Message(oCurrentUser.oIP,
-                                        selectedUser.sUserName,buf);
+                                    Message sendBufEncMessage;
+                                    if (buf.Length > read)
+                                    {
+                                        byte[] baTamp = new byte[read];
+                                        Array.Copy(buf, 0, baTamp, 0, baTamp.Length);
+
+                                        sendBufEncMessage = new Message(oCurrentUser.oIP,
+                                        selectedUser.sUserName, baTamp);
+                                    }
+                                    else
+                                    {
+                                        sendBufEncMessage = new Message(oCurrentUser.oIP,
+                                        selectedUser.sUserName, buf);
+                                    }
+                                    
                                     byte[] encMsgBytes = sendBufEncMessage.GetEncMessage();
                                     ns.Write(encMsgBytes, 0, encMsgBytes.Length);
                                     tatalRead += read;
