@@ -14,16 +14,14 @@ namespace SCAFT
         SENDFILE,
         OK,
         NO,
-        Text,
-        FileTransfer,
-        Unknown,
-        FileContent_InBytes
-
+        Text, 
+        FileContent_InBytes,
+        Unknown
     }
 
     public class Message
     {
-        private const char DELIMITER = '{';
+        private const char DELIMITER = ' ';
         public User oUser { get; set; }
 
         public EMessageType eMessageType { get; set; }

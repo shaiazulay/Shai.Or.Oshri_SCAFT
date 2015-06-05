@@ -13,8 +13,7 @@ namespace SCAFT
 {
     public partial class SCAFTForm : Form//
     {
-        Timer oHellowTimer;
-        TcpListener oTcpListener;
+        Timer oHellowTimer; 
         internal User oCurrentUser;
         private static UdpClient udp;
         private BackgroundWorker bwUDP;
@@ -34,74 +33,105 @@ namespace SCAFT
 
         public SCAFTForm()
         {
-            InitializeComponent();
-            
-            oHellowTimer = new Timer();
-            oHellowTimer.Interval = 1000;
-            oHellowTimer.Tick += new EventHandler(OnHellowTickEvent);
+            try
+            {
+                InitializeComponent();
 
-            MoveToChatOrConfigurationTabs(false);
+                oHellowTimer = new Timer();
+                oHellowTimer.Interval = 1000;
+                oHellowTimer.Tick += new EventHandler(OnHellowTickEvent);
 
-            
-            CSession.olForms.Add(this); 
+                MoveToChatOrConfigurationTabs(false);
+
+
+                CSession.olForms.Add(this);
+            }
+            catch { }
         }
 
 
 
         private void SendHellow()
         {
-            Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Hellow, "")).GetEncMessage());
+            try
+            {
+                Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Hellow, "")).GetEncMessage());
+            }
+            catch { }
         }
 
         private void btnExitSCAFT_Click(object sender, EventArgs e)
         {
-            CloseScaft();
+            try
+            {
+                CloseScaft();
+            }
+            catch { }
         }
 
         private void CloseScaft()
         {
-            LogOut();
-            CSession.OrderedExit();
+            try
+            {
+                LogOut();
+                CSession.OrderedExit();
+            }
+            catch { }
         }
 
         private void LogOut()
         {
-            Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage());
-            oHellowTimer.Stop();
-            if (bwTCP.IsBusy)
+            try
             {
-                bwTCP.CancelAsync();
-                tcpListener.Stop();
+                Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage());
+                oHellowTimer.Stop();
+                if (bwTCP.IsBusy)
+                {
+                    bwTCP.CancelAsync();
+                    tcpListener.Stop();
+                }
+                if (bwUDP.IsBusy)
+                {
+                    bwUDP.CancelAsync();
+                    udp.Close();
+                }
             }
-            if(bwUDP.IsBusy)
-            {
-                bwUDP.CancelAsync();
-                udp.Close();
-            }
-
+            catch { }
          
         }
         private void OnHellowTickEvent(Object source, EventArgs e)
         {
-            if (udp != null && multicastEP != null) //if udp is running.
-                SendHellow();
-
+            try
+            {
+                if (udp != null && multicastEP != null) //if udp is running.
+                    SendHellow();
+            }
+            catch { }
         }
 
         private void btnSendMessage_Click(object sender, EventArgs e)
         {
-            Send.SendUDPMessage(udp, multicastEP,
-                (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Text,
-                    txtMessageToSend.Text).GetEncMessage()));
+            try
+            {
+                Send.SendUDPMessage(udp, multicastEP,
+                    (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Text,
+                        txtMessageToSend.Text).GetEncMessage()));
+            }
+            catch
+            { }
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
         {
-            DialogResult result = openFileDialog1.ShowDialog(); // Show the dialog.
-            if (result == DialogResult.OK) // Test result.
+            try
             {
-                txtFilePath.Text = openFileDialog1.FileName;
+                DialogResult result = openFileDialog1.ShowDialog(); // Show the dialog.
+                if (result == DialogResult.OK) // Test result.
+                {
+                    txtFilePath.Text = openFileDialog1.FileName;
+                }
             }
+            catch { }
         }
 
         internal void SendFileToUser(byte[] baFileBytes, User oUserToSendTo)
@@ -112,6 +142,7 @@ namespace SCAFT
 
         private void btnSendFile_Click(object sender, EventArgs e)
         {
+            try { 
             if (!File.Exists(txtFilePath.Text))
             {
                 MessageBox.Show("File Path Not Valid!!! You need to type a File Path, Or select a file using Browse button");
@@ -124,8 +155,7 @@ namespace SCAFT
                 return;
             }
 
-            try
-            { // send file to a user by using his ip address
+             // send file to a user by using his ip address
                 //Send.SendUDPMessage(udp, multicastEP,
                 //    (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName, 
                 //        EMessageType.SENDFILE, Path.GetFileName(txtFilePath.Text)).GetEncMessage()));
@@ -138,254 +168,300 @@ namespace SCAFT
                 sendFileTcpWorker.RunWorkerAsync(param);
 
             }
-            catch (Exception ex)
+            catch 
             {
-                MessageBox.Show("Send Error: " + ex.Message);
+                MessageBox.Show("The File Wasn`t Sent because of an Error");
                 return;
             }
         }
 
         private void btnJoin_Click(object sender, EventArgs e)
         {
-            if (!LogIn())
-                return;
-            else
-            {
-                MoveToChatOrConfigurationTabs(true);
-            }
-
             try
             {
-                // close the old one if there is one
-                if (udp != null)
+                if (!LogIn())
+                    return;
+                else
                 {
-                    udp.Close();
+                    MoveToChatOrConfigurationTabs(true);
                 }
-                // create a new one on the listed port
 
-                udp = new UdpClient(CSession.iPort, AddressFamily.InterNetwork);
+                try
+                {
+                    // close the old one if there is one
+                    if (udp != null)
+                    {
+                        udp.Close();
+                    }
+                    // create a new one on the listed port
+
+                    udp = new UdpClient(CSession.iPort, AddressFamily.InterNetwork);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error opening UDP client : " + ex.Message);
+                }
+
+                try
+                {
+                    udp.JoinMulticastGroup(CSession.oMulticastIP);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error joining multicast group " + ex.Message);
+                    return;
+                }
+
+                // start to listen for incoming messages udp too
+                bwUDP = new BackgroundWorker();
+                bwUDP.WorkerReportsProgress = true;
+                bwUDP.WorkerSupportsCancellation = true;
+                bwUDP.ProgressChanged += ReceivedUDPMessage;
+                bwUDP.DoWork += ListeningBroadcast.ListenForMessages;
+                bwUDP.RunWorkerAsync(udp);
+
+                tcpListener = new TcpListener(oCurrentUser.oIP, CSession.iPort);
+                tcpListener.Start();
+                ListenTCP();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error opening UDP client : " + ex.Message);
-            }
-
-            try
-            {
-                udp.JoinMulticastGroup(CSession.oMulticastIP);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error joining multicast group " + ex.Message);
-                return;
-            }
-
-            // start to listen for incoming messages udp too
-            bwUDP = new BackgroundWorker();
-            bwUDP.WorkerReportsProgress = true;
-            bwUDP.WorkerSupportsCancellation = true;
-            bwUDP.ProgressChanged += ReceivedUDPMessage;
-            bwUDP.DoWork += ListeningBroadcast.ListenForMessages;
-            bwUDP.RunWorkerAsync(udp);
-
-            tcpListener = new TcpListener(oCurrentUser.oIP, CSession.iPort); 
-            tcpListener.Start();
-            ListenTCP();
-
+            catch { }
         }
 
         private void ListenTCP()
         {
-            bwTCP = new BackgroundWorker();
-            bwTCP.WorkerReportsProgress = true;
-            bwTCP.WorkerSupportsCancellation = true;
-            bwTCP.ProgressChanged += ReceivedUDPMessage;
-            bwTCP.DoWork += ListeningUnicast.ListenForPrivateSession;
-            object[] param = { tcpListener, this };
-            bwTCP.RunWorkerAsync(param);
+            try
+            {
+                bwTCP = new BackgroundWorker();
+                bwTCP.WorkerReportsProgress = true;
+                bwTCP.WorkerSupportsCancellation = true;
+                bwTCP.ProgressChanged += ReceivedUDPMessage;
+                bwTCP.DoWork += ListeningUnicast.ListenForPrivateSession;
+                object[] param = { tcpListener, this };
+                bwTCP.RunWorkerAsync(param);
+            }
+            catch { }
         }
         private void ReceivedUDPMessage(object sender, ProgressChangedEventArgs e)
         {
-            // show the new message in the textbox
-            //tbLog.Text = e.UserState.ToString() + Environment.NewLine + tbLog.Text;
-            object[] param = (object[])e.UserState;
-            string time = param[0].ToString();
-            IPAddress sourceIp = IPAddress.Parse(param[1].ToString());
-
-            byte[] bafullMessage = (byte[])param[2];
-            Message oCurrentMsg = new Message(bafullMessage);
-            if (oCurrentMsg.eMessageType != EMessageType.Hellow)
+            try
             {
-                tbLog.Text = time + " - " + sourceIp + "-" + oCurrentMsg.oUser.sUserName + ": " + oCurrentMsg.sStringContent + Environment.NewLine + tbLog.Text;
-            }
-            //TODO print only msg from peaple in the group, add group password, add AES AND CBC for all the commands, etc.
+                // show the new message in the textbox
+                //tbLog.Text = e.UserState.ToString() + Environment.NewLine + tbLog.Text;
+                object[] param = (object[])e.UserState;
+                string time = param[0].ToString();
+                IPAddress sourceIp = IPAddress.Parse(param[1].ToString());
 
-            //   string msg = CUtils.getOnlyString(oCurrentMsg.sStringContent);
-            switch (oCurrentMsg.eMessageType)
-            {
-                case EMessageType.Hellow:
-                    {
-                        User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
+                byte[] bafullMessage = (byte[])param[2];
+                Message oCurrentMsg = new Message(bafullMessage);
+                if (oCurrentMsg.eMessageType != EMessageType.Hellow)
+                {
+                    tbLog.Text = oCurrentMsg.oUser.sUserName + " " + time + " -> \"" + oCurrentMsg.sStringContent + "\"" + Environment.NewLine + tbLog.Text;
+                }
+                //TODO print only msg from peaple in the group, add group password, add AES AND CBC for all the commands, etc.
 
-                        // if (oUser == null && oCurrentMsg.oUser.sUserName != oCurrentUser.sUserName)
-                        if (oUser == null)
-                            listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
+                //   string msg = CUtils.getOnlyString(oCurrentMsg.sStringContent);
+                switch (oCurrentMsg.eMessageType)
+                {
+                    case EMessageType.Hellow:
+                        {
+                            User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                        if (oUser != null)
-                            oUser.oIP = oCurrentMsg.oUser.oIP;
+                            // if (oUser == null && oCurrentMsg.oUser.sUserName != oCurrentUser.sUserName)
+                            if (oUser == null)
+                                listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
+                            if (oUser != null)
+                                oUser.oIP = oCurrentMsg.oUser.oIP;
+
+                            break;
+                        }
+                    case EMessageType.Bye:
+                        {
+                            User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
+
+                            if (oUser != null)
+                                listBoxConnectedUsers.Items.Remove(oUser);
+                            break;
+                        }
+                    default:
                         break;
-                    }
-                case EMessageType.Bye:
-                    {
-                        User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
+                }
 
-                        if (oUser != null)
-                            listBoxConnectedUsers.Items.Remove(oUser);
-                        break;
-                    }
-                default:
-                    break;
             }
-
+            catch { }
         }
-
         internal User GetConnectedUserByName(string _sUserName)
         {
-            foreach (User oUser in listBoxConnectedUsers.Items)
+            try
             {
-                if (oUser.sUserName == _sUserName)
-                    return oUser;
+                foreach (User oUser in listBoxConnectedUsers.Items)
+                {
+                    if (oUser.sUserName == _sUserName)
+                        return oUser;
+                }
+                return null;
             }
-            return null;
+            catch { return null; }
         }
 
         public bool ProcessSendFileMessage(Message oMsg)
         {
-            User oUser = GetConnectedUserByName(oMsg.oUser.sUserName);
-            if (oUser != null)
+            try
             {
-                var result =
-                    MessageBox.Show(
-                        "Hello " + CSession.sUserName + " do you want to recive the file: " + oMsg.sStringContent +
-                        " from user name: " + oMsg.oUser.sUserName, "New File Is Waiting for approval",
-                        MessageBoxButtons.YesNo);
-                if (result == DialogResult.Yes)
+                User oUser = GetConnectedUserByName(oMsg.oUser.sUserName);
+                if (oUser != null)
                 {
-                    oUser.sIApprovedThisFileNameToSendMe = oMsg.sStringContent;
-                    return true;
+                    string sFileName = oMsg.sStringContent;
+                    try
+                    {
+                        sFileName = Path.GetFileName(oMsg.sStringContent);
+                    }
+                    catch { }
+                    var result =
+                        MessageBox.Show(
+                            "Hello " + CSession.sUserName + " wants to accept the file : " + sFileName +
+                            " from user name: " + oMsg.oUser.sUserName, "New File Is Waiting for approval",
+                            MessageBoxButtons.YesNo);
+                    if (result == DialogResult.Yes)
+                    { 
+                        return true;
+                    }
+
+
                 }
-
-
+                return false;
             }
-            return false;
+            catch { return false; }
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
-            BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
-            sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
-            User selectedUser = new User(IPAddress.Loopback, "SHAI");
+            try
+            {
+                BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
+                sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
+                User selectedUser = new User(IPAddress.Loopback, "SHAI");
 
-            object[] param = { selectedUser, oCurrentUser, "dd.txt", this };
-            sendFileTcpWorker.RunWorkerAsync(param);
+                object[] param = { selectedUser, oCurrentUser, "dd.txt", this };
+                sendFileTcpWorker.RunWorkerAsync(param);
+            }
+            catch { }
         }
-
         private void SCAFTForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            LogOut();
+            try
+            {
+                LogOut();
+            }
+            catch { }
         }
-
         private void btnLogOut_Click(object sender, EventArgs e)
         {
-            LogOut();
-            MoveToChatOrConfigurationTabs(false);
+            try
+            {
+                LogOut();
+                MoveToChatOrConfigurationTabs(false);
+            }
+            catch { }
         }
-
         public static void EnableTab(TabPage page, bool enable)
         {
-            foreach (Control ctl in page.Controls) ctl.Enabled = enable;
+            try
+            {
+                foreach (Control ctl in page.Controls) ctl.Enabled = enable;
+            }
+            catch { }
         }
-
         private bool LogIn()
         {
-            int iPort = -1;
-            if (txtUserName.Text.Trim().Length == 0)
+            try
             {
-                MessageBox.Show("No User Name Inserted!!");
-                return false;
-            }
-
-
-            if (int.TryParse(txtPort.Text, out iPort))
-            {
-                if (iPort > IPEndPoint.MaxPort || iPort < 2000)
+                int iPort = -1;
+                if (txtUserName.Text.Trim().Length == 0)
                 {
-                    MessageBox.Show("the port Needs to be between 2000 to" + IPEndPoint.MaxPort);
+                    MessageBox.Show("No User Name Inserted!!");
                     return false;
                 }
-            }
-            else
-            {
-                MessageBox.Show("insert a whole number for the port!!");
-                return false;
-            }
 
-            IPAddress oMulticastIP;
-            if (!IPAddress.TryParse(txtMulticastIP.Text, out oMulticastIP))
-            {
-                MessageBox.Show("insert valid ip for Multicast!!");
-                return false;
-            }
-            else
-            {
-                string[] saBits = txtMulticastIP.Text.Split('.');
-                int firstIpNum = int.Parse(saBits[0]);
-                if (firstIpNum >= 234 || firstIpNum < 224)
+                if (txtUserName.Text.Contains('@') || txtUserName.Text.Contains(' '))
                 {
-                    MessageBox.Show("Multicast Range is 224.0.0.0 to 239.255.255.255!!");
+                    MessageBox.Show("user name may not contain whitespace characters or the ‘@’ character!!");
                     return false;
                 }
+
+
+                if (int.TryParse(txtPort.Text, out iPort))
+                {
+                    if (iPort > IPEndPoint.MaxPort || iPort <= 0)
+                    {
+                        MessageBox.Show("the port Needs to be between 1 to " + IPEndPoint.MaxPort);
+                        return false;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("insert a whole number for the port!!");
+                    return false;
+                }
+
+                IPAddress oMulticastIP;
+                if (!IPAddress.TryParse(txtMulticastIP.Text, out oMulticastIP))
+                {
+                    MessageBox.Show("insert valid ip for Multicast!!");
+                    return false;
+                }
+                else
+                {
+                    string[] saBits = txtMulticastIP.Text.Split('.');
+                    int firstIpNum = int.Parse(saBits[0]);
+                    if (firstIpNum >= 234 || firstIpNum < 224)
+                    {
+                        MessageBox.Show("Multicast Range is 224.0.0.0 to 239.255.255.255!!");
+                        return false;
+                    }
+                }
+
+                byte[] baKey = Encoding.UTF8.GetBytes(txtKey.Text.Trim());
+
+                if (baKey.Length < 16)
+                {
+                    MessageBox.Show("the Key is less then 16 byte (after converted from UTF8 Encoding to bytes)!!");
+                    return false;
+                }
+
+                CSession.sUserName = txtUserName.Text.Trim();
+                CSession.iPort = iPort;
+                CSession.oMulticastIP = oMulticastIP;
+                CSession.baPasswordKey = CUtils.Trimming(baKey);
+
+
+                oCurrentUser = new User(CUtils.GetMyLocalIPAddress(), CSession.sUserName);
+                oHellowTimer.Start();
+
+                lblUserName.Text = CSession.sUserName;
+
+                return true;
             }
-
-            byte[] baKey = Encoding.UTF8.GetBytes(txtKey.Text.Trim());
-
-            if(baKey.Length < 16)
-            {
-                MessageBox.Show("the Key is less then 16 byte (after converted from UTF8 Encoding to bytes)!!");
-                return false;
-            }
-
-            CSession.sUserName = txtUserName.Text.Trim();
-            CSession.iPort = iPort;
-            CSession.oMulticastIP = oMulticastIP;
-            CSession.baPasswordKey = CUtils.Trimming(baKey);
-
-
-            oCurrentUser = new User(CUtils.GetMyLocalIPAddress(), CSession.sUserName); 
-            oHellowTimer.Start();
-
-            lblUserName.Text = CSession.sUserName;
-
-            return true;
+            catch { return false; }
         }
 
-         
         private void MoveToChatOrConfigurationTabs(bool IsChat)
         {
-            if (IsChat)
+            try
             {
-                EnableTab(tabChate, true);
-                EnableTab(tabConfiguration, false);
-                tabControl.SelectedTab = tabChate;
+                if (IsChat)
+                {
+                    EnableTab(tabChate, true);
+                    EnableTab(tabConfiguration, false);
+                    tabControl.SelectedTab = tabChate;
+                }
+                else
+                {
+                    EnableTab(tabChate, false);
+                    EnableTab(tabConfiguration, true);
+                    tabControl.SelectedTab = tabConfiguration;
+                }
             }
-            else
-            {
-                EnableTab(tabChate, false);
-                EnableTab(tabConfiguration, true);
-                tabControl.SelectedTab = tabConfiguration;
-            }
+            catch { }
         }
-
     }
 }    

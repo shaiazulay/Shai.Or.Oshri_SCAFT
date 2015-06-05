@@ -63,7 +63,7 @@
             this.listBoxConnectedUsers.FormattingEnabled = true;
             this.listBoxConnectedUsers.Location = new System.Drawing.Point(6, 57);
             this.listBoxConnectedUsers.Name = "listBoxConnectedUsers";
-            this.listBoxConnectedUsers.Size = new System.Drawing.Size(125, 264);
+            this.listBoxConnectedUsers.Size = new System.Drawing.Size(241, 264);
             this.listBoxConnectedUsers.TabIndex = 0;
             // 
             // label1
@@ -79,7 +79,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 9);
+            this.label2.Location = new System.Drawing.Point(3, 11);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(61, 13);
             this.label2.TabIndex = 2;
@@ -88,7 +88,7 @@
             // lblUserName
             // 
             this.lblUserName.AutoSize = true;
-            this.lblUserName.Location = new System.Drawing.Point(82, 9);
+            this.lblUserName.Location = new System.Drawing.Point(70, 11);
             this.lblUserName.Name = "lblUserName";
             this.lblUserName.Size = new System.Drawing.Size(0, 13);
             this.lblUserName.TabIndex = 3;
@@ -105,26 +105,26 @@
             // 
             // btnSendMessage
             // 
-            this.btnSendMessage.Location = new System.Drawing.Point(133, 62);
+            this.btnSendMessage.Location = new System.Drawing.Point(253, 64);
             this.btnSendMessage.Name = "btnSendMessage";
-            this.btnSendMessage.Size = new System.Drawing.Size(74, 20);
+            this.btnSendMessage.Size = new System.Drawing.Size(89, 20);
             this.btnSendMessage.TabIndex = 5;
-            this.btnSendMessage.Text = "Send";
+            this.btnSendMessage.Text = "Send Message";
             this.btnSendMessage.UseVisualStyleBackColor = true;
             this.btnSendMessage.Click += new System.EventHandler(this.btnSendMessage_Click);
             // 
             // txtMessageToSend
             // 
-            this.txtMessageToSend.Location = new System.Drawing.Point(232, 62);
+            this.txtMessageToSend.Location = new System.Drawing.Point(348, 65);
             this.txtMessageToSend.Name = "txtMessageToSend";
-            this.txtMessageToSend.Size = new System.Drawing.Size(337, 20);
+            this.txtMessageToSend.Size = new System.Drawing.Size(351, 20);
             this.txtMessageToSend.TabIndex = 6;
             // 
             // btnSendFile
             // 
-            this.btnSendFile.Location = new System.Drawing.Point(133, 88);
+            this.btnSendFile.Location = new System.Drawing.Point(253, 89);
             this.btnSendFile.Name = "btnSendFile";
-            this.btnSendFile.Size = new System.Drawing.Size(74, 23);
+            this.btnSendFile.Size = new System.Drawing.Size(89, 23);
             this.btnSendFile.TabIndex = 7;
             this.btnSendFile.Text = "Send File";
             this.btnSendFile.UseVisualStyleBackColor = true;
@@ -132,7 +132,7 @@
             // 
             // btnBrowse
             // 
-            this.btnBrowse.Location = new System.Drawing.Point(232, 88);
+            this.btnBrowse.Location = new System.Drawing.Point(348, 91);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(52, 23);
             this.btnBrowse.TabIndex = 8;
@@ -142,9 +142,9 @@
             // 
             // txtFilePath
             // 
-            this.txtFilePath.Location = new System.Drawing.Point(290, 88);
+            this.txtFilePath.Location = new System.Drawing.Point(406, 91);
             this.txtFilePath.Name = "txtFilePath";
-            this.txtFilePath.Size = new System.Drawing.Size(279, 20);
+            this.txtFilePath.Size = new System.Drawing.Size(293, 20);
             this.txtFilePath.TabIndex = 9;
             // 
             // openFileDialog1
@@ -153,11 +153,11 @@
             // 
             // tbLog
             // 
-            this.tbLog.Location = new System.Drawing.Point(137, 117);
+            this.tbLog.Location = new System.Drawing.Point(253, 117);
             this.tbLog.Multiline = true;
             this.tbLog.Name = "tbLog";
             this.tbLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbLog.Size = new System.Drawing.Size(562, 190);
+            this.tbLog.Size = new System.Drawing.Size(446, 204);
             this.tbLog.TabIndex = 10;
             // 
             // btnJoin
@@ -184,7 +184,9 @@
             // 
             this.tabChate.Controls.Add(this.btnLogOut);
             this.tabChate.Controls.Add(this.tbLog);
+            this.tabChate.Controls.Add(this.lblUserName);
             this.tabChate.Controls.Add(this.txtFilePath);
+            this.tabChate.Controls.Add(this.label2);
             this.tabChate.Controls.Add(this.txtMessageToSend);
             this.tabChate.Controls.Add(this.btnSendMessage);
             this.tabChate.Controls.Add(this.btnSendFile);
@@ -205,7 +207,7 @@
             this.btnLogOut.Name = "btnLogOut";
             this.btnLogOut.Size = new System.Drawing.Size(75, 23);
             this.btnLogOut.TabIndex = 11;
-            this.btnLogOut.Text = "LogOut";
+            this.btnLogOut.Text = "disconnect";
             this.btnLogOut.UseVisualStyleBackColor = true;
             this.btnLogOut.Click += new System.EventHandler(this.btnLogOut_Click);
             // 
@@ -306,8 +308,6 @@
             this.ClientSize = new System.Drawing.Size(740, 418);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.btnExitSCAFT);
-            this.Controls.Add(this.lblUserName);
-            this.Controls.Add(this.label2);
             this.Name = "SCAFTForm";
             this.Text = "SCAFTForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SCAFTForm_FormClosing);
@@ -317,7 +317,6 @@
             this.tabConfiguration.ResumeLayout(false);
             this.tabConfiguration.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

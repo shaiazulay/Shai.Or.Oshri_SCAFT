@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SCAFT
-{
+{//needs to tell user if file is sent or is not sent
      class SendFileSession
     {
 
@@ -73,7 +73,7 @@ namespace SCAFT
                                     if (buf.Length > read)
                                     {
                                         byte[] baTamp = new byte[read];
-                                        Array.Copy(buf, 0, baTamp, 0, baTamp.Length);
+                                        Array.Copy(buf, baTamp, baTamp.Length);
 
                                         sendBufEncMessage = new Message(oCurrentUser.oIP,
                                         selectedUser.sUserName, baTamp);

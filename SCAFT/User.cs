@@ -17,11 +17,7 @@ namespace SCAFT
 
         public override string ToString()
         {
-            return sUserName;
-        }
-
-        public string sIApprovedThisFileNameToSendMe { get; set; }
-
-        public string sIWantToSendThisFileNameToThisUser { get; set; }
+            return "Name: sUserName IP: " + oIP.ToString();
+        } 
     }
 }

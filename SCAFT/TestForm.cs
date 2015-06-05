@@ -21,12 +21,116 @@ namespace SCAFT
             InitializeComponent();
         }
 
+        private byte[] InsertSignalToMsg(byte bSign, int iSignNumOfTimes, byte[] baMsg)
+        {
+            int iFindDelCounter = 0;
+            List<byte> olByte = new List<byte>(); 
+             
+            for (int i = 0; i < baMsg.Length; i++)
+            {
+                olByte.Add(baMsg[i]); 
+                if (baMsg[i] == bSign)
+                {
+                    iFindDelCounter++;
+                    if (iSignNumOfTimes == iFindDelCounter)
+                    {
+                        iFindDelCounter = 0;
+                        for (int z = 0; z < iSignNumOfTimes; z++)
+                        {
+                            olByte.Add(bSign); 
+                        }
+                    }
+                }
+                else
+                {
+                    iFindDelCounter = 0;
+                }
+            }
+
+            for (int z = 0; z < iSignNumOfTimes; z++)
+                olByte.Add(bSign);
+             
+            return olByte.ToArray();
+        }
+
+        private byte[] RemoveSignalFromMsg(byte bSign, int iSignNumOfTimes, byte[] baMsg)
+        {
+            List<byte> olByte = new List<byte>();
+            int iFindDelCounter = 0;
+
+            for (int i = 0; i < baMsg.Length; i++)
+            {
+                if (baMsg[i] == bSign)
+                {
+                    iFindDelCounter++;
+                    if (iSignNumOfTimes * 2 == iFindDelCounter)
+                    {
+                        iFindDelCounter = 0;
+                        for (int z = 0; z < iSignNumOfTimes; z++)
+                        {
+                            olByte.Add(bSign); 
+                        }
+                    }
+                }
+                else
+                {
+                    if (i == baMsg.Length - 1)
+                        iFindDelCounter -= iSignNumOfTimes;
+
+                    for (int z = 0; z < iFindDelCounter; z++)
+                    {
+                        olByte.Add(bSign);
+                    }
+                    iFindDelCounter = 0;
+                    olByte.Add(baMsg[i]);
+                }
+            }
+
+            return olByte.ToArray();
+        }
+
         private void btnString1Tobytes_Click(object sender, EventArgs e)
         {
             long lMsgLength = 240000;
+            byte[] del = { 0x4 };
+            byte[] a = { 0x0, 0x1, 0x4, 0x2, 0x3, 0x4, 0x4, 0x4, 0x5, 0x6, 0x7 };
+            byte[] b = { 0x9, 0x9, 0x9, 0x9, 0x9, 0x9, 0x9, 0x9 };
 
+            int icounter = 0;
+
+            byte[] After = InsertSignalToMsg(0x4, 2, a);
+
+            byte[] After2 = RemoveSignalFromMsg(0x4, 2, After);
             
+            
+           bool IsEqual2 = true;
+           if (a.Length == After2.Length)
+            {
+                for (int i = 0; i < After2.Length; i++)
+                {
+                    if (a[i] != After2[i])
+                        IsEqual2 = false;
+                }
+            }
+            else
+            {
+                IsEqual2 = false;
+            }
 
+
+            if (IsEqual2)
+            {
+                int i = 9;
+            }
+            else
+            {
+                int i = 9;
+            }
+            
+            
+             
+
+            byte[] c =CUtils.InsertArrayInMiddleOfArray(a, b, 3);
             byte[] baMsgLength = BitConverter.GetBytes(lMsgLength);
 
             byte[] baMsgLength40;

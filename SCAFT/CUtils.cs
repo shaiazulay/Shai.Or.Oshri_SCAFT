@@ -16,7 +16,7 @@ namespace SCAFT
         public static byte TCP_END_SIGN_NUM_OF_SIGNS = 40;
         private static byte[] TCP_END_MESSAGE_SIGN
         {
-            get
+            get 
             {
                 byte[] baTCP_EndSignal = new byte[TCP_END_SIGN_NUM_OF_SIGNS];
                 for (int i = 0; i < TCP_END_SIGN_NUM_OF_SIGNS; i++)
@@ -28,7 +28,7 @@ namespace SCAFT
         }
         private static int BLOCK_AND_KEY_SIZE = 128;
 
-        private static int iKeyIvSizeInBytes { get { return BLOCK_AND_KEY_SIZE / 8; } }
+        public static int iKeyIvSizeInBytes { get { return BLOCK_AND_KEY_SIZE / 8; } }
 
         public static byte[] ConvertUTF8_toBytes(string baInput)
         {
@@ -178,15 +178,12 @@ namespace SCAFT
                     break;
                 case EMessageType.Bye:
                     bRes = 5;
-                    break;
-                case EMessageType.FileTransfer:
+                    break;  
+                case EMessageType.Hellow:
                     bRes = 6;
                     break;
-                case EMessageType.Hellow:
-                    bRes = 7;
-                    break;
                 case EMessageType.Text:
-                    bRes = 8;
+                    bRes = 7;
                     break; 
                 default:
                     bRes = 0;
@@ -210,11 +207,9 @@ namespace SCAFT
                     return EMessageType.SENDFILE;
                 case 5:
                     return EMessageType.Bye;
-                case 6:
-                    return EMessageType.FileTransfer;
-                case 7:
+                case 6: 
                     return EMessageType.Hellow;
-                case 8:
+                case 7:
                     return EMessageType.Text;
                 default:
                     return EMessageType.Unknown; 
@@ -256,6 +251,25 @@ namespace SCAFT
             return baNew;
         }
 
+        public static byte[] InsertArrayInMiddleOfArray(byte[] baArray, byte[] baArrayToInsert, int iFirstInsertArrayIndex)
+        {
+            byte[] baTemp = new byte[baArray.Length + baArrayToInsert.Length];
+            int j = 0;
+            for(int i = 0; i < baArray.Length; i++)
+            {
+                if (i == iFirstInsertArrayIndex)
+                {
+                    for(; j < baArrayToInsert.Length; j++)
+                    {
+                        baTemp[i + j] = baArrayToInsert[j];
+                    }
+                }
+                baTemp[i + j] = baArray[i];
+            }
+
+            return baTemp;
+        }
+        
         public static byte[] EncryptBytesAndInsertIV_AndMsgType(byte[] key, byte[] baPlainText, EMessageType eMsgType)
         {
             byte[] baRes;
@@ -289,42 +303,11 @@ namespace SCAFT
             }
              
             baRes = new byte[encryptedText.Length + iKeyIvSizeInBytes]; 
-            ///////////////////////////////////////////////////////////////////////
-            List<long> olLocationSignalIn = new List<long>();
-            int iNumOfTimesPerSign = 0;
-            bool IsAddSignal = false;
-            for (int i = 0; i < encryptedText.Length; i++)
-            {
-                if (encryptedText[i] == TCP_END_SINGLE_SIGN)
-                {
-                    iNumOfTimesPerSign++;
-                    if (iNumOfTimesPerSign >= TCP_END_SIGN_NUM_OF_SIGNS)
-                        IsAddSignal = true;
-                }
-                else
-                {
-                    iNumOfTimesPerSign = 0;
-                    if (IsAddSignal)
-                    {
-                        IsAddSignal = false;
-                        olLocationSignalIn.Add(i-1);
-                    }
-                }
-            }
-            //////////////////////////////////////////////////////////////////////////////
+            
 
             baRes = CUtils.ConcatByteArrays(baIV, encryptedText);
-            baRes = CUtils.ConcatByteArrays(baRes, TCP_END_MESSAGE_SIGN);
-            //lMsgLength += baRes.Length + 40;
-
-           // byte[] baMsgLength40;
-
-           // byte[] baMsgLength = BitConverter.GetBytes(lMsgLength); 
-
-           // byte[] baPadding = new byte[40 - baMsgLength.Length];
-           // baMsgLength40 = CUtils.ConcatByteArrats(baMsgLength, baPadding);
-
-           // baRes = CUtils.ConcatByteArrats(baMsgLength40, baRes);
+            baRes = InsertSignalToMsg(TCP_END_SINGLE_SIGN, TCP_END_SIGN_NUM_OF_SIGNS, baRes);
+           
 
             return baRes;
         }
@@ -342,7 +325,7 @@ namespace SCAFT
 
         public static byte[] DecryptBytes(byte[] _encryptedText, byte[] key, out EMessageType eMsgType)
         {
-            _encryptedText = CUtils.GetMessageWithoutTcpEndSignal(_encryptedText);
+            _encryptedText = CUtils.RemoveSignalFromMsg(TCP_END_SINGLE_SIGN, TCP_END_SIGN_NUM_OF_SIGNS,_encryptedText);
             byte[] baResult = new byte[0];
             byte[] encryptedText = new byte[0];
             byte bMsgType = 0;
@@ -399,6 +382,19 @@ namespace SCAFT
             return baResult;
         }
 
+        public static byte[] ByteArrayRemoveTrailing0(byte[] baArray)
+        {
+            int i = baArray.Length - 1;
+            while(baArray[i] == 0)
+            {
+                i--;
+            }
+            byte[] baTemp = new byte[i + 1];
+            Array.Copy(baArray,baTemp,baTemp.Length);
+
+            return baTemp;
+        }
+
         public static byte[] GetMessageWithoutTcpEndSignal(byte[] msgWithTcpSignal)
         {
 
@@ -426,6 +422,74 @@ namespace SCAFT
             Array.Copy(msgWithTcpSignal, 0, baRes, 0, lNumOfMsgContentBytes);
 
             return baRes;
+        }
+
+        public static byte[] InsertSignalToMsg(byte bSign, int iSignNumOfTimes, byte[] baMsg)
+        {
+            int iFindDelCounter = 0;
+            List<byte> olByte = new List<byte>();
+
+            for (int i = 0; i < baMsg.Length; i++)
+            {
+                olByte.Add(baMsg[i]);
+                if (baMsg[i] == bSign)
+                {
+                    iFindDelCounter++;
+                    if (iSignNumOfTimes == iFindDelCounter)
+                    {
+                        iFindDelCounter = 0;
+                        for (int z = 0; z < iSignNumOfTimes; z++)
+                        {
+                            olByte.Add(bSign);
+                        }
+                    }
+                }
+                else
+                {
+                    iFindDelCounter = 0;
+                }
+            }
+
+            for (int z = 0; z < iSignNumOfTimes; z++)
+                olByte.Add(bSign);
+
+            return olByte.ToArray();
+        }
+
+        public static byte[] RemoveSignalFromMsg(byte bSign, int iSignNumOfTimes, byte[] baMsg)
+        {
+            List<byte> olByte = new List<byte>();
+            int iFindDelCounter = 0;
+
+            for (int i = 0; i < baMsg.Length; i++)
+            {
+                if (baMsg[i] == bSign)
+                {
+                    iFindDelCounter++;
+                    if (iSignNumOfTimes * 2 == iFindDelCounter)
+                    {
+                        iFindDelCounter = 0;
+                        for (int z = 0; z < iSignNumOfTimes; z++)
+                        {
+                            olByte.Add(bSign);
+                        }
+                    }
+                }
+                else
+                {
+                    if (i == baMsg.Length - 1)
+                        iFindDelCounter -= iSignNumOfTimes;
+
+                    for (int z = 0; z < iFindDelCounter; z++)
+                    {
+                        olByte.Add(bSign);
+                    }
+                    iFindDelCounter = 0;
+                    olByte.Add(baMsg[i]);
+                }
+            }
+
+            return olByte.ToArray();
         }
     }
      
