@@ -73,12 +73,6 @@
       <DependentUpon>SCAFTForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Send.cs" />
-    <Compile Include="TestForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TestForm.Designer.cs">
-      <DependentUpon>TestForm.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="ConfigurationDetailsForm.resx">
       <DependentUpon>ConfigurationDetailsForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -96,9 +90,6 @@
     </Compile>
     <EmbeddedResource Include="SCAFTForm.resx">
       <DependentUpon>SCAFTForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestForm.resx">
-      <DependentUpon>TestForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

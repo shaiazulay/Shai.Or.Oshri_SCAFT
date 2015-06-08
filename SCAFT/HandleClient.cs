@@ -11,8 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
-//needs to fix recieving files
-//needs to open file on location.
+ 
 namespace SCAFT
 {
     internal class HandleClient
@@ -64,17 +63,12 @@ namespace SCAFT
                             tcpServer.Start();
                             connectionSocket = new TcpClient();
                             connectionSocket = tcpServer.AcceptTcpClient();
-                            Message fileChunkMsg = null;
+
                             if (connectionSocket != null)
-                            {
-                                //TODO WRITE THIS AGAIN WITH SIZE FROM SENDER. 
-                                bool IsLast = false;
-                                ns = connectionSocket.GetStream();
-                                int totalRead = 0;
+                            { 
+                                ns = connectionSocket.GetStream(); 
                                 // read data while there is what to read
-                                byte[] buffer = new byte[defaultPacketSize];
-                                int read = 0;
-                                int reportCount = 0;
+                                byte[] buffer = new byte[defaultPacketSize]; 
 
                                 byte[] baTemp = new byte[0];
                                 using (MemoryStream messageStream = new MemoryStream())
@@ -102,48 +96,15 @@ namespace SCAFT
                                 }
                                 output.Flush();
                                 output.Close();
-                            }
-
-                                //Message recivedMsg = fileChunkMsg;//
-
-                                //using (MemoryStream messageStream = new MemoryStream())
-                                //{
-                                //    //byte[] inbuffer = new byte[100000];
-                                //    //byte[] baTemp = new byte[0];
-                                //    //if (ns.CanRead)
-                                //    //{
-                                //    //    do
-                                //    //    {
-                                //    //        int bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
-                                //    //        baTemp = new byte[bytesRead];
-                                //    //        messageStream.Write(inbuffer, 0, bytesRead);
-                                //    //        Array.Copy(inbuffer, baTemp, baTemp.Length);
-                                //    //    } while (ns.DataAvailable);
-                                //    //}
-
-                                //    ///* msg is the final byte array from the stream */
-                                //    //recivedMsg = Message.GetMessageFromTcpEncrypted(baTemp);  
-                                //    if (recivedMsg.eMessageType != EMessageType.FileContent_InBytes)
-                                //    {
-                                //        HandleError(ns, fileChunkMsg, new Exception("wrong type of msg"));
-                                //        return;
-                                //    }
-                                //    totalRead += read;
-                                //    reportCount++;
-                                //    output.Write(recivedMsg.baBytesContent, 0, recivedMsg.baBytesContent.Length);
-                                   
-                            //    }
-
-                            //}
-                            //DialogResult drslt = MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
-                            //                "was transferd from: "
-                            //                + oCurrentMsg.oUser.sUserName + " seccsesfuly, Would you like to open it? ", "New File Recived", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                            //tcpServer.Stop();
-                            //ns.Close();
-                            //output.Close();
-                            //if (drslt == DialogResult.Yes) System.Diagnostics.Process.Start(Path.GetFileName(oCurrentMsg.sStringContent));
-
-
+                                tcpServer.Stop();
+                                ns.Close();
+                                DialogResult drslt = MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
+                                            "was transferd from: "
+                                            + oCurrentMsg.oUser.sUserName + " seccsesfuly, Would you like to open it? ", "New File Recived", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                
+                                 
+                                if (drslt == DialogResult.Yes) System.Diagnostics.Process.Start(Path.GetFileName(oCurrentMsg.sStringContent));
+                            } 
                         }
                         else
                         {

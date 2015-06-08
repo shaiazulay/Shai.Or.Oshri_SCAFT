@@ -17,7 +17,7 @@ namespace SCAFT
 
         public override string ToString()
         {
-            return "Name: sUserName IP: " + oIP.ToString();
+            return "Name: "+sUserName+" IP: " + oIP.ToString();
         } 
     }
 }

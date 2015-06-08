@@ -57,7 +57,7 @@ namespace SCAFT
                                 // if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
                                 //   {
                                 client = new TcpClient();
-                                int defaultPacketSize = 1024;
+                                int defaultPacketSize = 15000000;
                                 int recivedRandomePort = int.Parse(oCurrentMsg.sStringContent);
                                 client.Connect(selectedUser.oIP, recivedRandomePort);
                                 ns = client.GetStream();
@@ -87,7 +87,7 @@ namespace SCAFT
                                     byte[] encMsgBytes = sendBufEncMessage.GetEncMessage();
                                     ns.Write(encMsgBytes, 0, encMsgBytes.Length);
                                     tatalRead += read;
-                                   // ns.Flush();
+                                    ns.Flush();
                                 }
                                 ns.Close();
                                 fsIn.Close();
