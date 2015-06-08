@@ -87,7 +87,7 @@ namespace SCAFT
                                     byte[] encMsgBytes = sendBufEncMessage.GetEncMessage();
                                     ns.Write(encMsgBytes, 0, encMsgBytes.Length);
                                     tatalRead += read;
-                                    ns.Flush();
+                                   // ns.Flush();
                                 }
                                 ns.Close();
                                 fsIn.Close();

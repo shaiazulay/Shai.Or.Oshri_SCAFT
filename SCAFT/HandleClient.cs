@@ -79,39 +79,29 @@ namespace SCAFT
                                 byte[] baTemp = new byte[0];
                                 using (MemoryStream messageStream = new MemoryStream())
                                 {
-                                    byte[] inbuffer = new byte[65535];
+                                    byte[] inbuffer = new byte[1024];
                                     if (ns.CanRead)
                                     {
-                                        int iOffset = 0;
+                                        int bytesRead = 0;
                                         do
                                         {
-                                            int bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
-                                            if (bytesRead == 0) break;
-                                            inbuffer = CUtils.ByteArrayRemoveTrailing0(inbuffer);
-                                            if (inbuffer.Length < 1024) IsLast = true;
-                                            inbuffer = Message.GetMessageFromTcpEncrypted(inbuffer).baBytesContent;
-                                            output.Write(inbuffer, 0, inbuffer.Length);
-                                            iOffset += inbuffer.Length;
+                                            bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
+                                            messageStream.Write(inbuffer, 0, bytesRead);
                                             inbuffer = new byte[65535];
-                                        } while (ns.DataAvailable);
+                                        } while (bytesRead > 0);
                                     }
 
-                                    /* msg is the final byte array from the stream */
+                                    Message[] oaMessage = Message.GetMsgFromTcpEncrypted(messageStream.ToArray());
 
-                                    //if (baTemp.Length > (CUtils.TCP_END_SIGN_NUM_OF_SIGNS + CUtils.iKeyIvSizeInBytes))
-                                    //{
-                                    //    fileChunkMsg = Message.GetMessageFromTcpEncrypted(baTemp);
-                                    //}
+                                     foreach(Message oMsg in oaMessage)
+                                     {
+                                         output.Write(oMsg.baBytesContent, 0, oMsg.baBytesContent.Length);
+                                     }
 
-                                    output.Flush();
-                                    
-                                    if (IsLast)
-                                    {
-                                        tcpServer.Stop();
-                                        ns.Close();
-                                        output.Close();
-                                    }
+
                                 }
+                                output.Flush();
+                                output.Close();
                             }
 
                                 //Message recivedMsg = fileChunkMsg;//
