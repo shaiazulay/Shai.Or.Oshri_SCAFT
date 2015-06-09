@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
-//needs to fix recieving files
+//needs to fix recieving files 
 //needs to open file on location.
 namespace SCAFT
 {
