@@ -83,6 +83,7 @@ namespace SCAFT
                                 ns.Flush();
 
                                 ns.Close();
+                                MessageBox.Show("the file:" + Path.GetFileName(filePath) + " sended successfully");
                                 //end code for encrypt all file in one block
 
                                 /*code for deliver in packets- GOOD for very large file (more that the program internal memory);

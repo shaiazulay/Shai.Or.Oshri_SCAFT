@@ -16,7 +16,9 @@ namespace SCAFT
 {
     internal class HandleClient
     {
-
+        private static Message oCurrentMsg;
+        private static FileStream output;
+        private static TcpListener tcpServer;
         internal static void TcpSession(object sender, DoWorkEventArgs doe)
         {
             const int defaultPacketSize = 1024;
@@ -26,7 +28,7 @@ namespace SCAFT
             TcpClient connectionSocket = (TcpClient) param[0];
             SCAFTForm scaftForm = (SCAFTForm) param[1];
             NetworkStream ns = connectionSocket.GetStream();
-            Message oCurrentMsg=null;
+         
             try
             {
                 using (MemoryStream messageStream = new MemoryStream())
@@ -58,14 +60,14 @@ namespace SCAFT
                                 scaftForm.oCurrentUser.sUserName,
                                 EMessageType.OK, randomePort.ToString()).GetEncMessage();
                             ns.Write(okMessage, 0, okMessage.Length);
-                            FileStream output = new FileStream(Path.GetFileName(oCurrentMsg.sStringContent), FileMode.OpenOrCreate, FileAccess.Write);
+                            output = new FileStream(Path.GetFileName(oCurrentMsg.sStringContent), FileMode.OpenOrCreate, FileAccess.Write);
                             
-                            TcpListener tcpServer = new TcpListener(scaftForm.oCurrentUser.oIP, randomePort);
+                            tcpServer = new TcpListener(scaftForm.oCurrentUser.oIP, randomePort);
                             tcpServer.Start();
                             connectionSocket = new TcpClient();
                             connectionSocket = tcpServer.AcceptTcpClient();
 
-                            if (connectionSocket != null)
+                            if (connectionSocket != null && !me.CancellationPending)
                             { 
                                 ns = connectionSocket.GetStream(); 
                                 // read data while there is what to read
@@ -83,7 +85,7 @@ namespace SCAFT
                                             bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
                                             messageStream.Write(inbuffer, 0, bytesRead);
                                             inbuffer = new byte[65535];
-                                        } while (bytesRead > 0);
+                                        } while (bytesRead > 0 && !me.CancellationPending);
                                     }
 
                                     Message[] oaMessage = Message.GetMsgFromTcpEncrypted(messageStream.ToArray());
@@ -127,17 +129,18 @@ namespace SCAFT
 
         private static void HandleError(NetworkStream ns, Message oCurrentMsg, Exception e)
         {
-            try
+
+            if (output != null) output.Close();
+            if (tcpServer != null) tcpServer.Stop();
+            if (ns != null) ns.Close();
+            if (oCurrentMsg != null)
             {
                 MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
                                            "from: "
                                            + oCurrentMsg.oUser.sUserName + "has faild to arrive: " + e.Message);
             }
-            catch
-            {
+            else MessageBox.Show("Error: " + e.Message);
 
-            }
-            ns.Close();
         }
 
         
