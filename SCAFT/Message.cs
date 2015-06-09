@@ -30,6 +30,10 @@ namespace SCAFT
 
         public byte[] baBytesContent { get; set; }
 
+        public byte[] baHashSalt { get; set; }
+
+        public byte[] baHash { get; set; }
+
         public Message(IPAddress oUserIP, string sUserName, EMessageType eMsgType, string sContent)
         {
             oUser = new User(oUserIP, sUserName);

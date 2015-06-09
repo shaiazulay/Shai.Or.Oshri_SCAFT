@@ -90,14 +90,15 @@ namespace SCAFT
                                         } while (bytesRead > 0 && !me.CancellationPending);
                                     }
 
-                                    Message[] oaMessage = Message.GetMsgFromTcpEncrypted(messageStream.ToArray());
+                                    bool IsMacOK;
+                                    byte[] baMessage = CUtils.CheckMacAndReturnMsgByteArray(messageStream.ToArray(), out IsMacOK);
+
+                                    Message[] oaMessage = Message.GetMsgFromTcpEncrypted(baMessage);
 
                                      foreach(Message oMsg in oaMessage)
                                      {
                                          output.Write(oMsg.baBytesContent, 0, oMsg.baBytesContent.Length);
-                                     }
-
-
+                                     } 
                                 }
                                 output.Flush();
                                 output.Close();

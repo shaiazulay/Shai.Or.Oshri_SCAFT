@@ -412,9 +412,9 @@ namespace SCAFT
 
                 byte[] baMacKey = Encoding.UTF8.GetBytes(txtMacKey.Text.Trim());
 
-                if (baMacKey.Length < 16)
+                if (baMacKey.Length < 64)
                 {
-                    MessageBox.Show("the MAC Key is less then 16 byte (after converted from UTF8 Encoding to bytes)!!");
+                    MessageBox.Show("the MAC Key is less then 64 byte (after converted from UTF8 Encoding to bytes)!!");
                     return false;
                 }
 
@@ -422,7 +422,7 @@ namespace SCAFT
                 CSession.iPort = iPort;
                 CSession.oMulticastIP = oMulticastIP;
                 CSession.baPasswordKey = CUtils.Trimming(baKey);
-                CSession.baPassworMacdKey = CUtils.Trimming(baMacKey);
+                CSession.baPassworMacdKey = CUtils.Trimming(baMacKey, 64);
 
                 oCurrentUser = new User(CUtils.GetMyLocalIPAddress(), CSession.sUserName);
                 oHellowTimer.Start();

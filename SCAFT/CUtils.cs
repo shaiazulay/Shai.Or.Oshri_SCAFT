@@ -31,9 +31,9 @@ namespace SCAFT
 
         public static int iKeyIvSizeInBytes { get { return BLOCK_AND_KEY_SIZE / 8; } }
          
-        public static byte[] Trimming(byte[] baInput)
+        public static byte[] Trimming(byte[] baInput, int? iTrimTo = null)
         {
-            int iByteNum = iKeyIvSizeInBytes;
+            int iByteNum = (iTrimTo == null) ? iKeyIvSizeInBytes : (int)iTrimTo;
             byte[] baOutput = new byte[iByteNum];
 
             for (int i = 0; i < iByteNum; i++)
@@ -353,6 +353,17 @@ namespace SCAFT
                     hex.AppendFormat("{0:x1},", b);
             }
             return hex.ToString();
+        }
+
+        public static byte[] CheckMacAndReturnMsgByteArray(byte[] baMsgWithMac, out bool IsMacOK)
+        {
+            byte[] baRes = new byte[0];
+            IsMacOK = false;
+
+
+
+            IsMacOK = true;
+            return baRes;
         }
     } 
 }

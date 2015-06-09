@@ -20,6 +20,11 @@ namespace SCAFT
         private void button1_Click(object sender, EventArgs e)
         {
             
+            byte a = 22;
+
+            byte c = (byte)(a^bPI);
+
+            int i=1;
         }
 
         
