@@ -47,6 +47,8 @@ namespace SCAFT
                     /* msg is the final byte array from the stream */ 
                     oCurrentMsg = Message.GetMessageFromTcpEncrypted(messageStream.ToArray());
                 }
+
+               
                 switch (oCurrentMsg.eMessageType)
                 {
                     case EMessageType.SENDFILE:

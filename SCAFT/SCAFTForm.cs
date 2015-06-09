@@ -261,7 +261,7 @@ namespace SCAFT
                         {
                             User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                            if (oUser == null && !oCurrentMsg.oUser.Equals(oCurrentUser))
+                            if (oUser == null)// && !oCurrentMsg.oUser.Equals(oCurrentUser))
                                 listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
                             if (oUser != null)
@@ -395,7 +395,7 @@ namespace SCAFT
                 {
                     string[] saBits = txtMulticastIP.Text.Split('.');
                     int firstIpNum = int.Parse(saBits[0]);
-                    if (firstIpNum >= 234 || firstIpNum < 224)
+                    if (firstIpNum >= 240 || firstIpNum < 224)
                     {
                         MessageBox.Show("Multicast Range is 224.0.0.0 to 239.255.255.255!!");
                         return false;
@@ -410,11 +410,19 @@ namespace SCAFT
                     return false;
                 }
 
+                byte[] baMacKey = Encoding.UTF8.GetBytes(txtMacKey.Text.Trim());
+
+                if (baMacKey.Length < 16)
+                {
+                    MessageBox.Show("the MAC Key is less then 16 byte (after converted from UTF8 Encoding to bytes)!!");
+                    return false;
+                }
+
                 CSession.sUserName = txtUserName.Text.Trim();
                 CSession.iPort = iPort;
                 CSession.oMulticastIP = oMulticastIP;
                 CSession.baPasswordKey = CUtils.Trimming(baKey);
-
+                CSession.baPassworMacdKey = CUtils.Trimming(baMacKey);
 
                 oCurrentUser = new User(CUtils.GetMyLocalIPAddress(), CSession.sUserName);
                 oHellowTimer.Start();
@@ -423,7 +431,7 @@ namespace SCAFT
 
                 return true;
             }
-            catch { return false; }
+            catch (Exception e){ return false; }
         }
 
         private void MoveToChatOrConfigurationTabs(bool IsChat)

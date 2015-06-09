@@ -341,5 +341,18 @@ namespace SCAFT
 
             return olByte.ToArray();
         }
+
+        public static string ByteArrayToHexString(byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder(ba.Length * 2);
+            foreach (byte b in ba)
+            {
+                if (b > 15)
+                    hex.AppendFormat("{0:x2},", b);
+                else
+                    hex.AppendFormat("{0:x1},", b);
+            }
+            return hex.ToString();
+        }
     } 
 }

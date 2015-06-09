@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CLog.cs" />
     <Compile Include="CSession.cs" />
     <Compile Include="ConfigurationDetailsForm.cs">
       <SubType>Form</SubType>
@@ -54,6 +55,12 @@
     <Compile Include="HandleClient.cs" />
     <Compile Include="ListeningUnicast.cs" />
     <Compile Include="SendFileSession.cs" />
+    <Compile Include="Test.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Test.Designer.cs">
+      <DependentUpon>Test.cs</DependentUpon>
+    </Compile>
     <Compile Include="User.cs" />
     <Compile Include="CUtils.cs" />
     <Compile Include="InsertUserNameForm.cs">
@@ -90,6 +97,9 @@
     </Compile>
     <EmbeddedResource Include="SCAFTForm.resx">
       <DependentUpon>SCAFTForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Test.resx">
+      <DependentUpon>Test.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

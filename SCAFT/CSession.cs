@@ -45,6 +45,16 @@ namespace SCAFT
             set { _baPasswordKey = value; } 
         }
 
+        private static byte[] _baPasswordMacKey;
+        public static byte[] baPassworMacdKey
+        {
+            get
+            {
+                return _baPasswordMacKey;
+            }
+            set { _baPasswordMacKey = value; }
+        }
+
         private static List<Form> _olForms;
          
         public static List<Form> olForms 

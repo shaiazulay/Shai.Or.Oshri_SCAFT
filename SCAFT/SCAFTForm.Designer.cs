@@ -53,6 +53,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.txtUserName = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.txtMacKey = new System.Windows.Forms.TextBox();
             this.tabControl.SuspendLayout();
             this.tabChate.SuspendLayout();
             this.tabConfiguration.SuspendLayout();
@@ -213,6 +215,8 @@
             // 
             // tabConfiguration
             // 
+            this.tabConfiguration.Controls.Add(this.txtMacKey);
+            this.tabConfiguration.Controls.Add(this.label7);
             this.tabConfiguration.Controls.Add(this.txtKey);
             this.tabConfiguration.Controls.Add(this.txtMulticastIP);
             this.tabConfiguration.Controls.Add(this.txtPort);
@@ -239,7 +243,7 @@
             this.txtKey.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtKey.Size = new System.Drawing.Size(435, 55);
             this.txtKey.TabIndex = 21;
-            //this.txtKey.Text = "12345678912569854789";  // debug
+            this.txtKey.Text = "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdsfa";//debug
             // 
             // txtMulticastIP
             // 
@@ -247,7 +251,6 @@
             this.txtMulticastIP.Name = "txtMulticastIP";
             this.txtMulticastIP.Size = new System.Drawing.Size(181, 20);
             this.txtMulticastIP.TabIndex = 18;
-            // this.txtMulticastIP.Text = "224.1.1.77";     //debug
             // 
             // txtPort
             // 
@@ -255,7 +258,6 @@
             this.txtPort.Name = "txtPort";
             this.txtPort.Size = new System.Drawing.Size(181, 20);
             this.txtPort.TabIndex = 17;
-          //  this.txtPort.Text = "5000"; //debug
             // 
             // label6
             // 
@@ -289,8 +291,7 @@
             this.txtUserName.Location = new System.Drawing.Point(75, 22);
             this.txtUserName.Name = "txtUserName";
             this.txtUserName.Size = new System.Drawing.Size(181, 20);
-            this.txtUserName.TabIndex = 13;
-            // this.txtUserName.Text = "shai";  // debug
+            this.txtUserName.TabIndex = 13; 
             // 
             // label3
             // 
@@ -300,6 +301,32 @@
             this.label3.Size = new System.Drawing.Size(63, 13);
             this.label3.TabIndex = 12;
             this.label3.Text = "User Name:";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(7, 193);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(54, 13);
+            this.label7.TabIndex = 22;
+            this.label7.Text = "MAC Key:";
+            // 
+            // txtMacKey
+            //  
+            this.txtMacKey.Location = new System.Drawing.Point(75, 193);
+            this.txtMacKey.Multiline = true;
+            this.txtMacKey.Name = "txtMacKey";
+            this.txtMacKey.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtMacKey.Size = new System.Drawing.Size(435, 55);
+            this.txtMacKey.TabIndex = 23;
+
+
+            this.txtMulticastIP.Text = "235.0.0.0";//debug
+            this.txtPort.Text = "300";//debug
+            this.txtUserName.Text = "Shay";//debug
+            this.txtMacKey.Text = "sadkjhasknafagndkfjdgskfjasdgnfkjasdghfk";//debug 
+
+
             // 
             // SCAFTForm
             // 
@@ -347,5 +374,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtMulticastIP;
         private System.Windows.Forms.TextBox txtKey;
+        private System.Windows.Forms.TextBox txtMacKey;
+        private System.Windows.Forms.Label label7;
     }
 }
