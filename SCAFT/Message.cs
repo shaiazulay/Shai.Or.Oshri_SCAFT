@@ -65,7 +65,7 @@ namespace SCAFT
                 oUser = new User(oIp, saBits[0]);
 
                 sStringContent = saBits[2];
-                for (int i = 3; i < saBits.Length; i++)
+                for (int i = 3; i < saBits.Length; i++)//if there are delimeter in content then concate them to be one contenct
                     sStringContent += DELIMITER + saBits[i];
             } 
             else
@@ -138,11 +138,6 @@ namespace SCAFT
             {
                 return CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, baBytesContent, eMessageType);
             }
-        }
-
-        
-
-
-
+        } 
     } 
 }

@@ -239,7 +239,7 @@
             this.txtKey.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtKey.Size = new System.Drawing.Size(435, 55);
             this.txtKey.TabIndex = 21;
-            this.txtKey.Text = "12345678912569854789";
+            //this.txtKey.Text = "12345678912569854789";  // debug
             // 
             // txtMulticastIP
             // 
@@ -247,7 +247,7 @@
             this.txtMulticastIP.Name = "txtMulticastIP";
             this.txtMulticastIP.Size = new System.Drawing.Size(181, 20);
             this.txtMulticastIP.TabIndex = 18;
-            this.txtMulticastIP.Text = "224.1.1.77";
+            // this.txtMulticastIP.Text = "224.1.1.77";     //debug
             // 
             // txtPort
             // 
@@ -255,7 +255,7 @@
             this.txtPort.Name = "txtPort";
             this.txtPort.Size = new System.Drawing.Size(181, 20);
             this.txtPort.TabIndex = 17;
-            this.txtPort.Text = "5000";
+          //  this.txtPort.Text = "5000"; //debug
             // 
             // label6
             // 
@@ -290,7 +290,7 @@
             this.txtUserName.Name = "txtUserName";
             this.txtUserName.Size = new System.Drawing.Size(181, 20);
             this.txtUserName.TabIndex = 13;
-            this.txtUserName.Text = "shai";
+            // this.txtUserName.Text = "shai";  // debug
             // 
             // label3
             // 

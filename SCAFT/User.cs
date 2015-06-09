@@ -19,5 +19,13 @@ namespace SCAFT
         {
             return "Name: "+sUserName+" IP: " + oIP.ToString();
         } 
+
+        public bool Equals(User oUser)
+        {
+            if (this.sUserName == oUser.sUserName && this.oIP == this.oIP)
+                return true;
+            else
+                return false;
+        }
     }
 }

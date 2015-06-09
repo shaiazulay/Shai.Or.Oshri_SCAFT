@@ -33,7 +33,7 @@ namespace SCAFT
             {
                 using (MemoryStream messageStream = new MemoryStream())
                 {
-                    byte[] inbuffer = new byte[65535];
+                    byte[] inbuffer = new byte[65535];//buffer size can be different
 
                     if (ns.CanRead)
                     {
@@ -54,15 +54,39 @@ namespace SCAFT
 
                                 User oUser = scaftForm.GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                                // if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
-                                //   {
+                               //  if (oUser != null && oUser.sIWantToSendThisFileNameToThisUser == oCurrentMsg.sStringContent) //only if the user is a friend send the file.
+                                 //  {
                                 client = new TcpClient();
-                                int defaultPacketSize = 15000000;
+
+
+                                /*code for deliver in packets- GOOD for very large file (more that the program internal memory);
+                                 start================================================================================================
+                                 int defaultPacketSize = 15000000;
+                                 FileStream fsIn = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                                end==================================================================================================*/
                                 int recivedRandomePort = int.Parse(oCurrentMsg.sStringContent);
                                 client.Connect(selectedUser.oIP, recivedRandomePort);
-                                ns = client.GetStream();
-                         
-                                FileStream fsIn = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                                ns = client.GetStream(); 
+                                 
+
+                                //strart code for encrypt all file in one block
+                                byte[] baFile = File.ReadAllBytes(filePath);//
+
+
+                                Message sendBufEncMessage = new Message(oCurrentUser.oIP,
+                                       selectedUser.sUserName, baFile);
+
+                                byte[] baEncryptedMsg = sendBufEncMessage.GetEncMessage();
+
+                                ns.Write(baEncryptedMsg, 0, baEncryptedMsg.Length);
+
+                                ns.Flush();
+
+                                ns.Close();
+                                //end code for encrypt all file in one block
+
+                                /*code for deliver in packets- GOOD for very large file (more that the program internal memory);
+                               start================================================================================================
                                 byte[] buf = new byte[defaultPacketSize];
                                 int read = 0;
                                 int tatalRead = 0;
@@ -91,11 +115,12 @@ namespace SCAFT
                                 }
                                 ns.Close();
                                 fsIn.Close();
+                                 }
+                                end==================================================================================================*/
 
 
 
 
-                                //  }
                                 break;
                             }
                         case EMessageType.NO:

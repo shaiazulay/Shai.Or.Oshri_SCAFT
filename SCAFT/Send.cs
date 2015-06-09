@@ -17,8 +17,8 @@ namespace SCAFT
             //         ProtocolType.Udp);
 
             // IPEndPoint endPoint = new IPEndPoint(sIP, PORT);
-            udp.Send(UnicodeEncoding.UTF8.GetBytes(sMsg),
-                UnicodeEncoding.UTF8.GetByteCount(sMsg), multicastEP);
+            udp.Send(CSession.TextMessageContentEncoding.GetBytes(sMsg),
+                CSession.TextMessageContentEncoding.GetByteCount(sMsg), multicastEP);
 
             //string text = "Hello";
             // byte[] send_buffer = CUtils.Encrypt(CSession.baPasswordKey, CSession.)

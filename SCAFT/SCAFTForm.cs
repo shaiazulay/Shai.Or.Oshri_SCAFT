@@ -13,7 +13,8 @@ namespace SCAFT
 {
     public partial class SCAFTForm : Form//
     {
-        Timer oHellowTimer; 
+        Timer oHellowTimer;
+        private const int iHellowMsgMiliSecInterval = 1000;
         internal User oCurrentUser;
         private static UdpClient udp;
         private BackgroundWorker bwUDP;
@@ -38,7 +39,7 @@ namespace SCAFT
                 InitializeComponent();
 
                 oHellowTimer = new Timer();
-                oHellowTimer.Interval = 1000;
+                oHellowTimer.Interval = iHellowMsgMiliSecInterval;
                 oHellowTimer.Tick += new EventHandler(OnHellowTickEvent);
 
                 MoveToChatOrConfigurationTabs(false);
@@ -154,18 +155,12 @@ namespace SCAFT
                 MessageBox.Show("You Need To Select a User to Send a File to!!!");
                 return;
             }
-
-             // send file to a user by using his ip address
-                //Send.SendUDPMessage(udp, multicastEP,
-                //    (new Message(CUtils.GetMyLocalIPAddress(), oCurrentUser.sUserName, 
-                //        EMessageType.SENDFILE, Path.GetFileName(txtFilePath.Text)).GetEncMessage()));
-
-
-                BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
-                sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
-                User selectedUser = (User)listBoxConnectedUsers.SelectedItem;
-                object[] param = { oCurrentUser, selectedUser, txtFilePath.Text, this };
-                sendFileTcpWorker.RunWorkerAsync(param);
+                 
+            BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
+            sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
+            User selectedUser = (User)listBoxConnectedUsers.SelectedItem;
+            object[] param = { oCurrentUser, selectedUser, txtFilePath.Text, this };
+            sendFileTcpWorker.RunWorkerAsync(param);
 
             }
             catch 
@@ -259,15 +254,14 @@ namespace SCAFT
                 }
                 //TODO print only msg from peaple in the group, add group password, add AES AND CBC for all the commands, etc.
 
-                //   string msg = CUtils.getOnlyString(oCurrentMsg.sStringContent);
+               
                 switch (oCurrentMsg.eMessageType)
                 {
                     case EMessageType.Hellow:
                         {
                             User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                            // if (oUser == null && oCurrentMsg.oUser.sUserName != oCurrentUser.sUserName)
-                            if (oUser == null)
+                            if (oUser == null && !oCurrentMsg.oUser.Equals(oCurrentUser))
                                 listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
                             if (oUser != null)
@@ -319,8 +313,8 @@ namespace SCAFT
                     catch { }
                     var result =
                         MessageBox.Show(
-                            "Hello " + CSession.sUserName + " wants to accept the file : " + sFileName +
-                            " from user name: " + oMsg.oUser.sUserName, "New File Is Waiting for approval",
+                            "Hello " + CSession.sUserName + " do you want to accept the file \"" + sFileName +
+                            "\" from user name: \"" + oMsg.oUser.sUserName + "\"", "New File Is Waiting for approval",
                             MessageBoxButtons.YesNo);
                     if (result == DialogResult.Yes)
                     { 
@@ -333,19 +327,7 @@ namespace SCAFT
             }
             catch { return false; }
         }
-        private void button1_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
-                sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
-                User selectedUser = new User(IPAddress.Loopback, "SHAI");
-
-                object[] param = { selectedUser, oCurrentUser, "dd.txt", this };
-                sendFileTcpWorker.RunWorkerAsync(param);
-            }
-            catch { }
-        }
+        
         private void SCAFTForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             try

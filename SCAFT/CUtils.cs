@@ -191,6 +191,7 @@ namespace SCAFT
         public static byte[] DecryptBytes(byte[] _encryptedText, byte[] key, out EMessageType eMsgType)
         {
             _encryptedText = CUtils.RemoveSignalFromMsg(TCP_END_SINGLE_SIGN, TCP_END_SIGN_NUM_OF_SIGNS,_encryptedText);
+
             byte[] baResult = new byte[0];
             byte[] encryptedText = new byte[0];
             byte bMsgType = 0;
@@ -244,8 +245,7 @@ namespace SCAFT
         }
          
         public static byte[] GetMessageWithoutTcpEndSignal(byte[] msgWithTcpSignal)
-        {
-
+        { 
             long lNumOfMsgContentBytes = msgWithTcpSignal.Length;
             int iSignCount = 0;
             for (long i = 0; i < msgWithTcpSignal.Length; i++)
@@ -272,6 +272,7 @@ namespace SCAFT
             return baRes;
         }
 
+        //insert end message sign and duplicate sign when found in message
         public static byte[] InsertSignalToMsg(byte bSign, int iSignNumOfTimes, byte[] baMsg)
         {
             int iFindDelCounter = 0;
@@ -304,6 +305,7 @@ namespace SCAFT
             return olByte.ToArray();
         }
 
+        //takes message with endSignal (and signal duplicated in message) and return original message
         public static byte[] RemoveSignalFromMsg(byte bSign, int iSignNumOfTimes, byte[] baMsg)
         {
             List<byte> olByte = new List<byte>();

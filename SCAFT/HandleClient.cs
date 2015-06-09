@@ -19,6 +19,7 @@ namespace SCAFT
 
         internal static void TcpSession(object sender, DoWorkEventArgs doe)
         {
+            const int defaultPacketSize = 1024;
             BackgroundWorker me = (BackgroundWorker) sender;
             object[] param = (object[]) doe.Argument;
 
@@ -30,7 +31,7 @@ namespace SCAFT
             {
                 using (MemoryStream messageStream = new MemoryStream())
                 {
-                    byte[] inbuffer = new byte[65535];
+                    byte[] inbuffer = new byte[65535];//the size of buffer doesn`t have to be this
 
                     if (ns.CanRead)
                     {
@@ -52,13 +53,13 @@ namespace SCAFT
                         if (accept)
                         {
                             Random rand = new Random();
-                            int randomePort = rand.Next()%3000 + 1000;
+                            int randomePort = rand.Next()%3000 + 1000;//random port 1000-4000
                             byte[] okMessage = new Message(scaftForm.oCurrentUser.oIP,
                                 scaftForm.oCurrentUser.sUserName,
                                 EMessageType.OK, randomePort.ToString()).GetEncMessage();
                             ns.Write(okMessage, 0, okMessage.Length);
                             FileStream output = new FileStream(Path.GetFileName(oCurrentMsg.sStringContent), FileMode.OpenOrCreate, FileAccess.Write);
-                            int defaultPacketSize = 1056;
+                            
                             TcpListener tcpServer = new TcpListener(scaftForm.oCurrentUser.oIP, randomePort);
                             tcpServer.Start();
                             connectionSocket = new TcpClient();
@@ -73,7 +74,7 @@ namespace SCAFT
                                 byte[] baTemp = new byte[0];
                                 using (MemoryStream messageStream = new MemoryStream())
                                 {
-                                    byte[] inbuffer = new byte[1024];
+                                    byte[] inbuffer = new byte[defaultPacketSize];
                                     if (ns.CanRead)
                                     {
                                         int bytesRead = 0;
@@ -98,9 +99,9 @@ namespace SCAFT
                                 output.Close();
                                 tcpServer.Stop();
                                 ns.Close();
-                                DialogResult drslt = MessageBox.Show("the file: " + Path.GetFileName(oCurrentMsg.sStringContent) +
-                                            "was transferd from: "
-                                            + oCurrentMsg.oUser.sUserName + " seccsesfuly, Would you like to open it? ", "New File Recived", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                DialogResult drslt = MessageBox.Show("the file \"" + Path.GetFileName(oCurrentMsg.sStringContent) +
+                                            "\" was transferd from \""
+                                            + oCurrentMsg.oUser.sUserName + "\" seccsesfuly, Would you like to open it? ", "New File Recived", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                                 
                                  
                                 if (drslt == DialogResult.Yes) System.Diagnostics.Process.Start(Path.GetFileName(oCurrentMsg.sStringContent));
@@ -121,9 +122,7 @@ namespace SCAFT
             {
                 HandleError(ns, oCurrentMsg, e);
 
-            }
-
-
+            } 
         }
 
         private static void HandleError(NetworkStream ns, Message oCurrentMsg, Exception e)
