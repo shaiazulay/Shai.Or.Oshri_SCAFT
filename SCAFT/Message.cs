@@ -80,10 +80,47 @@ namespace SCAFT
             return new Message(baMsg);
         }
 
-        public static Message GetMsgFromTcpEncrypted(byte[] baEncrypted)
+        //gets an encrypted byte[] (with end message byte sequence) that has possible few messages and return the messages
+        public static Message[] GetMsgFromTcpEncrypted(byte[] baEncrypted)
+        { 
+            List<Message> olMessages= new List<Message>();
+            List<byte[]> lbaMessages = SpliteMultiMessagesIntoByeArrays(baEncrypted);
+
+            for (int i = 0; i < lbaMessages.Count; i++)
+            {
+                olMessages.Add(new Message(lbaMessages[i]));
+            }
+
+            return olMessages.ToArray();
+        }
+        //splits an array of bytes that is possible multi messages to arrays of bytes that each is one message encrypted. 
+        private static List<byte[]> SpliteMultiMessagesIntoByeArrays(byte[] baEncrypted)
         {
-            Message oResMsg = null;
-            return oResMsg;
+            List<byte[]> lbaRes = new List<byte[]>();
+            int iNumOfSign = 0;
+            int iFirstArrayIndex = 0;
+
+            for(int i = 0; i < baEncrypted.Length; i++)
+            {
+                if (baEncrypted[i] == CUtils.TCP_END_SINGLE_SIGN && i < baEncrypted.Length - 1)
+                {
+                    iNumOfSign++;
+                }
+                else
+                {
+                    if (CUtils.TCP_END_SIGN_NUM_OF_SIGNS == iNumOfSign || i == baEncrypted.Length - 1)
+                    {
+                        byte[] baTemp = new byte[i - iFirstArrayIndex];
+                        Array.Copy(baEncrypted, iFirstArrayIndex, baTemp, 0, baTemp.Length);
+                        lbaRes.Add(baTemp);
+                        iFirstArrayIndex = i;
+                    }
+
+                    iNumOfSign = 0; 
+                }
+            }
+
+            return lbaRes;
         }
 
         public byte[] GetEncMessage()
