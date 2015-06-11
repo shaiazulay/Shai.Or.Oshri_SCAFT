@@ -45,7 +45,7 @@ namespace SCAFT
         public byte[] baExpectedMacValue;
 
         public string sRecievedFileName;
-
+         
         public LogMessage(DateTime _dEventDateTime, int _iRecievedFromPort, IPAddress _oRecievedFromIP,
             string _sRecievedFromUserName, byte[] _baRecievedIV, byte[] _baRecievedMacValue,
             byte[] _baExpectedMacValue, string _sRecievedFileName = null)

@@ -324,7 +324,7 @@
             this.txtMulticastIP.Text = "235.0.0.0";//debug
             this.txtPort.Text = "300";//debug
             this.txtUserName.Text = "Shay";//debug
-            this.txtMacKey.Text = "sadkjhasknafagndkfjdgskfjasdgnfkjasdghfk";//debug 
+            this.txtMacKey.Text = "sadkjhasknafagndkfjdgskfjasdgnfkjasdghfksdfsdfsdfsdfsfdfsdfasdfasdfsadfsadfasdfasdfdf";//debug 
 
 
             // 

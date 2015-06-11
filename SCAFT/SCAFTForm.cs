@@ -14,7 +14,7 @@ namespace SCAFT
     public partial class SCAFTForm : Form//
     {
         Timer oHellowTimer;
-        private const int iHellowMsgMiliSecInterval = 1000;
+        private const int iHellowMsgMiliSecInterval = 10000;
         internal User oCurrentUser;
         private static UdpClient udp;
         private BackgroundWorker bwUDP;

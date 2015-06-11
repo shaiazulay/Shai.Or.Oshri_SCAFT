@@ -91,14 +91,24 @@ namespace SCAFT
                                     }
 
                                     bool IsMacOK;
-                                    byte[] baMessage = CUtils.CheckMacAndReturnMsgByteArray(messageStream.ToArray(), out IsMacOK);
+
+                                    byte[] baMessage = CUtils.CheckMacAndReturnMsgByteArray(messageStream.ToArray(), out IsMacOK, byte[] baHMAC);
 
                                     Message[] oaMessage = Message.GetMsgFromTcpEncrypted(baMessage);
 
-                                     foreach(Message oMsg in oaMessage)
-                                     {
-                                         output.Write(oMsg.baBytesContent, 0, oMsg.baBytesContent.Length);
-                                     } 
+
+                                    foreach (Message oMsg in oaMessage)
+                                    {
+                                        if (IsMacOK)
+                                        {
+                                            output.Write(oMsg.baBytesContent, 0, oMsg.baBytesContent.Length);
+                                        }
+                                        else
+                                        {
+                                            new LogMessage(DateTime.Now, randomePort, oMsg.oUser.oIP, oMsg.oUser.sUserName,
+                                                )
+                                        }
+                                    }
                                 }
                                 output.Flush();
                                 output.Close();

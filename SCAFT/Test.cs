@@ -19,12 +19,34 @@ namespace SCAFT
 
         private void button1_Click(object sender, EventArgs e)
         {
+
+
+            byte[] ba1 = { 0x1, 0x2, 0x3 };
+            byte[] salt1 = { 0x1 };
+            byte[] hash1 = CUtils.GetHMAC(ba1, ba1);
+            byte[] hash2 = CUtils.GetHMAC(salt1, ba1);
+
+            bool IsEqual = true;
+
+            if (hash1.Length != hash2.Length) IsEqual = false;
+
+            if(IsEqual)
+            {
+                for (int i = 0; i < hash1.Length; i++)
+                {
+                    if (hash2[i] != hash1[i]) IsEqual = false;
+                }
+            }
             
-            byte a = 22;
-
-            byte c = (byte)(a^bPI);
-
-            int i=1;
+            if(IsEqual)
+            {
+                int i = 1;
+            }
+            else
+            {
+                int i = 1;
+            }
+           
         }
 
         

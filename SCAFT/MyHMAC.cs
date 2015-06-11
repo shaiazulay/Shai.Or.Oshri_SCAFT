@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SCAFT
 {
-    public static class HMAC
+    public static class MyHMAC
     {
         private static SHA512CryptoServiceProvider sha512 = new SHA512CryptoServiceProvider();
         private static RNGCryptoServiceProvider rand = new RNGCryptoServiceProvider();
@@ -22,7 +22,7 @@ namespace SCAFT
 
             for (int i = 0; i < _baRes.Length; i++)
             {
-                _baRes[i] = HMAC.XOR_byteWithHex(CSession.baPassworMacdKey[i], sHex);
+                _baRes[i] = MyHMAC.XOR_byteWithHex(CSession.baPassworMacdKey[i], sHex);
             }
             return _baRes;
         }

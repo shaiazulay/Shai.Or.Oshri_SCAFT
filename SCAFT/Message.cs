@@ -21,7 +21,7 @@ namespace SCAFT
 
     public class Message
     {
-        private const char DELIMITER = ' ';
+        private const char MESSAGE_DELIMITER_BETWEEN_FIELDS = ' ';
         public User oUser { get; set; }
 
         public EMessageType eMessageType { get; set; }
@@ -39,6 +39,13 @@ namespace SCAFT
             oUser = new User(oUserIP, sUserName);
             eMessageType = eMsgType;
             sStringContent = sContent;
+        }
+
+        public Message()
+        {
+            oUser = new User(IPAddress.None, "");
+            eMessageType = EMessageType.Unknown;
+            sStringContent = "";
         }
 
         public Message(IPAddress oUserIP, string sUserName, byte[] _baBytesContent)
@@ -61,7 +68,7 @@ namespace SCAFT
             {
                 string sPlainText = CSession.TextMessageContentEncoding.GetString(baPlainBytes);
 
-                string[] saBits = sPlainText.Split(DELIMITER);
+                string[] saBits = sPlainText.Split(MESSAGE_DELIMITER_BETWEEN_FIELDS);
 
                 IPAddress oIp = null;
                 IPAddress.TryParse(saBits[1], out oIp);
@@ -70,7 +77,7 @@ namespace SCAFT
 
                 sStringContent = saBits[2];
                 for (int i = 3; i < saBits.Length; i++)//if there are delimeter in content then concate them to be one contenct
-                    sStringContent += DELIMITER + saBits[i];
+                    sStringContent += MESSAGE_DELIMITER_BETWEEN_FIELDS + saBits[i];
             } 
             else
             {
@@ -88,7 +95,7 @@ namespace SCAFT
         public static Message[] GetMsgFromTcpEncrypted(byte[] baEncrypted)
         { 
             List<Message> olMessages= new List<Message>();
-            List<byte[]> lbaMessages = SpliteMultiMessagesIntoByeArrays(baEncrypted);
+            List<byte[]> lbaMessages = SpliteMultiMessagesIntoByteArrays(baEncrypted, CUtils.TCP_END_SINGLE_SIGN, CUtils.TCP_END_SIGN_NUM_OF_SIGNS);
 
             for (int i = 0; i < lbaMessages.Count; i++)
             {
@@ -98,29 +105,30 @@ namespace SCAFT
             return olMessages.ToArray();
         }
         //splits an array of bytes that is possible multi messages to arrays of bytes that each is one message encrypted. 
-        private static List<byte[]> SpliteMultiMessagesIntoByeArrays(byte[] baEncrypted)
+        public static List<byte[]> SpliteMultiMessagesIntoByteArrays(byte[] baEncrypted, byte bDelimiterSign, int iDelimiterNumOfTimes)
         {
-            List<byte[]> lbaRes = new List<byte[]>();
+            List<byte[]> lbaRes = new List<byte[]>();//holds result 
             int iNumOfSign = 0;
             int iFirstArrayIndex = 0;
 
-            for(int i = 0; i < baEncrypted.Length; i++)
+            for(int i = 0; i < baEncrypted.Length; i++)//on all the message
             {
-                if (baEncrypted[i] == CUtils.TCP_END_SINGLE_SIGN && i < baEncrypted.Length - 1)
+                if (baEncrypted[i] == bDelimiterSign && i < baEncrypted.Length - 1)//if delimiter sign, and not last byte in message
                 {
-                    iNumOfSign++;
+                    iNumOfSign++;//count another sign spotted
                 }
-                else
+                else //if current byte is not a delimiter Or its last byte in Msg
                 {
-                    if (CUtils.TCP_END_SIGN_NUM_OF_SIGNS == iNumOfSign || i == baEncrypted.Length - 1)
+                    //if num of signs shows that its a new sequence that split and insert to Result List
+                    if (iDelimiterNumOfTimes == iNumOfSign || (i == baEncrypted.Length - 1 && baEncrypted[i] == bDelimiterSign))
                     {
-                        byte[] baTemp = new byte[i - iFirstArrayIndex];
+                        byte[] baTemp = new byte[i - iFirstArrayIndex];//length of current sequence
                         Array.Copy(baEncrypted, iFirstArrayIndex, baTemp, 0, baTemp.Length);
                         lbaRes.Add(baTemp);
-                        iFirstArrayIndex = i;
+                        iFirstArrayIndex = i;//set new sequence start index
                     }
 
-                    iNumOfSign = 0; 
+                    iNumOfSign = 0; //start new count of delimiter signs
                 }
             }
 
@@ -132,8 +140,8 @@ namespace SCAFT
             if (eMessageType != EMessageType.FileContent_InBytes)
             {
                 string sPlainMsg = "";
-                sPlainMsg += oUser.sUserName + DELIMITER;
-                sPlainMsg += oUser.oIP.ToString() + DELIMITER;
+                sPlainMsg += oUser.sUserName + MESSAGE_DELIMITER_BETWEEN_FIELDS;
+                sPlainMsg += oUser.oIP.ToString() + MESSAGE_DELIMITER_BETWEEN_FIELDS;
                 sPlainMsg += sStringContent;
                  
                 return CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, Encoding.UTF8.GetBytes(sPlainMsg), eMessageType);           
@@ -142,6 +150,30 @@ namespace SCAFT
             {
                 return CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, baBytesContent, eMessageType);
             }
-        } 
+        }
+ 
+        public byte[] GetEncMessageWithHMAC()
+        {
+            byte[] baMsg = CUtils.InsertEndMsgDelimiter(CUtils.HASH_DELIMITER_SIGN, //get encripted msg with a end msg sign
+                                            CUtils.HASH_DELIMITER_NUM_OF_TIMES,
+                                            this.GetEncMessage());
+
+            //insert Salt and Hash to Message Object
+            CUtils.InsertHMAC_ToMessage(this);
+
+            //add to Salt end 
+            baMsg = CUtils.ConcatByteArrays(baMsg, this.baHashSalt);
+
+            //add HMAC to end
+            return CUtils.ConcatByteArrays(baMsg, this.baHash);
+        }
+
+        public static Message GetMessageFromHMAC_AndEncryptedMsg(byte[] baMsg)
+        {
+            Message oMessage = new Message();
+
+
+            return oMessage;
+        }
     } 
 }
