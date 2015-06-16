@@ -10,7 +10,7 @@ namespace SCAFT
 {
     public class CLog
     {
-        private const string LOG_FILE_NAME = "log.txt";
+        public static string LOG_FILE_NAME = "log.txt";
 
         private static Object thisLock = new Object();
 
@@ -30,6 +30,8 @@ namespace SCAFT
 
     public class LogMessage
     {
+        public bool IsFileMessage;
+
         public DateTime dEventDateTime;
 
         public int iRecievedFromPort;
@@ -44,11 +46,11 @@ namespace SCAFT
 
         public byte[] baExpectedMacValue;
 
-        public string sRecievedFileName;
+        public string sRecievedFileNameOrMessageContect;
          
         public LogMessage(DateTime _dEventDateTime, int _iRecievedFromPort, IPAddress _oRecievedFromIP,
             string _sRecievedFromUserName, byte[] _baRecievedIV, byte[] _baRecievedMacValue,
-            byte[] _baExpectedMacValue, string _sRecievedFileName = null)
+            byte[] _baExpectedMacValue, string _sRecievedFileNameOrMessageContect, bool IsFile)
         {
             dEventDateTime = _dEventDateTime;
             iRecievedFromPort = _iRecievedFromPort;
@@ -57,27 +59,31 @@ namespace SCAFT
             baRecievedIV = _baRecievedIV;
             baRecievedMacValue = _baRecievedMacValue;
             baExpectedMacValue= _baExpectedMacValue;
-            sRecievedFileName = _sRecievedFileName;  
+            sRecievedFileNameOrMessageContect = _sRecievedFileNameOrMessageContect;
+
+            IsFileMessage = IsFile;
         }
 
         public string GetLogLine()
         {
-            string sLine = "Date- " + dEventDateTime.ToString() + " ";
+            string sLine = (IsFileMessage) ? "BAD_HMAC_FILE_MESSAGE:: " : "BAD_HMAC_TEXT_MESSAGE::";
 
-            sLine += "IP:Port- " + oRecievedFromIP.ToString() + ":" + iRecievedFromPort.ToString() + " ";
+            sLine += "Date- (" + dEventDateTime.ToString() + ")| ";
 
-            sLine += "UserName-" + sRecievedFromUserName + " ";
+            sLine += "IP:Port- (" + oRecievedFromIP.ToString() + ":" + iRecievedFromPort.ToString() + ")| ";
 
-            sLine += "RecievedIV(bytesInHex)- " + CUtils.ByteArrayToHexString(baRecievedIV) + " ";
+            sLine += "UserName-(\"" + sRecievedFromUserName + "\")| ";
 
-            sLine += "RecievedMacValue(bytesInHex)- " + CUtils.ByteArrayToHexString(baRecievedMacValue) + " ";
+            sLine += "RecievedIV(bytesInHex)- (" + CUtils.ByteArrayToHexString(baRecievedIV) + ")| ";
 
-            sLine += "ExpectedMacValue(bytesInHex)- " + CUtils.ByteArrayToHexString(baExpectedMacValue) + " ";
+            sLine += "RecievedMacValue(bytesInHex)- (" + CUtils.ByteArrayToHexString(baRecievedMacValue) + ")| ";
 
-            if (sRecievedFileName != null)
-            {
-                sLine += "FileWantedToSendName- " + sRecievedFileName;
-            }
+            sLine += "ExpectedMacValue(bytesInHex)- (" + CUtils.ByteArrayToHexString(baExpectedMacValue) + ")| ";
+
+
+            sLine += (IsFileMessage) ? " FileName-" : " MessageContent-";
+            
+            sLine += " (\"" + sRecievedFileNameOrMessageContect + "\")";
             
             sLine += Environment.NewLine + Environment.NewLine;
              

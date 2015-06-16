@@ -14,7 +14,7 @@ namespace SCAFT
     public partial class SCAFTForm : Form//
     {
         Timer oHellowTimer;
-        private const int iHellowMsgMiliSecInterval = 10000;
+        private const int iHellowMsgMiliSecInterval = 1000;
         internal User oCurrentUser;
         private static UdpClient udp;
         private BackgroundWorker bwUDP;
@@ -247,42 +247,47 @@ namespace SCAFT
                 IPAddress sourceIp = IPAddress.Parse(param[1].ToString());
 
                 byte[] bafullMessage = (byte[])param[2];
-                Message oCurrentMsg = new Message(bafullMessage);
-                if (oCurrentMsg.eMessageType != EMessageType.Hellow)
+
+                Message oCurrentMsg = CUtils.CheckMacWriteToLog_AndReturnMessages(bafullMessage, CSession.iPort);
+
+                if (oCurrentMsg != null)
                 {
-                    tbLog.Text = oCurrentMsg.oUser.sUserName + " " + time + " -> \"" + oCurrentMsg.sStringContent + "\"" + Environment.NewLine + tbLog.Text;
-                }
-                //TODO print only msg from peaple in the group, add group password, add AES AND CBC for all the commands, etc.
+                    if (oCurrentMsg.eMessageType != EMessageType.Hellow)
+                    {
+                        tbLog.Text = oCurrentMsg.oUser.sUserName + " " + time + " -> \"" + oCurrentMsg.sStringContent + "\"" + Environment.NewLine + tbLog.Text;
+                    }
+                    //TODO print only msg from peaple in the group, add group password, add AES AND CBC for all the commands, etc.
 
-               
-                switch (oCurrentMsg.eMessageType)
-                {
-                    case EMessageType.Hellow:
-                        {
-                            User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                            if (oUser == null)// && !oCurrentMsg.oUser.Equals(oCurrentUser))
-                                listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
+                    switch (oCurrentMsg.eMessageType)
+                    {
+                        case EMessageType.Hellow:
+                            {
+                                User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                            if (oUser != null)
-                                oUser.oIP = oCurrentMsg.oUser.oIP;
+                                if (oUser == null)// && !oCurrentMsg.oUser.Equals(oCurrentUser))
+                                    listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
+                                if (oUser != null)
+                                    oUser.oIP = oCurrentMsg.oUser.oIP;
+
+                                break;
+                            }
+                        case EMessageType.Bye:
+                            {
+                                User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
+
+                                if (oUser != null)
+                                    listBoxConnectedUsers.Items.Remove(oUser);
+                                break;
+                            }
+                        default:
                             break;
-                        }
-                    case EMessageType.Bye:
-                        {
-                            User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
-
-                            if (oUser != null)
-                                listBoxConnectedUsers.Items.Remove(oUser);
-                            break;
-                        }
-                    default:
-                        break;
+                    }
                 }
 
             }
-            catch { }
+            catch (Exception e2) { }
         }
         internal User GetConnectedUserByName(string _sUserName)
         {

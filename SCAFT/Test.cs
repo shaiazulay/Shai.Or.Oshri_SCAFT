@@ -19,24 +19,23 @@ namespace SCAFT
 
         private void button1_Click(object sender, EventArgs e)
         {
+            int d=1000000000;
 
+            byte[] baMsgLength = BitConverter.GetBytes(d);
 
-            byte[] ba1 = { 0x1, 0x2, 0x3 };
-            byte[] salt1 = { 0x1 };
-            byte[] hash1 = CUtils.GetHMAC(ba1, ba1);
-            byte[] hash2 = CUtils.GetHMAC(salt1, ba1);
+            byte[] baTemp = new byte[CUtils.TCP_MESSAGE_LENGTH_FIELD_SIZE];
 
-            bool IsEqual = true;
-
-            if (hash1.Length != hash2.Length) IsEqual = false;
-
-            if(IsEqual)
+            for (int i = 0; i < baTemp.Length;i++ )
             {
-                for (int i = 0; i < hash1.Length; i++)
-                {
-                    if (hash2[i] != hash1[i]) IsEqual = false;
-                }
+                baTemp[i] = (i < baMsgLength.Length) ? baMsgLength[i] : (byte)0;
             }
+
+
+            long c =BitConverter.ToInt64(baTemp, 0);
+
+            if (d == c)
+                d++;
+            bool IsEqual = false;
             
             if(IsEqual)
             {

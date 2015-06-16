@@ -23,12 +23,12 @@ namespace SCAFT
         {
             const int defaultPacketSize = 1024;
             BackgroundWorker me = (BackgroundWorker) sender;
-            object[] param = (object[]) doe.Argument;
-
+            object[] param = (object[]) doe.Argument; 
             TcpClient connectionSocket = (TcpClient) param[0];
             SCAFTForm scaftForm = (SCAFTForm) param[1];
             NetworkStream ns = connectionSocket.GetStream();
          
+            string sFilePath = ""; 
             try
             {
                 using (MemoryStream messageStream = new MemoryStream())
@@ -45,91 +45,96 @@ namespace SCAFT
                     }
 
                     /* msg is the final byte array from the stream */ 
-                    oCurrentMsg = Message.GetMessageFromTcpEncrypted(messageStream.ToArray());
+                    int iport = ((IPEndPoint)connectionSocket.Client.RemoteEndPoint).Port;
+                    
+                    oCurrentMsg= CUtils.CheckMacWriteToLog_AndReturnMessages(messageStream.ToArray(), iport);
                 }
 
-               
-                switch (oCurrentMsg.eMessageType)
+                if (oCurrentMsg != null)
                 {
-                    case EMessageType.SENDFILE:
+                    switch (oCurrentMsg.eMessageType)
                     {
-                        bool accept = scaftForm.ProcessSendFileMessage(oCurrentMsg);
-                        if (accept)
-                        {
-                            Random rand = new Random();
-                            int randomePort = rand.Next()%3000 + 1000;//random port 1000-4000
-                            byte[] okMessage = new Message(scaftForm.oCurrentUser.oIP,
-                                scaftForm.oCurrentUser.sUserName,
-                                EMessageType.OK, randomePort.ToString()).GetEncMessage();
-                            ns.Write(okMessage, 0, okMessage.Length);
-                            output = new FileStream(Path.GetFileName(oCurrentMsg.sStringContent), FileMode.OpenOrCreate, FileAccess.Write);
-                            
-                            tcpServer = new TcpListener(scaftForm.oCurrentUser.oIP, randomePort);
-                            tcpServer.Start();
-                            connectionSocket = new TcpClient();
-                            connectionSocket = tcpServer.AcceptTcpClient();
-
-                            if (connectionSocket != null && !me.CancellationPending)
-                            { 
-                                ns = connectionSocket.GetStream(); 
-                                // read data while there is what to read
-                                byte[] buffer = new byte[defaultPacketSize]; 
-
-                                byte[] baTemp = new byte[0];
-                                using (MemoryStream messageStream = new MemoryStream())
+                        case EMessageType.SENDFILE:
+                            {
+                                bool accept = scaftForm.ProcessSendFileMessage(oCurrentMsg);
+                                if (accept)
                                 {
-                                    byte[] inbuffer = new byte[defaultPacketSize];
-                                    if (ns.CanRead)
+                                    Random rand = new Random();
+                                    int randomePort = rand.Next() % 3000 + 1000;//random port 1000-4000
+                                    byte[] okMessage = new Message(scaftForm.oCurrentUser.oIP,
+                                        scaftForm.oCurrentUser.sUserName,
+                                        EMessageType.OK, randomePort.ToString()).GetEncMessage();
+                                    ns.Write(okMessage, 0, okMessage.Length);
+                                    sFilePath = Path.GetFileName(oCurrentMsg.sStringContent); 
+                                    //
+                                    tcpServer = new TcpListener(scaftForm.oCurrentUser.oIP, randomePort);
+                                    tcpServer.Start();
+                                    connectionSocket = new TcpClient();
+                                    connectionSocket = tcpServer.AcceptTcpClient();
+
+                                    if (connectionSocket != null && !me.CancellationPending)
                                     {
-                                        int bytesRead = 0;
-                                        do
+                                        bool IsBadHMacAfterFileCreated = false;
+                                        ns = connectionSocket.GetStream();
+                                        // read data while there is what to read
+                                        byte[] buffer = new byte[defaultPacketSize];
+
+                                        byte[] baTemp = new byte[0];
+                                        using (MemoryStream messageStream = new MemoryStream())
                                         {
-                                            bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
-                                            messageStream.Write(inbuffer, 0, bytesRead);
-                                            inbuffer = new byte[65535];
-                                        } while (bytesRead > 0 && !me.CancellationPending);
-                                    }
+                                            byte[] inbuffer = new byte[defaultPacketSize];
+                                            if (ns.CanRead)
+                                            {
+                                                int bytesRead = 0;
+                                                do
+                                                {
+                                                    bytesRead = ns.Read(inbuffer, 0, inbuffer.Length);
+                                                    messageStream.Write(inbuffer, 0, bytesRead);
+                                                    inbuffer = new byte[65535];
+                                                } while (bytesRead > 0 && !me.CancellationPending);
+                                            }
 
-                                    bool IsMacOK;
+                                            Message oMessage = CUtils.CheckMacWriteToLog_AndReturnMessages(messageStream.ToArray(), randomePort, sFilePath);
 
-                                    byte[] baMessage = CUtils.CheckMacAndReturnMsgByteArray(messageStream.ToArray(), out IsMacOK, byte[] baHMAC);
+                                            if (oMessage != null)
+                                            {
+                                                output = new FileStream(sFilePath, FileMode.OpenOrCreate, FileAccess.Write);
+                                                output.Write(oMessage.baBytesContent, 0, oMessage.baBytesContent.Length);
+                                                output.Flush();
+                                                output.Close();
 
-                                    Message[] oaMessage = Message.GetMsgFromTcpEncrypted(baMessage);
+                                            }
+                                            else
+                                            {
+                                                IsBadHMacAfterFileCreated = true;
+                                            }
 
+                                            
+                                            tcpServer.Stop();
+                                            ns.Close();
 
-                                    foreach (Message oMsg in oaMessage)
-                                    {
-                                        if (IsMacOK)
-                                        {
-                                            output.Write(oMsg.baBytesContent, 0, oMsg.baBytesContent.Length);
+                                            
                                         }
-                                        else
+                                        if (!IsBadHMacAfterFileCreated)
                                         {
-                                            new LogMessage(DateTime.Now, randomePort, oMsg.oUser.oIP, oMsg.oUser.sUserName,
-                                                )
+                                            DialogResult drslt = MessageBox.Show("the file \"" + Path.GetFileName(oCurrentMsg.sStringContent) +
+                                                        "\" was transferd from \""
+                                                        + oCurrentMsg.oUser.sUserName + "\" seccsesfuly, Would you like to open it? ", "New File Recived", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+
+                                            if (drslt == DialogResult.Yes) System.Diagnostics.Process.Start(Path.GetFileName(oCurrentMsg.sStringContent));
                                         }
                                     }
                                 }
-                                output.Flush();
-                                output.Close();
-                                tcpServer.Stop();
-                                ns.Close();
-                                DialogResult drslt = MessageBox.Show("the file \"" + Path.GetFileName(oCurrentMsg.sStringContent) +
-                                            "\" was transferd from \""
-                                            + oCurrentMsg.oUser.sUserName + "\" seccsesfuly, Would you like to open it? ", "New File Recived", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                                
-                                 
-                                if (drslt == DialogResult.Yes) System.Diagnostics.Process.Start(Path.GetFileName(oCurrentMsg.sStringContent));
-                            } 
-                        }
-                        else
-                        {
-                            byte[] noMessage = new Message(scaftForm.oCurrentUser.oIP,
-                                scaftForm.oCurrentUser.sUserName, EMessageType.NO, "").GetEncMessage();
-                            ns.Write(noMessage, 0, noMessage.Length);
-                            ns.Close();
-                        }
-                        break;
+                                else
+                                {
+                                    byte[] noMessage = new Message(scaftForm.oCurrentUser.oIP,
+                                        scaftForm.oCurrentUser.sUserName, EMessageType.NO, "").GetEncMessage();
+                                    ns.Write(noMessage, 0, noMessage.Length);
+                                    ns.Close();
+                                }
+                                break;
+                            }
                     }
                 } 
             }

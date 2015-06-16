@@ -7,30 +7,15 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SCAFT
 {
     public static class CUtils
     {
-        public static int HASH_SALT_BYTE_NUM = 16;
-        public static byte TCP_END_SINGLE_SIGN = 0x4;
-        public static int TCP_END_SIGN_NUM_OF_SIGNS = 40;
-        public static byte HASH_DELIMITER_SIGN = 0x2;
-        public static int HASH_DELIMITER_NUM_OF_TIMES = 40;
-
-        private static byte[] TCP_END_MESSAGE_SIGN
-        {
-            get 
-            {
-                byte[] baTCP_EndSignal = new byte[TCP_END_SIGN_NUM_OF_SIGNS];
-                for (int i = 0; i < TCP_END_SIGN_NUM_OF_SIGNS; i++)
-                {
-                    baTCP_EndSignal[i] = TCP_END_SINGLE_SIGN;
-                }
-                return baTCP_EndSignal;
-            }
-        }
-
+        public static int HASH_SALT_BYTE_NUM = 0; 
+        public static int TCP_MESSAGE_LENGTH_FIELD_SIZE = 40;
+        public static int REGULAR_MESSAGE_HEADER_LENGTH_FIELD_SIZE = 10;
         private static int BLOCK_AND_KEY_SIZE = 128;
 
         public static int iKeyIvSizeInBytes { get { return BLOCK_AND_KEY_SIZE / 8; } }
@@ -175,7 +160,6 @@ namespace SCAFT
             
 
             baRes = CUtils.ConcatByteArrays(baIV, encryptedText);
-            baRes = InsertEndMsgDelimiter(TCP_END_SINGLE_SIGN, TCP_END_SIGN_NUM_OF_SIGNS, baRes);
            
 
             return baRes;
@@ -192,10 +176,8 @@ namespace SCAFT
             return CUtils.ConcatByteArrays(baMsgCode, baMsg);
         }
 
-        public static byte[] DecryptBytes(byte[] _encryptedText, byte[] key, out EMessageType eMsgType)
-        {
-            _encryptedText = CUtils.RemoveSignalFromMsg(TCP_END_SINGLE_SIGN, TCP_END_SIGN_NUM_OF_SIGNS,_encryptedText);
-
+        public static byte[] DecryptBytes(byte[] _encryptedText, byte[] key, out EMessageType eMsgType, out byte[] baIVRecieved)
+        { 
             byte[] baResult = new byte[0];
             byte[] encryptedText = new byte[0];
             byte bMsgType = 0;
@@ -219,12 +201,12 @@ namespace SCAFT
                 AesCryptoServiceProvider aes = new AesCryptoServiceProvider();//
                 aes.BlockSize = BLOCK_AND_KEY_SIZE;
                 aes.Key = key;
-                byte[] baIV = new byte[iKeyIvSizeInBytes];
+                baIVRecieved = new byte[iKeyIvSizeInBytes];
                 for (int i = 0; i < iKeyIvSizeInBytes; i++)
                 {
-                    baIV[i] = _encryptedText[i];
+                    baIVRecieved[i] = _encryptedText[i];
                 }
-                aes.IV = baIV;
+                aes.IV = baIVRecieved;
                 aes.Mode = CipherMode.CBC;
                  
                 CryptoStream cs = new CryptoStream(ms,
@@ -247,149 +229,100 @@ namespace SCAFT
             eMsgType = CUtils.GetTcpEMessageTypeDesc(bMsgType);
             return baResult;
         }
-         
-        public static byte[] GetMessageWithoutTcpEndSignal(byte[] msgWithTcpSignal)
-        { 
-            long lNumOfMsgContentBytes = msgWithTcpSignal.Length;
-            int iSignCount = 0;
-            for (long i = 0; i < msgWithTcpSignal.Length; i++)
-            {
-                if (msgWithTcpSignal[i] == CUtils.TCP_END_SINGLE_SIGN)
-                {
-                    iSignCount++;
-                    if (iSignCount == CUtils.TCP_END_SIGN_NUM_OF_SIGNS)
-                    {
-                        lNumOfMsgContentBytes = i - CUtils.TCP_END_SIGN_NUM_OF_SIGNS + 1;
-                        break;
-                    }
-                }
-                else
-                {
-                    iSignCount = 0;
-                }
-            }
-
-            byte[] baRes = new byte[lNumOfMsgContentBytes];
-
-            Array.Copy(msgWithTcpSignal, 0, baRes, 0, lNumOfMsgContentBytes);
-
-            return baRes;
-        }
-
-        //insert end message sign and duplicate sign when found in message
-        public static byte[] InsertEndMsgDelimiter(byte bSign, int iSignNumOfTimes, byte[] baMsg)
-        {
-            int iFindDelCounter = 0;
-            List<byte> olByte = new List<byte>();
-
-            for (int i = 0; i < baMsg.Length; i++)
-            {
-                olByte.Add(baMsg[i]);
-                if (baMsg[i] == bSign)
-                {
-                    iFindDelCounter++;
-                    if (iSignNumOfTimes == iFindDelCounter)
-                    {
-                        iFindDelCounter = 0;
-                        for (int z = 0; z < iSignNumOfTimes; z++)
-                        {
-                            olByte.Add(bSign);
-                        }
-                    }
-                }
-                else
-                {
-                    iFindDelCounter = 0;
-                }
-            }
-
-            for (int z = 0; z < iSignNumOfTimes; z++)
-                olByte.Add(bSign);
-
-            return olByte.ToArray();
-        }
-
-        //takes message with endSignal (and signal duplicated in message) and return original message
-        public static byte[] RemoveSignalFromMsg(byte bSign, int iSignNumOfTimes, byte[] baMsg)
-        {
-            List<byte> olByte = new List<byte>();
-            int iFindDelCounter = 0;
-
-            for (int i = 0; i < baMsg.Length; i++)
-            {
-                if (baMsg[i] == bSign)
-                {
-                    iFindDelCounter++; //count delimiter sign
-                    if (iSignNumOfTimes * 2 == iFindDelCounter)//if sign spotted 2 times then its should be 1 time on Original Msg
-                    {
-                        iFindDelCounter = 0;
-                        for (int z = 0; z < iSignNumOfTimes; z++)//put 1 time the delimiter sequence on msg
-                        {
-                            olByte.Add(bSign);
-                        }
-                    } 
-                }
-
-                if (baMsg[i] != bSign || i == baMsg.Length - 1)//if last byte Or not a delimiter sequence Then copy all delimiter signs skipped
-                {
-                    if (i == baMsg.Length - 1 && baMsg[i] == bSign)//if end of squence dont copt it
-                        iFindDelCounter -= iSignNumOfTimes;
-
-                    for (int z = 0; z < iFindDelCounter; z++)//insert all sign because we new see its not a full delimiter sequence
-                    {
-                        olByte.Add(bSign);
-                    }
-
-                    if (baMsg[i] != bSign)
-                    {
-                        olByte.Add(baMsg[i]);
-                    }
-
-                    iFindDelCounter = 0;
-                }
-            }
-
-            return olByte.ToArray();
-        }
-
+           
         public static string ByteArrayToHexString(byte[] ba)
         {
             StringBuilder hex = new StringBuilder(ba.Length * 2);
-            foreach (byte b in ba)
+            for (int i = 0; i <ba.Length; i++)
             {
-                if (b > 15)
-                    hex.AppendFormat("{0:x2},", b);
-                else
-                    hex.AppendFormat("{0:x1},", b);
+                hex.AppendFormat("{0:x2}", ba[i]);
+                
+                if(i < ba.Length - 1)//dint add ',' to after last byte
+                {
+                    hex.AppendFormat(",");
+                }
             }
             return hex.ToString();
         }
 
-        public static byte[] CheckMacAndReturnMsgByteArray(byte[] baMsgWithMac, out bool IsMacOK, out byte[] baHMAcInMsg)
+        public static Message CheckMacWriteToLog_AndReturnMessages(byte[] baMsgWithMac, int iPort, string sFileName = null)
         {
-            List<byte[]> lbaRes = Message.SpliteMultiMessagesIntoByteArrays(baMsgWithMac, CUtils.HASH_DELIMITER_SIGN, CUtils.HASH_DELIMITER_NUM_OF_TIMES);
-            List<byte> lbHash = new List<byte>();
-
-            if (lbaRes.Count != 2 || lbaRes[1].Length < CUtils.HASH_SALT_BYTE_NUM) throw new Exception("Msg wasn`t recieved like send");
-
-            byte[] baSalt = new byte[CUtils.HASH_SALT_BYTE_NUM];
-            
-            for(int i=0; i < baSalt.Length; i++)
+            try
             {
-                baSalt[i] = lbaRes[1][i];
+                List<byte[]> lbaRes = SplitByLength(baMsgWithMac, CUtils.TCP_MESSAGE_LENGTH_FIELD_SIZE);
+                List<byte> lbHash = new List<byte>();
+
+                if (lbaRes.Count != 2 || lbaRes[1].Length < CUtils.HASH_SALT_BYTE_NUM) throw new Exception("Msg wasn`t recieved like send");
+
+                byte[] baSalt = new byte[CUtils.HASH_SALT_BYTE_NUM];
+
+                for (int i = 0; i < baSalt.Length; i++)
+                {
+                    baSalt[i] = lbaRes[1][i];
+                }
+
+
+                for (int i = baSalt.Length; i < lbaRes[1].Length; i++)
+                {
+                    lbHash.Add(lbaRes[1][i]);
+                }
+
+                byte[] baHMAcInMsg = lbHash.ToArray();
+                byte[] baExpectedHMAC = CUtils.GetHMAC(baSalt, lbaRes[0]);
+                bool IsMacOK = (lbaRes[0].Length == 0) ? false : ByteArrayCompare(baExpectedHMAC, baHMAcInMsg);
+
+                Message oMessage = new Message(lbaRes[0]);
+
+                if (!IsMacOK)
+                {
+
+                    LogMessage oLogMessage;
+                    if (sFileName != null)
+                    {
+                        oLogMessage = new LogMessage(DateTime.Now, iPort, oMessage.oUser.oIP, oMessage.oUser.sUserName,
+                                                   oMessage.baRecievedIV, baHMAcInMsg, baExpectedHMAC, sFileName, true);
+                        MessageBox.Show("Warning!!!  File with a bad MAC digest Received (See \"" + CLog.LOG_FILE_NAME + "\" file).");
+                    }
+                    else
+                    {
+                        string sMsgContent;
+                        switch(oMessage.eMessageType)
+                        {
+                            case EMessageType.Bye:
+                                sMsgContent = "MessageType:Bye";
+                                break;
+                            case EMessageType.Hellow:
+                                sMsgContent = "MessageType:Hellow";
+                                break;
+                            case EMessageType.NO:
+                                sMsgContent = "MessageType:NO(about file sending)";
+                                break;
+                            case EMessageType.OK:
+                                sMsgContent = "MessageType:OK(about file sending)";
+                                break;
+                            case EMessageType.SENDFILE:
+                                sMsgContent = "MessageType:SENDFILE(about file sending)";
+                                break;
+                            case EMessageType.Text:
+                                sMsgContent = "MessageType:Text MessageContent:\""+ oMessage.sStringContent+"\"";
+                                break;
+                            default:
+                                sMsgContent = "MessageType:Unknown";
+                                break;
+                        }
+                        oLogMessage = new LogMessage(DateTime.Now, iPort, oMessage.oUser.oIP, oMessage.oUser.sUserName,
+                                                   oMessage.baRecievedIV, baHMAcInMsg, baExpectedHMAC, sMsgContent, false);
+                        MessageBox.Show("Warning!!!  Message with a bad MAC digest Received (See \"" + CLog.LOG_FILE_NAME + "\" file).");
+                    }
+                    CLog.WriteLineToLoge(oLogMessage);
+                    return null;
+                }
+                else
+                {
+                    return oMessage;
+                }
             }
-
-
-            for(int i = baSalt.Length; i < lbaRes[1].Length; i++)
-            {
-                lbHash.Add(lbaRes[1][i]);
-            }
-
-            baHMAcInMsg = lbHash.ToArray();
-
-            IsMacOK = ByteArrayCompare(CUtils.GetHMAC(baSalt, lbaRes[0]), baHMAcInMsg);
-
-            return lbaRes[0]; 
+            catch { MessageBox.Show("Warning!!!  Altered Transmit Received."); return null; }
         }
 
         public static bool ByteArrayCompare(byte[] a1, byte[] a2)
@@ -404,7 +337,7 @@ namespace SCAFT
             return true;
         }
 
-        public static void InsertHMAC_ToMessage(Message oMsg)
+        public static void InsertHMAC_ToMessage(Message oMsg, byte[] baThisMsgEncyptedContent)
         { 
             RNGCryptoServiceProvider rand = new RNGCryptoServiceProvider();
 
@@ -412,19 +345,81 @@ namespace SCAFT
 
             rand.GetBytes(oMsg.baHashSalt);
 
-            oMsg.baHash = CUtils.GetHMAC(oMsg.baHashSalt, oMsg.GetEncMessage()); 
+            oMsg.baHash = CUtils.GetHMAC(oMsg.baHashSalt, baThisMsgEncyptedContent); 
         }
-
-        
-
-
+         
         public static byte[] GetHMAC(byte[] baSalt, byte[] baMsg)
-        { 
-            HMACSHA512 oHMACSHA512 = new HMACSHA512(CSession.baPassworMacdKey);
+        {
+            HMACSHA256 oHMACSHA256 = new HMACSHA256(CSession.baPassworMacdKey);
             byte[] baTemp = CUtils.ConcatByteArrays(baSalt, baMsg);
             baTemp = CUtils.ConcatByteArrays(baTemp, baSalt);
 
-            return oHMACSHA512.ComputeHash(baTemp);
+            return oHMACSHA256.ComputeHash(baTemp);
         }
+
+        //splits an array of bytes that is possible multi messages to arrays of bytes that each is one message encrypted. 
+        public static List<byte[]> SplitByLength(byte[] baMsg, int iLengthFieldByteNum)
+        { 
+            byte[] baLength = new byte[iLengthFieldByteNum];
+
+            for (int i = 0; i < baLength.Length; i++)
+            {
+                baLength[i] = baMsg[i];
+            }
+
+            long lMsgLength = BitConverter.ToInt64(baLength, 0);
+            List<byte> lbTemp = new List<byte>();
+            List<byte[]> lRes = new List<byte[]>();
+
+            for (long i = baLength.Length; i < baMsg.Length; i++)
+            {
+                if (i == lMsgLength + baLength.Length)
+                {
+                    lRes.Add(lbTemp.ToArray());
+                    lbTemp = new List<byte>();
+                }
+
+                lbTemp.Add(baMsg[i]);
+            }
+
+            lRes.Add(lbTemp.ToArray());
+
+            return lRes;
+        }
+
+        //return byte[] with first CUtils.TCP_MESSAGE_LENGTH_FIELD_SIZE is msgContentLength, then MsgContent, then HASH_SALT_BYTE_NUM bytes with salt, then Hash
+        public static byte[] GetMsgWithHMacBytes(Message oMsg, byte[] baMsgContent)
+        {
+            CUtils.InsertHMAC_ToMessage(oMsg, baMsgContent);
+             
+            byte[] baMsgLength = CUtils.InsertIntValueToByteArray(baMsgContent.Length, CUtils.TCP_MESSAGE_LENGTH_FIELD_SIZE);
+              
+            byte[] baTemp = CUtils.ConcatByteArrays(baMsgLength, baMsgContent);
+
+            baTemp = CUtils.ConcatByteArrays(baTemp, oMsg.baHashSalt);
+
+            baTemp = CUtils.ConcatByteArrays(baTemp, oMsg.baHash);
+
+            return baTemp;
+        }
+
+        public static byte[] InsertIntValueToByteArray(int iValue, int iArraySize)
+        {
+            byte[] baTemp = BitConverter.GetBytes(iValue);
+
+            byte[] baResult = new byte[iArraySize];
+
+            for (int i = 0; i < baResult.Length; i++)
+            {
+                baResult[i] = (i < baTemp.Length) ? baTemp[i] : (byte)0;
+            }
+
+            return baResult;
+        }
+        
+            
+
+
+            
     } 
 }

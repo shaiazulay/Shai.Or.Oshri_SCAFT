@@ -30,6 +30,8 @@ namespace SCAFT
 
         public byte[] baBytesContent { get; set; }
 
+        public byte[] baRecievedIV { get; set; }
+
         public byte[] baHashSalt { get; set; }
 
         public byte[] baHash { get; set; }
@@ -58,116 +60,66 @@ namespace SCAFT
         public Message(byte[] baEnc)
         {
             EMessageType eMsgTypeTemp;
-            
-            byte[] baPlainBytes = CUtils.DecryptBytes(baEnc, CSession.baPasswordKey, out eMsgTypeTemp);
+
+            byte[] _baRecievedIV;
+
+            byte[] baPlainBytes = CUtils.DecryptBytes(baEnc, CSession.baPasswordKey, out eMsgTypeTemp, out _baRecievedIV);
+
+            baRecievedIV = _baRecievedIV;
+
             eMessageType = eMsgTypeTemp;
 
-            if (eMessageType == EMessageType.Bye || eMessageType == EMessageType.NO || 
-                    eMessageType == EMessageType.Hellow || eMessageType == EMessageType.OK ||
-                eMessageType == EMessageType.SENDFILE || eMessageType == EMessageType.Text)
+            List<byte[]> lbaMsg = CUtils.SplitByLength(baPlainBytes, CUtils.REGULAR_MESSAGE_HEADER_LENGTH_FIELD_SIZE);
+
+            string sPlainText = CSession.TextMessageContentEncoding.GetString(lbaMsg[0]);
+
+            string[] saBits = sPlainText.Split(MESSAGE_DELIMITER_BETWEEN_FIELDS);
+
+            IPAddress oIp = null;
+            IPAddress.TryParse(saBits[1], out oIp);
+
+            oUser = new User(oIp, saBits[0]);
+
+            if (lbaMsg.Count > 1)//Msg without content is possible (Hellow,Bye...)
             {
-                string sPlainText = CSession.TextMessageContentEncoding.GetString(baPlainBytes);
-
-                string[] saBits = sPlainText.Split(MESSAGE_DELIMITER_BETWEEN_FIELDS);
-
-                IPAddress oIp = null;
-                IPAddress.TryParse(saBits[1], out oIp);
-
-                oUser = new User(oIp, saBits[0]);
-
-                sStringContent = saBits[2];
-                for (int i = 3; i < saBits.Length; i++)//if there are delimeter in content then concate them to be one contenct
-                    sStringContent += MESSAGE_DELIMITER_BETWEEN_FIELDS + saBits[i];
-            } 
-            else
-            {
-                baBytesContent = baPlainBytes; 
-            }
-        }
-
-        public static Message GetMessageFromTcpEncrypted(byte[] baEncrypted)
-        {
-            byte[] baMsg = CUtils.GetMessageWithoutTcpEndSignal(baEncrypted);
-            return new Message(baMsg);
-        }
-
-        //gets an encrypted byte[] (with end message byte sequence) that has possible few messages and return the messages
-        public static Message[] GetMsgFromTcpEncrypted(byte[] baEncrypted)
-        { 
-            List<Message> olMessages= new List<Message>();
-            List<byte[]> lbaMessages = SpliteMultiMessagesIntoByteArrays(baEncrypted, CUtils.TCP_END_SINGLE_SIGN, CUtils.TCP_END_SIGN_NUM_OF_SIGNS);
-
-            for (int i = 0; i < lbaMessages.Count; i++)
-            {
-                olMessages.Add(new Message(lbaMessages[i]));
-            }
-
-            return olMessages.ToArray();
-        }
-        //splits an array of bytes that is possible multi messages to arrays of bytes that each is one message encrypted. 
-        public static List<byte[]> SpliteMultiMessagesIntoByteArrays(byte[] baEncrypted, byte bDelimiterSign, int iDelimiterNumOfTimes)
-        {
-            List<byte[]> lbaRes = new List<byte[]>();//holds result 
-            int iNumOfSign = 0;
-            int iFirstArrayIndex = 0;
-
-            for(int i = 0; i < baEncrypted.Length; i++)//on all the message
-            {
-                if (baEncrypted[i] == bDelimiterSign && i < baEncrypted.Length - 1)//if delimiter sign, and not last byte in message
+                if (eMessageType == EMessageType.FileContent_InBytes)
                 {
-                    iNumOfSign++;//count another sign spotted
+                    this.baBytesContent = lbaMsg[1];
                 }
-                else //if current byte is not a delimiter Or its last byte in Msg
+                else
                 {
-                    //if num of signs shows that its a new sequence that split and insert to Result List
-                    if (iDelimiterNumOfTimes == iNumOfSign || (i == baEncrypted.Length - 1 && baEncrypted[i] == bDelimiterSign))
-                    {
-                        byte[] baTemp = new byte[i - iFirstArrayIndex];//length of current sequence
-                        Array.Copy(baEncrypted, iFirstArrayIndex, baTemp, 0, baTemp.Length);
-                        lbaRes.Add(baTemp);
-                        iFirstArrayIndex = i;//set new sequence start index
-                    }
-
-                    iNumOfSign = 0; //start new count of delimiter signs
+                    this.sStringContent = CSession.TextMessageContentEncoding.GetString(lbaMsg[1]);
                 }
-            }
-
-            return lbaRes;
-        }
-
-        public byte[] GetEncMessage()
-        {
-            if (eMessageType != EMessageType.FileContent_InBytes)
-            {
-                string sPlainMsg = "";
-                sPlainMsg += oUser.sUserName + MESSAGE_DELIMITER_BETWEEN_FIELDS;
-                sPlainMsg += oUser.oIP.ToString() + MESSAGE_DELIMITER_BETWEEN_FIELDS;
-                sPlainMsg += sStringContent;
-                 
-                return CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, Encoding.UTF8.GetBytes(sPlainMsg), eMessageType);           
-            }
-            else
-            {
-                return CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, baBytesContent, eMessageType);
             }
         }
  
-        public byte[] GetEncMessageWithHMAC()
+       
+
+        public byte[] GetEncMessage()
         {
-            byte[] baMsg = CUtils.InsertEndMsgDelimiter(CUtils.HASH_DELIMITER_SIGN, //get encripted msg with a end msg sign
-                                            CUtils.HASH_DELIMITER_NUM_OF_TIMES,
-                                            this.GetEncMessage());
+            byte[] baEnc;
+            
+            string sPlainMsg = "";
+            sPlainMsg += oUser.sUserName + MESSAGE_DELIMITER_BETWEEN_FIELDS;
+            sPlainMsg += oUser.oIP.ToString() + MESSAGE_DELIMITER_BETWEEN_FIELDS;
+                 
+            byte[] baHeaderContent = Encoding.UTF8.GetBytes(sPlainMsg);
 
-            //insert Salt and Hash to Message Object
-            CUtils.InsertHMAC_ToMessage(this);
+            byte[] baHeaderLength = CUtils.InsertIntValueToByteArray(baHeaderContent.Length, CUtils.REGULAR_MESSAGE_HEADER_LENGTH_FIELD_SIZE);
 
-            //add to Salt end 
-            baMsg = CUtils.ConcatByteArrays(baMsg, this.baHashSalt);
+            byte[] baMessage = CUtils.ConcatByteArrays(baHeaderLength, baHeaderContent);
 
-            //add HMAC to end
-            return CUtils.ConcatByteArrays(baMsg, this.baHash);
+            byte[] baMessageContent = (eMessageType != EMessageType.FileContent_InBytes)? 
+                                CSession.TextMessageContentEncoding.GetBytes(this.sStringContent):
+                                this.baBytesContent; 
+
+            baMessage = CUtils.ConcatByteArrays(baMessage, baMessageContent);   
+
+            baEnc = CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, baMessage, eMessageType);
+             
+            return CUtils.GetMsgWithHMacBytes(this, baEnc);
         }
-
+  
         public static Message GetMessageFromHMAC_AndEncryptedMsg(byte[] baMsg)
         {
             Message oMessage = new Message();
