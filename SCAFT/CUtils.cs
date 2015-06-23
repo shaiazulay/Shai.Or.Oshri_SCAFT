@@ -9,10 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SCAFT
+namespace SCAFTI
 {
     public static class CUtils
     {
+        public static char HEX_STRING_DELIMITER = ',';
         public static int HASH_SALT_BYTE_NUM = 0; 
         public static int TCP_MESSAGE_LENGTH_FIELD_SIZE = 40;
         public static int REGULAR_MESSAGE_HEADER_LENGTH_FIELD_SIZE = 10;
@@ -239,16 +240,45 @@ namespace SCAFT
                 
                 if(i < ba.Length - 1)//dint add ',' to after last byte
                 {
-                    hex.AppendFormat(",");
+                    hex.AppendFormat(HEX_STRING_DELIMITER.ToString());
                 }
             }
             return hex.ToString();
         }
 
-        public static Message CheckMacWriteToLog_AndReturnMessages(byte[] baMsgWithMac, int iPort, string sFileName = null)
+        public static byte[] HexStringToByeArray(string s)
         {
             try
             {
+                string[] saBits = s.Split(HEX_STRING_DELIMITER);
+
+                List<byte> lb = new List<byte>();
+
+                for (int i = 0; i < saBits.Length; i++)
+                {
+                    lb.Add(Convert.ToByte(saBits[i], 16));
+                }
+
+                return lb.ToArray();
+            }
+            catch
+            {
+                MessageBox.Show("the hex string wasn`t in correct format");
+                return new byte[0];
+            }
+        }
+
+        public static Message CheckMacWriteToLog_AndReturnMessages(byte[] baMsgWithMac, int iPort, bool IsSignVerify, string sFileName = null)
+        {
+            try
+            {
+                bool DontWriteToLogNotVerified = true;
+
+                if(IsSignVerify)
+                {
+                    DontWriteToLogNotVerified = CRSA.GetMessageWithoutSignatueIfVerify(out baMsgWithMac);
+                }
+
                 List<byte[]> lbaRes = SplitByLength(baMsgWithMac, CUtils.TCP_MESSAGE_LENGTH_FIELD_SIZE);
                 List<byte> lbHash = new List<byte>();
 
@@ -315,10 +345,18 @@ namespace SCAFT
                         MessageBox.Show("Warning!!!  Message with a bad MAC digest Received (See \"" + CLog.LOG_FILE_NAME + "\" file).");
                     }
                     CLog.WriteLineToLoge(oLogMessage);
+                    if (!DontWriteToLogNotVerified)
+                    {
+                        //tbd
+                    }
                     return null;
                 }
                 else
                 {
+                    if (!DontWriteToLogNotVerified)
+                    {
+                        //tbd
+                    }
                     return oMessage;
                 }
             }

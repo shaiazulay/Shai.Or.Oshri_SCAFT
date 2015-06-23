@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Net.Sockets;
 using System.Net;
 
-namespace SCAFT
+namespace SCAFTI
 
 {
     static class ListeningBroadcast

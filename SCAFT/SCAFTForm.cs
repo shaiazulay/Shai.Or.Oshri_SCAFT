@@ -5,22 +5,22 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 
 
-namespace SCAFT
+namespace SCAFTI
 {
-    public partial class SCAFTForm : Form//
-    {
+    public partial class SCAFTIForm : Form//
+    {  
         Timer oHellowTimer;
         private const int iHellowMsgMiliSecInterval = 1000;
         internal User oCurrentUser;
         private static UdpClient udp;
         private BackgroundWorker bwUDP;
         private BackgroundWorker bwTCP;
-        private static TcpListener tcpListener;
-        private List<BackgroundWorker> list;
+        private static TcpListener tcpListener; 
         private static IPEndPoint multicastEP
         {
             get
@@ -32,7 +32,7 @@ namespace SCAFT
             }
         }
 
-        public SCAFTForm()
+        public SCAFTIForm()
         {
             try
             {
@@ -248,7 +248,7 @@ namespace SCAFT
 
                 byte[] bafullMessage = (byte[])param[2];
 
-                Message oCurrentMsg = CUtils.CheckMacWriteToLog_AndReturnMessages(bafullMessage, CSession.iPort);
+                Message oCurrentMsg = CUtils.CheckMacWriteToLog_AndReturnMessages(bafullMessage, CSession.iPort, true);
 
                 if (oCurrentMsg != null)
                 {
@@ -265,7 +265,7 @@ namespace SCAFT
                             {
                                 User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                                if (oUser == null)// && !oCurrentMsg.oUser.Equals(oCurrentUser))
+                                if (oUser == null && !oCurrentMsg.oUser.Equals(oCurrentUser))
                                     listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
                                 if (oUser != null)
@@ -458,5 +458,155 @@ namespace SCAFT
             }
             catch { }
         }
+
+        private void btnGenerateWithPrivateKey_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                CRSA.GenerateWithPrivateKey(int.Parse(txtRSAKeySize.Text));
+
+                ShowRSAParams(true);
+            }
+            catch
+            {
+                MessageBox.Show("invalid rsa key size!!");
+            }
+        }
+
+        private void ShowRSAParams(bool IsWithPrivate)
+        {
+            // show the parameters in the window
+            RSAParameters par = CRSA.rsa.ExportParameters(IsWithPrivate);
+
+            this.txtP.Text = CUtils.ByteArrayToHexString(par.P);
+            this.txtQ.Text = CUtils.ByteArrayToHexString(par.Q);
+            this.txtModulus.Text = CUtils.ByteArrayToHexString(par.Modulus);
+            this.txtExponent.Text = CUtils.ByteArrayToHexString(par.Exponent);
+            this.txtD.Text = CUtils.ByteArrayToHexString(par.D);
+            this.txtDmodP1.Text = CUtils.ByteArrayToHexString(par.DP);
+            this.txtDmodQ1.Text = CUtils.ByteArrayToHexString(par.DQ);
+        }
+  
+        private void btnExportWithPrivate_Click(object sender, EventArgs e)
+        {
+            ExportRsaToFile(true);
+        }
+
+        private void btnExportWithoutPrivateKey_Click(object sender, EventArgs e)
+        {
+            ExportRsaToFile(false);
+        }
+
+        private void ExportRsaToFile(bool IsWithPrivateKey)
+        {
+            FileStream fsOut = null;
+            StreamWriter swOut = null;
+            try
+            {
+                fdExport.FileName = "";
+
+                if (fdExport.ShowDialog() ==
+                    System.Windows.Forms.DialogResult.OK)
+                {
+                    fsOut = new FileStream(fdExport.FileName, FileMode.OpenOrCreate, FileAccess.Write);
+                    swOut = new StreamWriter(fsOut);
+
+                    //covert public private key to KML
+
+                    swOut.Write(CRSA.rsa.ToXmlString(IsWithPrivateKey));
+                    swOut.Close();
+                    fsOut.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("exporting fail  check that a key was generated");
+            }
+            finally
+            {
+                if (swOut != null) swOut.Close();
+                if (fsOut != null) fsOut.Close();
+            }
+        }
+
+        private void btnImportWithPrivateKey_Click(object sender, EventArgs e)
+        {
+            FileStream fsIn = null;
+            StreamReader srIn = null;
+            try
+            {
+                fdImport.FileName = "";
+
+                if (fdImport.ShowDialog() ==
+                    System.Windows.Forms.DialogResult.OK)
+                {
+                    fsIn = new FileStream(fdImport.FileName, FileMode.Open, FileAccess.Read);
+                    srIn = new StreamReader(fsIn);
+                    string key = srIn.ReadToEnd();
+
+                    CRSA.rsa = new RSACryptoServiceProvider();
+
+                    CRSA.rsa.FromXmlString(key);
+
+                    ShowRSAParams(true);
+                }
+            }
+            catch (Exception e2)
+            {
+                MessageBox.Show("import failed check if file is valid and has private key");
+            }
+            finally
+            {
+                if (srIn != null) srIn.Close();
+                if (fsIn != null) fsIn.Close();
+            }
+        }
+
+        private void btnLoadOtherUserPublicKey_Click(object sender, EventArgs e)
+        {
+            if(txtOtherUserName.Text.Trim().Length == 0)
+            {
+                MessageBox.Show("No User Name was entered for this public key");
+                return;
+            }
+
+            if(txtOtherUserName.Text.Contains(' ') || txtOtherUserName.Text.Contains('@'))
+            {
+                MessageBox.Show("User Name Can`t contain '@' Or whilte spaces");
+                return;
+            }
+
+            FileStream fsIn = null;
+            StreamReader srIn = null;
+            try
+            {
+                fdImport.FileName = "";
+
+                if (fdLoadUserPublicKey.ShowDialog() ==
+                    System.Windows.Forms.DialogResult.OK)
+                {
+                    fsIn = new FileStream(fdLoadUserPublicKey.FileName, FileMode.Open, FileAccess.Read);
+                    srIn = new StreamReader(fsIn);
+                    string key = srIn.ReadToEnd();
+
+                    RSACryptoServiceProvider oTempRsa = new RSACryptoServiceProvider();
+
+                    oTempRsa.FromXmlString(key);
+
+                    oTempRsa.ExportParameters(false);//check that is valid
+
+                    CRSA.AddOtherUserKeyToPublicKeys(txtOtherUserName.Text, oTempRsa.ToXmlString(false));
+                }
+            }
+            catch (Exception e3)
+            {
+                MessageBox.Show("user public key file not loaded. check that the file is valid");
+            }
+            finally
+            {
+                if (srIn != null) srIn.Close();
+                if (fsIn != null) fsIn.Close();
+            }
+        } 
     }
 }    

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
  
-namespace SCAFT
+namespace SCAFTI
 {
     internal class HandleClient
     {
@@ -25,7 +25,7 @@ namespace SCAFT
             BackgroundWorker me = (BackgroundWorker) sender;
             object[] param = (object[]) doe.Argument; 
             TcpClient connectionSocket = (TcpClient) param[0];
-            SCAFTForm scaftForm = (SCAFTForm) param[1];
+            SCAFTIForm scaftForm = (SCAFTIForm) param[1];
             NetworkStream ns = connectionSocket.GetStream();
          
             string sFilePath = ""; 
@@ -47,7 +47,7 @@ namespace SCAFT
                     /* msg is the final byte array from the stream */ 
                     int iport = ((IPEndPoint)connectionSocket.Client.RemoteEndPoint).Port;
                     
-                    oCurrentMsg= CUtils.CheckMacWriteToLog_AndReturnMessages(messageStream.ToArray(), iport);
+                    oCurrentMsg= CUtils.CheckMacWriteToLog_AndReturnMessages(messageStream.ToArray(), iport, false);
                 }
 
                 if (oCurrentMsg != null)
@@ -94,7 +94,7 @@ namespace SCAFT
                                                 } while (bytesRead > 0 && !me.CancellationPending);
                                             }
 
-                                            Message oMessage = CUtils.CheckMacWriteToLog_AndReturnMessages(messageStream.ToArray(), randomePort, sFilePath);
+                                            Message oMessage = CUtils.CheckMacWriteToLog_AndReturnMessages(messageStream.ToArray(), randomePort, false, sFilePath);
 
                                             if (oMessage != null)
                                             {

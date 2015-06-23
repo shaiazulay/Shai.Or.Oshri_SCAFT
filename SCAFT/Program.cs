@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SCAFT
+namespace SCAFTI
 {
     static class Program
     {
@@ -16,7 +16,7 @@ namespace SCAFT
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SCAFTForm());//Test  SCAFTForm
+            Application.Run(new Test());//Test  SCAFTIForm
 
         }
     }

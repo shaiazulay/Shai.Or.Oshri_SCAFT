@@ -1,4 +1,4 @@
-﻿namespace SCAFT
+﻿namespace SCAFTI
 {
     partial class ConfigurationDetailsForm
     {

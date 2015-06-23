@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Windows.Forms;
 
-namespace SCAFT
+namespace SCAFTI
 {
     public static class CSession
     {

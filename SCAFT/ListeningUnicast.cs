@@ -8,7 +8,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Collections.Generic;
 
-namespace SCAFT
+namespace SCAFTI
 
 {
     static class ListeningUnicast
@@ -20,7 +20,7 @@ namespace SCAFT
             object[] param = (object[])e.Argument;
             clientList = new List<TcpClient>();
             TcpListener listener = (TcpListener) param[0];
-            SCAFTForm scaftForm = (SCAFTForm) param[1];
+            SCAFTIForm scaftForm = (SCAFTIForm) param[1];
              me = (BackgroundWorker) sender;
 
             // read data

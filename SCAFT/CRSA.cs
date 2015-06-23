@@ -1,0 +1,111 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace SCAFTI
+{
+    public static class CRSA
+    {
+        private static string RSA_SIGN_ALG = "SHA256";
+        public static RSACryptoServiceProvider rsa;
+        private static string OTHER_USERS_KEYS_FILE_PATH = "UsersPublicKeysConfig.txt"; 
+        private static char OTHER_USERS_DELIMITER = ' '; 
+
+        public static void GenerateWithPrivateKey(int iKeySizeInBits)
+        {
+            rsa = new RSACryptoServiceProvider(iKeySizeInBits); 
+        }
+
+        public static byte[] RSASign(byte[] baMsg)
+        {
+            object oHalg = CryptoConfig.CreateFromName(RSA_SIGN_ALG);
+            return rsa.SignData(baMsg, oHalg);
+        }
+
+        public static byte[] AddSignatureToMsg(byte[] baMsg)
+        {
+            return baMsg;
+        }
+
+        public static bool GetMessageWithoutSignatueIfVerify(out byte[] baMsgWithSign)
+        {
+            baMsgWithSign = new byte[0];
+            return true;
+        }
+
+        public static bool IsSignatureValid(string sXmlPublicKey, byte[] baMsgSigned, byte[] baSignature)
+        {
+            RSACryptoServiceProvider UserRsa = new RSACryptoServiceProvider();
+
+            UserRsa.FromXmlString(sXmlPublicKey);
+
+            object oHalg = CryptoConfig.CreateFromName(RSA_SIGN_ALG);
+            return UserRsa.VerifyData(baMsgSigned, oHalg, baSignature);
+        }
+
+        public static void AddOtherUserKeyToPublicKeys(string sUserName, string sUserPublicKey)
+        { 
+            try
+            {
+                if (GetUserPublicKeyFromOtherUsersFile(sUserName) == null)
+                { 
+                    using (StreamWriter sw = File.AppendText(OTHER_USERS_KEYS_FILE_PATH))
+                    {
+
+
+                        sw.WriteLine(" UserName:" + sUserName + "@UserKey:" + sUserPublicKey + "");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("user Name public key already exists");
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("exporting fail  check that a key was generated");
+            } 
+        }
+
+        public static string GetUserPublicKeyFromOtherUsersFile(string sUserName)
+        {
+            using(FileStream fsIn = new FileStream(OTHER_USERS_KEYS_FILE_PATH, FileMode.OpenOrCreate, FileAccess.Read))
+            {
+                using(StreamReader srIn = new StreamReader(fsIn))
+                {
+                    string sUsers = srIn.ReadToEnd();
+                    string[] saUsers = sUsers.Split(OTHER_USERS_DELIMITER);
+ 
+                    foreach(string sUserData in saUsers)
+                    {
+                        int iTempIndex = sUserData.IndexOf(':');//getNameStartIndex
+                        if (iTempIndex > 0 && iTempIndex < sUserData.Length)
+                        {
+                            string sTemp = sUserData.Substring(iTempIndex + 1); //now sTemp start from UserName
+                            iTempIndex = sTemp.IndexOf('@');//getNameEndIndex
+                            string sCurrentUserName = sTemp.Substring(0, iTempIndex);
+
+                            if (sCurrentUserName == sUserName)
+                            {
+                                sTemp = sTemp.Substring(iTempIndex + 1);//now sTemp start from UserKeyTitle
+                                iTempIndex = sTemp.IndexOf(':');
+                                sTemp = sTemp.Substring(iTempIndex + 1);//now sTemp start from UserKeyData
+                                return Regex.Replace(sTemp, @"\t|\n|\r", "");
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
+            
+        }
+
+    }
+}

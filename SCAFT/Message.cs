@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SCAFT
+namespace SCAFTI
 {
     public enum EMessageType
     {
@@ -117,15 +117,9 @@ namespace SCAFT
 
             baEnc = CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, baMessage, eMessageType);
              
-            return CUtils.GetMsgWithHMacBytes(this, baEnc);
-        }
-  
-        public static Message GetMessageFromHMAC_AndEncryptedMsg(byte[] baMsg)
-        {
-            Message oMessage = new Message();
+            baEnc =  CUtils.GetMsgWithHMacBytes(this, baEnc);//Msg encrypted with HMAC
 
-
-            return oMessage;
-        }
+            return CRSA.AddSignatureToMsg(baEnc);
+        } 
     } 
 }

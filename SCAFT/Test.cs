@@ -4,11 +4,12 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SCAFT
+namespace SCAFTI
 {
     public partial class Test : Form
     {
@@ -19,33 +20,28 @@ namespace SCAFT
 
         private void button1_Click(object sender, EventArgs e)
         {
-            int d=1000000000;
+         //   CRSA.AddOtherUserKeyToPublicKeys("Or2", "1234");
 
-            byte[] baMsgLength = BitConverter.GetBytes(d);
+          //  CRSA.AddOtherUserKeyToPublicKeys("Or1", "12345");
 
-            byte[] baTemp = new byte[CUtils.TCP_MESSAGE_LENGTH_FIELD_SIZE];
 
-            for (int i = 0; i < baTemp.Length;i++ )
+      //      string s = CRSA.GetUserPublicKeyFromOtherUsersFile("yosef");
+
+            CRSA.rsa = new RSACryptoServiceProvider();
+
+            byte[] baMsg = { 0x24, 0x25 };
+
+            byte[] baSign = CRSA.RSASign(baMsg);
+
+
+            bool IsValid = CRSA.IsSignatureValid(CRSA.rsa.ToXmlString(false), baMsg, baSign);
+         //   rsa.FromXmlString(s);
+
+            if (IsValid)
             {
-                baTemp[i] = (i < baMsgLength.Length) ? baMsgLength[i] : (byte)0;
+                int i = 2;
+            //    s = s;
             }
-
-
-            long c =BitConverter.ToInt64(baTemp, 0);
-
-            if (d == c)
-                d++;
-            bool IsEqual = false;
-            
-            if(IsEqual)
-            {
-                int i = 1;
-            }
-            else
-            {
-                int i = 1;
-            }
-           
         }
 
         

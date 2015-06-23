@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SCAFT
+namespace SCAFTI
 {//needs to tell user if file is sent or is not sent
      class SendFileSession
     {
@@ -22,7 +22,7 @@ namespace SCAFT
             User selectedUser = (User)param[1];
             User oCurrentUser = (User)param[0];
             string filePath = (string) param[2];
-            SCAFTForm scaftForm = (SCAFTForm)param[3];
+            SCAFTIForm scaftForm = (SCAFTIForm)param[3];
             client.Connect(selectedUser.oIP, CSession.iPort);  
             byte[] msg  =
                 new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.SENDFILE, filePath).GetEncMessage();
@@ -46,7 +46,7 @@ namespace SCAFT
                     }
 
                     /* msg is the final byte array from the stream */
-                    oCurrentMsg = CUtils.CheckMacWriteToLog_AndReturnMessages(messageStream.ToArray(), CSession.iPort);
+                    oCurrentMsg = CUtils.CheckMacWriteToLog_AndReturnMessages(messageStream.ToArray(), CSession.iPort, false);
                     if (oCurrentMsg != null)
                     {
                         switch (oCurrentMsg.eMessageType)
