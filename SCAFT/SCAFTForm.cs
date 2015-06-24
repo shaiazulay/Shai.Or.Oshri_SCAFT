@@ -15,8 +15,7 @@ namespace SCAFTI
     public partial class SCAFTIForm : Form//
     {  
         Timer oHellowTimer;
-        private const int iHellowMsgMiliSecInterval = 1000;
-        internal User oCurrentUser;
+        private const int iHellowMsgMiliSecInterval = 1000; 
         private static UdpClient udp;
         private BackgroundWorker bwUDP;
         private BackgroundWorker bwTCP;
@@ -56,7 +55,7 @@ namespace SCAFTI
         {
             try
             {
-                Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Hellow, "")).GetEncMessage());
+                Send.SendUDPMessage(udp, multicastEP, (new Message(CUtils.oCurrentUser.oIP, CUtils.oCurrentUser.sUserName, EMessageType.Hellow, "")).GetEncMessage());
             }
             catch { }
         }
@@ -84,7 +83,7 @@ namespace SCAFTI
         {
             try
             {
-                Send.SendUDPMessage(udp, multicastEP, (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage());
+                Send.SendUDPMessage(udp, multicastEP, (new Message(CUtils.oCurrentUser.oIP, CUtils.oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage());
                 oHellowTimer.Stop();
                 if (bwTCP.IsBusy)
                 {
@@ -115,7 +114,7 @@ namespace SCAFTI
             try
             {
                 Send.SendUDPMessage(udp, multicastEP,
-                    (new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.Text,
+                    (new Message(CUtils.oCurrentUser.oIP, CUtils.oCurrentUser.sUserName, EMessageType.Text,
                         txtMessageToSend.Text).GetEncMessage()));
             }
             catch
@@ -159,7 +158,7 @@ namespace SCAFTI
             BackgroundWorker sendFileTcpWorker = new BackgroundWorker();
             sendFileTcpWorker.DoWork += SendFileSession.SendFileTcpSession;
             User selectedUser = (User)listBoxConnectedUsers.SelectedItem;
-            object[] param = { oCurrentUser, selectedUser, txtFilePath.Text, this };
+            object[] param = { CUtils.oCurrentUser, selectedUser, txtFilePath.Text, this };
             sendFileTcpWorker.RunWorkerAsync(param);
 
             }
@@ -215,7 +214,7 @@ namespace SCAFTI
                 bwUDP.DoWork += ListeningBroadcast.ListenForMessages;
                 bwUDP.RunWorkerAsync(udp);
 
-                tcpListener = new TcpListener(oCurrentUser.oIP, CSession.iPort);
+                tcpListener = new TcpListener(CUtils.oCurrentUser.oIP, CSession.iPort);
                 tcpListener.Start();
                 ListenTCP();
             }
@@ -265,7 +264,7 @@ namespace SCAFTI
                             {
                                 User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                                if (oUser == null && !oCurrentMsg.oUser.Equals(oCurrentUser))
+                                if (oUser == null && !oCurrentMsg.oUser.Equals(CUtils.oCurrentUser))
                                     listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
                                 if (oUser != null)
@@ -362,6 +361,11 @@ namespace SCAFTI
         {
             try
             {
+                if(CRSA.rsa == null)
+                {
+                    MessageBox.Show("No RSA Key was generated!!");
+                    return false;
+                }
                 int iPort = -1;
                 if (txtUserName.Text.Trim().Length == 0)
                 {
@@ -429,7 +433,7 @@ namespace SCAFTI
                 CSession.baPasswordKey = CUtils.Trimming(baKey);
                 CSession.baPassworMacdKey = CUtils.Trimming(baMacKey, 64);
 
-                oCurrentUser = new User(CUtils.GetMyLocalIPAddress(), CSession.sUserName);
+                CUtils.oCurrentUser = new User(CUtils.GetMyLocalIPAddress(), CSession.sUserName);
                 oHellowTimer.Start();
 
                 lblUserName.Text = CSession.sUserName;

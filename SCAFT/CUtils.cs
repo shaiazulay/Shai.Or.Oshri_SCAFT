@@ -13,6 +13,7 @@ namespace SCAFTI
 {
     public static class CUtils
     {
+        public static User oCurrentUser;
         public static char HEX_STRING_DELIMITER = ',';
         public static int HASH_SALT_BYTE_NUM = 0; 
         public static int TCP_MESSAGE_LENGTH_FIELD_SIZE = 40;
@@ -273,10 +274,16 @@ namespace SCAFTI
             try
             {
                 bool DontWriteToLogNotVerified = true;
+                byte[] baSignature = null;
+                byte[] baDataSigned = null;
+                List<byte[]> lbaTemp;
 
-                if(IsSignVerify)
+                if (IsSignVerify)
                 {
-                    DontWriteToLogNotVerified = CRSA.GetMessageWithoutSignatueIfVerify(out baMsgWithMac);
+                    lbaTemp = CRSA.GetSignBytesAndMsgBytes(baMsgWithMac);
+                    baSignature = lbaTemp[0];
+                    baMsgWithMac = lbaTemp[1];
+                    baDataSigned = lbaTemp[1];
                 }
 
                 List<byte[]> lbaRes = SplitByLength(baMsgWithMac, CUtils.TCP_MESSAGE_LENGTH_FIELD_SIZE);
@@ -302,16 +309,30 @@ namespace SCAFTI
                 bool IsMacOK = (lbaRes[0].Length == 0) ? false : ByteArrayCompare(baExpectedHMAC, baHMAcInMsg);
 
                 Message oMessage = new Message(lbaRes[0]);
-
-                if (!IsMacOK)
+                
+                if (IsSignVerify)
                 {
+                    DontWriteToLogNotVerified = CRSA.IsSignatureValid(oMessage, baSignature, baDataSigned);
+                }
+
+                ELOG_MESSAGE_TYPE eELOG_MESSAGE_TYPE = 
+                                    (!IsMacOK && !DontWriteToLogNotVerified) ? ELOG_MESSAGE_TYPE.BadMacAndSign :
+                                    (!IsMacOK) ? ELOG_MESSAGE_TYPE.BadMac : 
+                                    (!DontWriteToLogNotVerified) ? ELOG_MESSAGE_TYPE.BadSign :
+                                    ELOG_MESSAGE_TYPE.None;
+
+                if (eELOG_MESSAGE_TYPE != ELOG_MESSAGE_TYPE.None)
+                {
+                    string sLogMsgType = (eELOG_MESSAGE_TYPE != ELOG_MESSAGE_TYPE.BadSign) ? "bad digital Sign" :
+                        (eELOG_MESSAGE_TYPE != ELOG_MESSAGE_TYPE.BadMac) ? "bad MAC digest Received" :
+                        (eELOG_MESSAGE_TYPE != ELOG_MESSAGE_TYPE.BadMacAndSign) ? "bad MAC digest Received And bad digital Sign" : "";
 
                     LogMessage oLogMessage;
                     if (sFileName != null)
                     {
                         oLogMessage = new LogMessage(DateTime.Now, iPort, oMessage.oUser.oIP, oMessage.oUser.sUserName,
-                                                   oMessage.baRecievedIV, baHMAcInMsg, baExpectedHMAC, sFileName, true);
-                        MessageBox.Show("Warning!!!  File with a bad MAC digest Received (See \"" + CLog.LOG_FILE_NAME + "\" file).");
+                                                   oMessage.baRecievedIV, baHMAcInMsg, baExpectedHMAC, sFileName, true, eELOG_MESSAGE_TYPE);
+                        MessageBox.Show("Warning!!!  File with a "+sLogMsgType+" Received (See \"" + CLog.LOG_FILE_NAME + "\" file).");
                     }
                     else
                     {
@@ -341,22 +362,15 @@ namespace SCAFTI
                                 break;
                         }
                         oLogMessage = new LogMessage(DateTime.Now, iPort, oMessage.oUser.oIP, oMessage.oUser.sUserName,
-                                                   oMessage.baRecievedIV, baHMAcInMsg, baExpectedHMAC, sMsgContent, false);
-                        MessageBox.Show("Warning!!!  Message with a bad MAC digest Received (See \"" + CLog.LOG_FILE_NAME + "\" file).");
+                                                   oMessage.baRecievedIV, baHMAcInMsg, baExpectedHMAC, sMsgContent, false, eELOG_MESSAGE_TYPE);
+                       // MessageBox.Show("Warning!!!  Message with a "+sLogMsgType+" Received (See \"" + CLog.LOG_FILE_NAME + "\" file).");
                     }
                     CLog.WriteLineToLoge(oLogMessage);
-                    if (!DontWriteToLogNotVerified)
-                    {
-                        //tbd
-                    }
+                   
                     return null;
                 }
                 else
                 {
-                    if (!DontWriteToLogNotVerified)
-                    {
-                        //tbd
-                    }
                     return oMessage;
                 }
             }

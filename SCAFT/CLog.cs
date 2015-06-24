@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 
 namespace SCAFTI
 {
+    public enum ELOG_MESSAGE_TYPE
+    {
+        BadMac,
+        BadSign,
+        BadMacAndSign,
+        None
+    }
+
     public class CLog
     {
         public static string LOG_FILE_NAME = "log.txt";
@@ -30,6 +38,8 @@ namespace SCAFTI
 
     public class LogMessage
     {
+        public ELOG_MESSAGE_TYPE eLOG_MESSAGE_TYPE;
+
         public bool IsFileMessage;
 
         public DateTime dEventDateTime;
@@ -50,7 +60,7 @@ namespace SCAFTI
          
         public LogMessage(DateTime _dEventDateTime, int _iRecievedFromPort, IPAddress _oRecievedFromIP,
             string _sRecievedFromUserName, byte[] _baRecievedIV, byte[] _baRecievedMacValue,
-            byte[] _baExpectedMacValue, string _sRecievedFileNameOrMessageContect, bool IsFile)
+            byte[] _baExpectedMacValue, string _sRecievedFileNameOrMessageContect, bool IsFile, ELOG_MESSAGE_TYPE _eLOG_MESSAGE_TYPE)
         {
             dEventDateTime = _dEventDateTime;
             iRecievedFromPort = _iRecievedFromPort;
@@ -62,31 +72,48 @@ namespace SCAFTI
             sRecievedFileNameOrMessageContect = _sRecievedFileNameOrMessageContect;
 
             IsFileMessage = IsFile;
+            eLOG_MESSAGE_TYPE = _eLOG_MESSAGE_TYPE;
         }
 
         public string GetLogLine()
         {
-            string sLine = (IsFileMessage) ? "BAD_HMAC_FILE_MESSAGE:: " : "BAD_HMAC_TEXT_MESSAGE::";
-
-            sLine += "Date- (" + dEventDateTime.ToString() + ")| ";
-
-            sLine += "IP:Port- (" + oRecievedFromIP.ToString() + ":" + iRecievedFromPort.ToString() + ")| ";
-
-            sLine += "UserName-(\"" + sRecievedFromUserName + "\")| ";
-
-            sLine += "RecievedIV(bytesInHex)- (" + CUtils.ByteArrayToHexString(baRecievedIV) + ")| ";
-
-            sLine += "RecievedMacValue(bytesInHex)- (" + CUtils.ByteArrayToHexString(baRecievedMacValue) + ")| ";
-
-            sLine += "ExpectedMacValue(bytesInHex)- (" + CUtils.ByteArrayToHexString(baExpectedMacValue) + ")| ";
-
-
-            sLine += (IsFileMessage) ? " FileName-" : " MessageContent-";
+            string sLine = "";
+            string sMainData = "";
             
-            sLine += " (\"" + sRecievedFileNameOrMessageContect + "\")";
             
-            sLine += Environment.NewLine + Environment.NewLine;
-             
+            sMainData += "Date- (" + dEventDateTime.ToString() + ")| ";
+
+            sMainData += "IP:Port- (" + oRecievedFromIP.ToString() + ":" + iRecievedFromPort.ToString() + ")| ";
+
+            sMainData += "UserName-(\"" + sRecievedFromUserName + "\")| ";
+
+            sMainData += "RecievedIV(bytesInHex)- (" + CUtils.ByteArrayToHexString(baRecievedIV) + ")| ";
+
+            sMainData += "RecievedMacValue(bytesInHex)- (" + CUtils.ByteArrayToHexString(baRecievedMacValue) + ")| ";
+
+            sMainData += "ExpectedMacValue(bytesInHex)- (" + CUtils.ByteArrayToHexString(baExpectedMacValue) + ")| ";
+
+
+            sMainData += (IsFileMessage) ? " FileName-" : " MessageContent-";
+
+            sMainData += " (\"" + sRecievedFileNameOrMessageContect + "\")";
+
+            sMainData += Environment.NewLine + Environment.NewLine;
+
+            if (eLOG_MESSAGE_TYPE == ELOG_MESSAGE_TYPE.BadMac || eLOG_MESSAGE_TYPE == ELOG_MESSAGE_TYPE.BadMacAndSign)
+            {
+                sLine += (IsFileMessage) ? "BAD_HMAC_FILE_MESSAGE:: " : "BAD_HMAC_TEXT_MESSAGE:: ";
+                sLine += sMainData;
+
+            }
+
+            if (eLOG_MESSAGE_TYPE == ELOG_MESSAGE_TYPE.BadSign || eLOG_MESSAGE_TYPE == ELOG_MESSAGE_TYPE.BadMacAndSign)
+            {
+                sLine += "BAD_DIGITAL_SIGNATURE:: ";
+                sLine += sMainData;
+            }
+            
+
             return sLine;
 
         }

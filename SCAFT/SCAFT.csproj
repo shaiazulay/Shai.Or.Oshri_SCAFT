@@ -48,12 +48,6 @@
     <Compile Include="MyHMAC.cs" />
     <Compile Include="CLog.cs" />
     <Compile Include="CSession.cs" />
-    <Compile Include="ConfigurationDetailsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ConfigurationDetailsForm.Designer.cs">
-      <DependentUpon>ConfigurationDetailsForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="HandleClient.cs" />
     <Compile Include="ListeningUnicast.cs" />
     <Compile Include="SendFileSession.cs" />
@@ -65,12 +59,6 @@
     </Compile>
     <Compile Include="User.cs" />
     <Compile Include="CUtils.cs" />
-    <Compile Include="InsertUserNameForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="InsertUserNameForm.Designer.cs">
-      <DependentUpon>InsertUserNameForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="ListeningBroadcast.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Program.cs" />
@@ -82,12 +70,6 @@
       <DependentUpon>SCAFTForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Send.cs" />
-    <EmbeddedResource Include="ConfigurationDetailsForm.resx">
-      <DependentUpon>ConfigurationDetailsForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="InsertUserNameForm.resx">
-      <DependentUpon>InsertUserNameForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

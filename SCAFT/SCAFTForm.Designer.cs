@@ -67,14 +67,18 @@
             this.btnExportWithoutPrivateKey = new System.Windows.Forms.Button();
             this.btnExportWithPrivate = new System.Windows.Forms.Button();
             this.txtMacKey = new System.Windows.Forms.TextBox();
+            txtMacKey.Text = "';pg,orj'gjo,'radgkoj,'rg'sdtgjtsd'j'j.'klf'gfksdl'gfsdlg'.'sfgfsdgsdfgsfdgsfdgdgfd";//!!
             this.label7 = new System.Windows.Forms.Label();
             this.txtKey = new System.Windows.Forms.TextBox();
+            txtKey.Text = "';pg,orj'gjo,'radgkoj,'rg'sdtgjtsd'j'j.'klf'gfksdl'gfsdlg'.'sfgfsdgsdfgsfdgsfdgdgfd";//!!
             this.txtMulticastIP = new System.Windows.Forms.TextBox();
             this.txtPort = new System.Windows.Forms.TextBox();
+            this.txtPort.Text = "300";//!!
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.txtUserName = new System.Windows.Forms.TextBox();
+            txtUserName.Text = "Or";//!!
             this.label3 = new System.Windows.Forms.Label();
             this.fdExport = new System.Windows.Forms.SaveFileDialog();
             this.fdImport = new System.Windows.Forms.OpenFileDialog();
@@ -513,6 +517,7 @@
             this.txtMulticastIP.Name = "txtMulticastIP";
             this.txtMulticastIP.Size = new System.Drawing.Size(181, 20);
             this.txtMulticastIP.TabIndex = 18;
+            this.txtMulticastIP.Text = "238.0.0.0";//!!
             // 
             // txtPort
             // 

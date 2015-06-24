@@ -92,34 +92,34 @@ namespace SCAFTI
                 }
             }
         }
- 
-       
+
+
 
         public byte[] GetEncMessage()
         {
             byte[] baEnc;
-            
+
             string sPlainMsg = "";
             sPlainMsg += oUser.sUserName + MESSAGE_DELIMITER_BETWEEN_FIELDS;
             sPlainMsg += oUser.oIP.ToString() + MESSAGE_DELIMITER_BETWEEN_FIELDS;
-                 
+
             byte[] baHeaderContent = Encoding.UTF8.GetBytes(sPlainMsg);
 
             byte[] baHeaderLength = CUtils.InsertIntValueToByteArray(baHeaderContent.Length, CUtils.REGULAR_MESSAGE_HEADER_LENGTH_FIELD_SIZE);
 
             byte[] baMessage = CUtils.ConcatByteArrays(baHeaderLength, baHeaderContent);
 
-            byte[] baMessageContent = (eMessageType != EMessageType.FileContent_InBytes)? 
-                                CSession.TextMessageContentEncoding.GetBytes(this.sStringContent):
-                                this.baBytesContent; 
+            byte[] baMessageContent = (eMessageType != EMessageType.FileContent_InBytes) ?
+                                CSession.TextMessageContentEncoding.GetBytes(this.sStringContent) :
+                                this.baBytesContent;
 
-            baMessage = CUtils.ConcatByteArrays(baMessage, baMessageContent);   
+            baMessage = CUtils.ConcatByteArrays(baMessage, baMessageContent);
 
             baEnc = CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, baMessage, eMessageType);
-             
-            baEnc =  CUtils.GetMsgWithHMacBytes(this, baEnc);//Msg encrypted with HMAC
 
-            return CRSA.AddSignatureToMsg(baEnc);
-        } 
+            baEnc = CUtils.GetMsgWithHMacBytes(this, baEnc);//Msg encrypted with HMAC
+            
+            return  CRSA.AddSignatureToMsg(baEnc); 
+        }
     } 
 }

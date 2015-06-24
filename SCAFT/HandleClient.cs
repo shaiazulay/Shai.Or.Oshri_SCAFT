@@ -61,13 +61,13 @@ namespace SCAFTI
                                 {
                                     Random rand = new Random();
                                     int randomePort = rand.Next() % 3000 + 1000;//random port 1000-4000
-                                    byte[] okMessage = new Message(scaftForm.oCurrentUser.oIP,
-                                        scaftForm.oCurrentUser.sUserName,
+                                    byte[] okMessage = new Message(CUtils.oCurrentUser.oIP,
+                                        CUtils.oCurrentUser.sUserName,
                                         EMessageType.OK, randomePort.ToString()).GetEncMessage();
                                     ns.Write(okMessage, 0, okMessage.Length);
                                     sFilePath = Path.GetFileName(oCurrentMsg.sStringContent); 
                                     //
-                                    tcpServer = new TcpListener(scaftForm.oCurrentUser.oIP, randomePort);
+                                    tcpServer = new TcpListener(CUtils.oCurrentUser.oIP, randomePort);
                                     tcpServer.Start();
                                     connectionSocket = new TcpClient();
                                     connectionSocket = tcpServer.AcceptTcpClient();
@@ -128,8 +128,8 @@ namespace SCAFTI
                                 }
                                 else
                                 {
-                                    byte[] noMessage = new Message(scaftForm.oCurrentUser.oIP,
-                                        scaftForm.oCurrentUser.sUserName, EMessageType.NO, "").GetEncMessage();
+                                    byte[] noMessage = new Message(CUtils.oCurrentUser.oIP,
+                                        CUtils.oCurrentUser.sUserName, EMessageType.NO, "").GetEncMessage();
                                     ns.Write(noMessage, 0, noMessage.Length);
                                     ns.Close();
                                 }

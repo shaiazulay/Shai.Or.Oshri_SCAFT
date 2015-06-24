@@ -34,14 +34,14 @@ namespace SCAFTI
             byte[] baSign = CRSA.RSASign(baMsg);
 
 
-            bool IsValid = CRSA.IsSignatureValid(CRSA.rsa.ToXmlString(false), baMsg, baSign);
+          //  bool IsValid = CRSA.IsSignatureValid(CRSA.rsa.ToXmlString(false), baMsg, baSign);
          //   rsa.FromXmlString(s);
 
-            if (IsValid)
-            {
-                int i = 2;
-            //    s = s;
-            }
+            //if (IsValid)
+            //{
+            //    int i = 2;
+            ////    s = s;
+            //}
         }
 
         
