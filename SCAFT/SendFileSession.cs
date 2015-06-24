@@ -25,7 +25,7 @@ namespace SCAFTI
             SCAFTIForm scaftForm = (SCAFTIForm)param[3];
             client.Connect(selectedUser.oIP, CSession.iPort);  
             byte[] msg  =
-                new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.SENDFILE, filePath).GetEncMessage();
+                new Message(oCurrentUser.oIP, oCurrentUser.sUserName, EMessageType.SENDFILE, filePath).GetEncMessage(false);
             NetworkStream ns = client.GetStream();
             Message oCurrentMsg= null;
             ns.Write(msg, 0, msg.Length);
@@ -78,7 +78,7 @@ namespace SCAFTI
                                     Message sendBufEncMessage = new Message(oCurrentUser.oIP,
                                            selectedUser.sUserName, baFile);
 
-                                    byte[] baEncryptedMsg = sendBufEncMessage.GetEncMessage();
+                                    byte[] baEncryptedMsg = sendBufEncMessage.GetEncMessage(false);
 
                                     ns.Write(baEncryptedMsg, 0, baEncryptedMsg.Length);
 

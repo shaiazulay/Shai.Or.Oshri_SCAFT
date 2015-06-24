@@ -48,11 +48,15 @@ namespace SCAFTI
 
         public static bool IsSignatureValid(Message oMessage, byte[] baSignature, byte[] baDataSigned)
         {
-            if(oMessage.oUser.sUserName == CUtils.oCurrentUser.
-            {
-
-            }
             RSACryptoServiceProvider UserRsa = new RSACryptoServiceProvider();
+            object oHalg = CryptoConfig.CreateFromName(RSA_SIGN_ALG);
+
+            if(oMessage.oUser.sUserName == CUtils.oCurrentUser.sUserName)
+            {
+                return CRSA.rsa.VerifyData(baDataSigned, oHalg, baSignature);
+            }
+
+            
             string sXmlPublicKey = CRSA.GetUserPublicKeyFromOtherUsersFile(oMessage.oUser.sUserName);
 
             if (sXmlPublicKey == null)
@@ -62,7 +66,7 @@ namespace SCAFTI
 
             UserRsa.FromXmlString(sXmlPublicKey);
 
-            object oHalg = CryptoConfig.CreateFromName(RSA_SIGN_ALG);
+            
 
             return UserRsa.VerifyData(baDataSigned, oHalg, baSignature);
         }

@@ -55,7 +55,7 @@ namespace SCAFTI
         {
             try
             {
-                Send.SendUDPMessage(udp, multicastEP, (new Message(CUtils.oCurrentUser.oIP, CUtils.oCurrentUser.sUserName, EMessageType.Hellow, "")).GetEncMessage());
+                Send.SendUDPMessage(udp, multicastEP, (new Message(CUtils.oCurrentUser.oIP, CUtils.oCurrentUser.sUserName, EMessageType.Hellow, "")).GetEncMessage(true));
             }
             catch { }
         }
@@ -83,7 +83,7 @@ namespace SCAFTI
         {
             try
             {
-                Send.SendUDPMessage(udp, multicastEP, (new Message(CUtils.oCurrentUser.oIP, CUtils.oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage());
+                Send.SendUDPMessage(udp, multicastEP, (new Message(CUtils.oCurrentUser.oIP, CUtils.oCurrentUser.sUserName, EMessageType.Bye, "")).GetEncMessage(true));
                 oHellowTimer.Stop();
                 if (bwTCP.IsBusy)
                 {
@@ -115,7 +115,7 @@ namespace SCAFTI
             {
                 Send.SendUDPMessage(udp, multicastEP,
                     (new Message(CUtils.oCurrentUser.oIP, CUtils.oCurrentUser.sUserName, EMessageType.Text,
-                        txtMessageToSend.Text).GetEncMessage()));
+                        txtMessageToSend.Text).GetEncMessage(true)));
             }
             catch
             { }
@@ -608,6 +608,7 @@ namespace SCAFTI
             }
             finally
             {
+                txtOtherUserName.Text = "";
                 if (srIn != null) srIn.Close();
                 if (fsIn != null) fsIn.Close();
             }

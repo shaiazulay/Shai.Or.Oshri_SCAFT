@@ -28,25 +28,7 @@ namespace SCAFTI
         }
     
          
-        public static void PutHashInThisMessage(Message oMsg)
-        {
-            byte[] pi = GetMacKeyXorHexByte(IPAD_HEX_BYTE);
-            byte[] keyXorOpad = GetMacKeyXorHexByte(OPAD_HEX_BYTE);
-            byte[] baMsg = oMsg.GetEncMessage();
-            byte[] baTemp;
-            byte[] temp1;
-            byte[] mcode;
-
-            baTemp = CUtils.ConcatByteArrays(pi, baMsg);
-            temp1 = sha512.ComputeHash(sha512.ComputeHash(baTemp));
-
-
-            baTemp = CUtils.ConcatByteArrays(keyXorOpad, temp1);
-
-            mcode = sha512.ComputeHash(sha512.ComputeHash(baTemp));
-
-            oMsg.baHash = mcode;
-        } 
+      
 
         //return bInput XOR sHex
         private static byte XOR_byteWithHex(byte bInput, string sHex)

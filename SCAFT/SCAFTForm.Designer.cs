@@ -45,6 +45,11 @@
             this.tabChate = new System.Windows.Forms.TabPage();
             this.btnLogOut = new System.Windows.Forms.Button();
             this.tabConfiguration = new System.Windows.Forms.TabPage();
+            this.btnLoadOtherUserPublicKey = new System.Windows.Forms.Button();
+            this.txtOtherUserName = new System.Windows.Forms.TextBox();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.txtRSAKeySize = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
             this.txtDmodQ1 = new System.Windows.Forms.TextBox();
@@ -67,27 +72,18 @@
             this.btnExportWithoutPrivateKey = new System.Windows.Forms.Button();
             this.btnExportWithPrivate = new System.Windows.Forms.Button();
             this.txtMacKey = new System.Windows.Forms.TextBox();
-            txtMacKey.Text = "';pg,orj'gjo,'radgkoj,'rg'sdtgjtsd'j'j.'klf'gfksdl'gfsdlg'.'sfgfsdgsdfgsfdgsfdgdgfd";//!!
             this.label7 = new System.Windows.Forms.Label();
             this.txtKey = new System.Windows.Forms.TextBox();
-            txtKey.Text = "';pg,orj'gjo,'radgkoj,'rg'sdtgjtsd'j'j.'klf'gfksdl'gfsdlg'.'sfgfsdgsdfgsfdgsfdgdgfd";//!!
             this.txtMulticastIP = new System.Windows.Forms.TextBox();
             this.txtPort = new System.Windows.Forms.TextBox();
-            this.txtPort.Text = "300";//!!
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.txtUserName = new System.Windows.Forms.TextBox();
-            txtUserName.Text = "Or";//!!
             this.label3 = new System.Windows.Forms.Label();
             this.fdExport = new System.Windows.Forms.SaveFileDialog();
             this.fdImport = new System.Windows.Forms.OpenFileDialog();
-            this.txtRSAKeySize = new System.Windows.Forms.TextBox();
-            this.label18 = new System.Windows.Forms.Label();
             this.fdLoadUserPublicKey = new System.Windows.Forms.OpenFileDialog();
-            this.label19 = new System.Windows.Forms.Label();
-            this.txtOtherUserName = new System.Windows.Forms.TextBox();
-            this.btnLoadOtherUserPublicKey = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.tabChate.SuspendLayout();
             this.tabConfiguration.SuspendLayout();
@@ -294,6 +290,51 @@
             this.tabConfiguration.ToolTipText = "only when offline";
             this.tabConfiguration.UseVisualStyleBackColor = true;
             // 
+            // btnLoadOtherUserPublicKey
+            // 
+            this.btnLoadOtherUserPublicKey.Location = new System.Drawing.Point(671, 177);
+            this.btnLoadOtherUserPublicKey.Name = "btnLoadOtherUserPublicKey";
+            this.btnLoadOtherUserPublicKey.Size = new System.Drawing.Size(198, 23);
+            this.btnLoadOtherUserPublicKey.TabIndex = 50;
+            this.btnLoadOtherUserPublicKey.Text = "Load other user public Key";
+            this.btnLoadOtherUserPublicKey.UseVisualStyleBackColor = true;
+            this.btnLoadOtherUserPublicKey.Click += new System.EventHandler(this.btnLoadOtherUserPublicKey_Click);
+            // 
+            // txtOtherUserName
+            // 
+            this.txtOtherUserName.Location = new System.Drawing.Point(733, 149);
+            this.txtOtherUserName.Name = "txtOtherUserName";
+            this.txtOtherUserName.Size = new System.Drawing.Size(136, 20);
+            this.txtOtherUserName.TabIndex = 49;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(668, 151);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(59, 13);
+            this.label19.TabIndex = 48;
+            this.label19.Text = "user name:";
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.label18.Location = new System.Drawing.Point(667, 121);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(202, 20);
+            this.label18.TabIndex = 47;
+            this.label18.Text = "Load Other User public Key";
+            // 
+            // txtRSAKeySize
+            // 
+            this.txtRSAKeySize.Enabled = false;
+            this.txtRSAKeySize.Location = new System.Drawing.Point(745, 67);
+            this.txtRSAKeySize.Name = "txtRSAKeySize";
+            this.txtRSAKeySize.Size = new System.Drawing.Size(64, 20);
+            this.txtRSAKeySize.TabIndex = 46;
+            this.txtRSAKeySize.Text = "4096";
+            // 
             // label17
             // 
             this.label17.AutoSize = true;
@@ -318,6 +359,7 @@
             // 
             this.txtDmodQ1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtDmodQ1.Enabled = false;
             this.txtDmodQ1.Location = new System.Drawing.Point(383, 277);
             this.txtDmodQ1.Name = "txtDmodQ1";
             this.txtDmodQ1.Size = new System.Drawing.Size(247, 20);
@@ -336,6 +378,7 @@
             // 
             this.txtDmodP1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtDmodP1.Enabled = false;
             this.txtDmodP1.Location = new System.Drawing.Point(383, 243);
             this.txtDmodP1.Name = "txtDmodP1";
             this.txtDmodP1.Size = new System.Drawing.Size(247, 20);
@@ -354,6 +397,7 @@
             // 
             this.txtD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtD.Enabled = false;
             this.txtD.Location = new System.Drawing.Point(383, 213);
             this.txtD.Name = "txtD";
             this.txtD.Size = new System.Drawing.Size(247, 20);
@@ -372,6 +416,7 @@
             // 
             this.txtExponent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtExponent.Enabled = false;
             this.txtExponent.Location = new System.Drawing.Point(383, 177);
             this.txtExponent.Name = "txtExponent";
             this.txtExponent.Size = new System.Drawing.Size(247, 20);
@@ -388,6 +433,7 @@
             // 
             // txtModulus
             // 
+            this.txtModulus.Enabled = false;
             this.txtModulus.Location = new System.Drawing.Point(330, 144);
             this.txtModulus.Name = "txtModulus";
             this.txtModulus.Size = new System.Drawing.Size(300, 20);
@@ -404,6 +450,7 @@
             // 
             // txtQ
             // 
+            this.txtQ.Enabled = false;
             this.txtQ.Location = new System.Drawing.Point(330, 118);
             this.txtQ.Name = "txtQ";
             this.txtQ.Size = new System.Drawing.Size(300, 20);
@@ -420,6 +467,7 @@
             // 
             // txtP
             // 
+            this.txtP.Enabled = false;
             this.txtP.Location = new System.Drawing.Point(330, 93);
             this.txtP.Name = "txtP";
             this.txtP.Size = new System.Drawing.Size(300, 20);
@@ -492,6 +540,8 @@
             this.txtMacKey.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtMacKey.Size = new System.Drawing.Size(182, 55);
             this.txtMacKey.TabIndex = 23;
+            this.txtMacKey.Text = "\';pg,orj\'gjo,\'radgkoj,\'rg\'sdtgjtsd\'j\'j.\'klf\'gfksdl\'gfsdlg\'.\'sfgfsdgsdfgsfdgsfdgdg" +
+    "fd";
             // 
             // label7
             // 
@@ -510,6 +560,8 @@
             this.txtKey.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtKey.Size = new System.Drawing.Size(181, 55);
             this.txtKey.TabIndex = 21;
+            this.txtKey.Text = "\';pg,orj\'gjo,\'radgkoj,\'rg\'sdtgjtsd\'j\'j.\'klf\'gfksdl\'gfsdlg\'.\'sfgfsdgsdfgsfdgsfdgdg" +
+    "fd";
             // 
             // txtMulticastIP
             // 
@@ -517,7 +569,7 @@
             this.txtMulticastIP.Name = "txtMulticastIP";
             this.txtMulticastIP.Size = new System.Drawing.Size(181, 20);
             this.txtMulticastIP.TabIndex = 18;
-            this.txtMulticastIP.Text = "238.0.0.0";//!!
+            this.txtMulticastIP.Text = "238.0.0.0";
             // 
             // txtPort
             // 
@@ -525,6 +577,7 @@
             this.txtPort.Name = "txtPort";
             this.txtPort.Size = new System.Drawing.Size(181, 20);
             this.txtPort.TabIndex = 17;
+            this.txtPort.Text = "300";
             // 
             // label6
             // 
@@ -559,6 +612,7 @@
             this.txtUserName.Name = "txtUserName";
             this.txtUserName.Size = new System.Drawing.Size(181, 20);
             this.txtUserName.TabIndex = 13;
+            this.txtUserName.Text = "Or";
             // 
             // label3
             // 
@@ -578,55 +632,10 @@
             this.fdImport.FileName = "openFileDialog2";
             this.fdImport.Filter = "XML Files(*.xml)|*.xml";
             // 
-            // txtRSAKeySize
-            // 
-            this.txtRSAKeySize.Enabled = false;
-            this.txtRSAKeySize.Location = new System.Drawing.Point(745, 67);
-            this.txtRSAKeySize.Name = "txtRSAKeySize";
-            this.txtRSAKeySize.Size = new System.Drawing.Size(64, 20);
-            this.txtRSAKeySize.TabIndex = 46;
-            this.txtRSAKeySize.Text = "4096";
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.label18.Location = new System.Drawing.Point(667, 121);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(202, 20);
-            this.label18.TabIndex = 47;
-            this.label18.Text = "Load Other User public Key";
-            // 
             // fdLoadUserPublicKey
             // 
             this.fdLoadUserPublicKey.FileName = "openFileDialog2";
             this.fdLoadUserPublicKey.Filter = "XML Files(*.xml)|*.xml";
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(668, 151);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(59, 13);
-            this.label19.TabIndex = 48;
-            this.label19.Text = "user name:";
-            // 
-            // txtOtherUserName
-            // 
-            this.txtOtherUserName.Location = new System.Drawing.Point(733, 149);
-            this.txtOtherUserName.Name = "txtOtherUserName";
-            this.txtOtherUserName.Size = new System.Drawing.Size(136, 20);
-            this.txtOtherUserName.TabIndex = 49;
-            // 
-            // btnLoadOtherUserPublicKey
-            // 
-            this.btnLoadOtherUserPublicKey.Location = new System.Drawing.Point(671, 177);
-            this.btnLoadOtherUserPublicKey.Name = "btnLoadOtherUserPublicKey";
-            this.btnLoadOtherUserPublicKey.Size = new System.Drawing.Size(198, 23);
-            this.btnLoadOtherUserPublicKey.TabIndex = 50;
-            this.btnLoadOtherUserPublicKey.Text = "Load other user public Key";
-            this.btnLoadOtherUserPublicKey.UseVisualStyleBackColor = true;
-            this.btnLoadOtherUserPublicKey.Click += new System.EventHandler(this.btnLoadOtherUserPublicKey_Click);
             // 
             // SCAFTIForm
             // 

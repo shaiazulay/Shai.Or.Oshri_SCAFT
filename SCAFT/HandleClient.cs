@@ -63,7 +63,7 @@ namespace SCAFTI
                                     int randomePort = rand.Next() % 3000 + 1000;//random port 1000-4000
                                     byte[] okMessage = new Message(CUtils.oCurrentUser.oIP,
                                         CUtils.oCurrentUser.sUserName,
-                                        EMessageType.OK, randomePort.ToString()).GetEncMessage();
+                                        EMessageType.OK, randomePort.ToString()).GetEncMessage(false);
                                     ns.Write(okMessage, 0, okMessage.Length);
                                     sFilePath = Path.GetFileName(oCurrentMsg.sStringContent); 
                                     //
@@ -94,7 +94,7 @@ namespace SCAFTI
                                                 } while (bytesRead > 0 && !me.CancellationPending);
                                             }
 
-                                            Message oMessage = CUtils.CheckMacWriteToLog_AndReturnMessages(messageStream.ToArray(), randomePort, false, sFilePath);
+                                            Message oMessage = CUtils.CheckMacWriteToLog_AndReturnMessages(messageStream.ToArray(), randomePort,false, sFilePath);
 
                                             if (oMessage != null)
                                             {
@@ -129,7 +129,7 @@ namespace SCAFTI
                                 else
                                 {
                                     byte[] noMessage = new Message(CUtils.oCurrentUser.oIP,
-                                        CUtils.oCurrentUser.sUserName, EMessageType.NO, "").GetEncMessage();
+                                        CUtils.oCurrentUser.sUserName, EMessageType.NO, "").GetEncMessage(false);
                                     ns.Write(noMessage, 0, noMessage.Length);
                                     ns.Close();
                                 }

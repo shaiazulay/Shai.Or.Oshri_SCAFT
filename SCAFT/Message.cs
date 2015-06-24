@@ -95,7 +95,7 @@ namespace SCAFTI
 
 
 
-        public byte[] GetEncMessage()
+        public byte[] GetEncMessage(bool withSign)
         {
             byte[] baEnc;
 
@@ -118,7 +118,9 @@ namespace SCAFTI
             baEnc = CUtils.EncryptBytesAndInsertIV_AndMsgType(CSession.baPasswordKey, baMessage, eMessageType);
 
             baEnc = CUtils.GetMsgWithHMacBytes(this, baEnc);//Msg encrypted with HMAC
-            
+            if (!withSign)
+                return baEnc;
+
             return  CRSA.AddSignatureToMsg(baEnc); 
         }
     } 

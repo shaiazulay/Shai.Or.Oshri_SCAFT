@@ -269,7 +269,7 @@ namespace SCAFTI
             }
         }
 
-        public static Message CheckMacWriteToLog_AndReturnMessages(byte[] baMsgWithMac, int iPort, bool IsSignVerify, string sFileName = null)
+        public static Message CheckMacWriteToLog_AndReturnMessages(byte[] baMsgWithMac, int iPort,bool isVerifySign, string sFileName = null)
         {
             try
             {
@@ -278,7 +278,7 @@ namespace SCAFTI
                 byte[] baDataSigned = null;
                 List<byte[]> lbaTemp;
 
-                if (IsSignVerify)
+                if (isVerifySign)
                 {
                     lbaTemp = CRSA.GetSignBytesAndMsgBytes(baMsgWithMac);
                     baSignature = lbaTemp[0];
@@ -309,8 +309,8 @@ namespace SCAFTI
                 bool IsMacOK = (lbaRes[0].Length == 0) ? false : ByteArrayCompare(baExpectedHMAC, baHMAcInMsg);
 
                 Message oMessage = new Message(lbaRes[0]);
-                
-                if (IsSignVerify)
+
+                if (isVerifySign)
                 {
                     DontWriteToLogNotVerified = CRSA.IsSignatureValid(oMessage, baSignature, baDataSigned);
                 }
