@@ -540,8 +540,6 @@
             this.txtMacKey.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtMacKey.Size = new System.Drawing.Size(182, 55);
             this.txtMacKey.TabIndex = 23;
-            this.txtMacKey.Text = "\';pg,orj\'gjo,\'radgkoj,\'rg\'sdtgjtsd\'j\'j.\'klf\'gfksdl\'gfsdlg\'.\'sfgfsdgsdfgsfdgsfdgdg" +
-    "fd";
             // 
             // label7
             // 
@@ -560,8 +558,6 @@
             this.txtKey.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtKey.Size = new System.Drawing.Size(181, 55);
             this.txtKey.TabIndex = 21;
-            this.txtKey.Text = "\';pg,orj\'gjo,\'radgkoj,\'rg\'sdtgjtsd\'j\'j.\'klf\'gfksdl\'gfsdlg\'.\'sfgfsdgsdfgsfdgsfdgdg" +
-    "fd";
             // 
             // txtMulticastIP
             // 
@@ -569,7 +565,6 @@
             this.txtMulticastIP.Name = "txtMulticastIP";
             this.txtMulticastIP.Size = new System.Drawing.Size(181, 20);
             this.txtMulticastIP.TabIndex = 18;
-            this.txtMulticastIP.Text = "238.0.0.0";
             // 
             // txtPort
             // 
@@ -577,7 +572,6 @@
             this.txtPort.Name = "txtPort";
             this.txtPort.Size = new System.Drawing.Size(181, 20);
             this.txtPort.TabIndex = 17;
-            this.txtPort.Text = "300";
             // 
             // label6
             // 
@@ -612,7 +606,6 @@
             this.txtUserName.Name = "txtUserName";
             this.txtUserName.Size = new System.Drawing.Size(181, 20);
             this.txtUserName.TabIndex = 13;
-            this.txtUserName.Text = "Or";
             // 
             // label3
             // 
