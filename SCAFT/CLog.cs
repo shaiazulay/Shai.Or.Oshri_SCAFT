@@ -16,6 +16,13 @@ namespace SCAFTI
         None
     }
 
+    public enum EBadSignType
+    {
+        UncheckableSignature,
+        FailedSignature,
+        None
+    }
+
     public class CLog
     {
         public static string LOG_FILE_NAME = "log.txt";
@@ -38,6 +45,7 @@ namespace SCAFTI
 
     public class LogMessage
     {
+        public EBadSignType eBadSignType;
         public ELOG_MESSAGE_TYPE eLOG_MESSAGE_TYPE;
 
         public bool IsFileMessage;
@@ -60,7 +68,7 @@ namespace SCAFTI
          
         public LogMessage(DateTime _dEventDateTime, int _iRecievedFromPort, IPAddress _oRecievedFromIP,
             string _sRecievedFromUserName, byte[] _baRecievedIV, byte[] _baRecievedMacValue,
-            byte[] _baExpectedMacValue, string _sRecievedFileNameOrMessageContect, bool IsFile, ELOG_MESSAGE_TYPE _eLOG_MESSAGE_TYPE)
+            byte[] _baExpectedMacValue, string _sRecievedFileNameOrMessageContect, bool IsFile, ELOG_MESSAGE_TYPE _eLOG_MESSAGE_TYPE, EBadSignType _eBadSignType)
         {
             dEventDateTime = _dEventDateTime;
             iRecievedFromPort = _iRecievedFromPort;
@@ -73,6 +81,8 @@ namespace SCAFTI
 
             IsFileMessage = IsFile;
             eLOG_MESSAGE_TYPE = _eLOG_MESSAGE_TYPE;
+
+            eBadSignType = _eBadSignType;
         }
 
         public string GetLogLine()
@@ -109,8 +119,12 @@ namespace SCAFTI
 
             if (eLOG_MESSAGE_TYPE == ELOG_MESSAGE_TYPE.BadSign || eLOG_MESSAGE_TYPE == ELOG_MESSAGE_TYPE.BadMacAndSign)
             {
-                sLine += "BAD_DIGITAL_SIGNATURE:: ";
-                sLine += sMainData;
+                sLine += "BAD_DIGITAL_SIGNATURE";
+
+                sLine +=  (eBadSignType == EBadSignType.FailedSignature) ?  "(Failed Signature)":
+                    (eBadSignType == EBadSignType.UncheckableSignature)? "(Uncheckable Signature)":""; 
+
+                sLine +=":: "+ sMainData;
             }
             
 

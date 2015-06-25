@@ -273,7 +273,8 @@ namespace SCAFTI
         {
             try
             {
-                bool DontWriteToLogNotVerified = true;
+                bool? DontWriteToLogNotVerified = true;
+                EBadSignType eEBadSignType = EBadSignType.None;
                 byte[] baSignature = null;
                 byte[] baDataSigned = null;
                 List<byte[]> lbaTemp;
@@ -313,13 +314,24 @@ namespace SCAFTI
                 if (isVerifySign)
                 {
                     DontWriteToLogNotVerified = CRSA.IsSignatureValid(oMessage, baSignature, baDataSigned);
+
+                    eEBadSignType = (DontWriteToLogNotVerified == null) ? EBadSignType.UncheckableSignature :
+                        (DontWriteToLogNotVerified == false) ? EBadSignType.FailedSignature : EBadSignType.None;
                 }
 
-                ELOG_MESSAGE_TYPE eELOG_MESSAGE_TYPE = 
-                                    (!IsMacOK && !DontWriteToLogNotVerified) ? ELOG_MESSAGE_TYPE.BadMacAndSign :
-                                    (!IsMacOK) ? ELOG_MESSAGE_TYPE.BadMac : 
-                                    (!DontWriteToLogNotVerified) ? ELOG_MESSAGE_TYPE.BadSign :
-                                    ELOG_MESSAGE_TYPE.None;
+                ELOG_MESSAGE_TYPE eELOG_MESSAGE_TYPE;
+                if (DontWriteToLogNotVerified == null)
+                {
+                    eELOG_MESSAGE_TYPE = (!IsMacOK) ? ELOG_MESSAGE_TYPE.BadMacAndSign : ELOG_MESSAGE_TYPE.BadSign;
+                }
+                else
+                {
+                    eELOG_MESSAGE_TYPE =
+                                        (!IsMacOK && !(bool)DontWriteToLogNotVerified) ? ELOG_MESSAGE_TYPE.BadMacAndSign :
+                                        (!IsMacOK) ? ELOG_MESSAGE_TYPE.BadMac :
+                                        (!(bool)DontWriteToLogNotVerified) ? ELOG_MESSAGE_TYPE.BadSign :
+                                        ELOG_MESSAGE_TYPE.None;
+                }
 
                 if (eELOG_MESSAGE_TYPE != ELOG_MESSAGE_TYPE.None)
                 {
@@ -331,7 +343,7 @@ namespace SCAFTI
                     if (sFileName != null)
                     {
                         oLogMessage = new LogMessage(DateTime.Now, iPort, oMessage.oUser.oIP, oMessage.oUser.sUserName,
-                                                   oMessage.baRecievedIV, baHMAcInMsg, baExpectedHMAC, sFileName, true, eELOG_MESSAGE_TYPE);
+                                                   oMessage.baRecievedIV, baHMAcInMsg, baExpectedHMAC, sFileName, true, eELOG_MESSAGE_TYPE, eEBadSignType);
                         MessageBox.Show("Warning!!!  File with a "+sLogMsgType+" Received (See \"" + CLog.LOG_FILE_NAME + "\" file).");
                     }
                     else

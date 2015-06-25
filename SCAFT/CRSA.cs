@@ -15,7 +15,7 @@ namespace SCAFTI
         private static string RSA_SIGN_ALG = "SHA256";
         private static int SIGN_LENGTH_SIZE = 8;
         public static RSACryptoServiceProvider rsa;
-        private static string OTHER_USERS_KEYS_FILE_PATH = "UsersPublicKeysConfig.txt"; 
+        private static string OTHER_USERS_KEYS_FILE_PATH = "SCAFTIDS_Key_Store.txt"; 
         private static char OTHER_USERS_DELIMITER = ' '; 
 
         public static void GenerateWithPrivateKey(int iKeySizeInBits)
@@ -46,7 +46,7 @@ namespace SCAFTI
             return CUtils.SplitByLength(baMsgWithSign, CRSA.SIGN_LENGTH_SIZE); 
         }
 
-        public static bool IsSignatureValid(Message oMessage, byte[] baSignature, byte[] baDataSigned)
+        public static bool? IsSignatureValid(Message oMessage, byte[] baSignature, byte[] baDataSigned)
         {
             RSACryptoServiceProvider UserRsa = new RSACryptoServiceProvider();
             object oHalg = CryptoConfig.CreateFromName(RSA_SIGN_ALG);

@@ -264,7 +264,7 @@ namespace SCAFTI
                             {
                                 User oUser = GetConnectedUserByName(oCurrentMsg.oUser.sUserName);
 
-                                if (oUser == null && !oCurrentMsg.oUser.Equals(CUtils.oCurrentUser))
+                                if (oUser == null )//&& !oCurrentMsg.oUser.Equals(CUtils.oCurrentUser))
                                     listBoxConnectedUsers.Items.Add(oCurrentMsg.oUser);
 
                                 if (oUser != null)
@@ -470,6 +470,7 @@ namespace SCAFTI
                 CRSA.GenerateWithPrivateKey(int.Parse(txtRSAKeySize.Text));
 
                 ShowRSAParams(true);
+                MessageBox.Show("Your Rsa public/private keys are Ready!");
             }
             catch
             {
@@ -553,6 +554,7 @@ namespace SCAFTI
                     CRSA.rsa.FromXmlString(key);
 
                     ShowRSAParams(true);
+                    MessageBox.Show("your public/private keys are ready (import went well)");
                 }
             }
             catch (Exception e2)
@@ -600,6 +602,9 @@ namespace SCAFTI
                     oTempRsa.ExportParameters(false);//check that is valid
 
                     CRSA.AddOtherUserKeyToPublicKeys(txtOtherUserName.Text, oTempRsa.ToXmlString(false));
+
+                    MessageBox.Show("User \"" + txtOtherUserName.Text + "\" public key was added");
+                    txtOtherUserName.Text = "";
                 }
             }
             catch (Exception e3)
@@ -608,7 +613,6 @@ namespace SCAFTI
             }
             finally
             {
-                txtOtherUserName.Text = "";
                 if (srIn != null) srIn.Close();
                 if (fsIn != null) fsIn.Close();
             }
