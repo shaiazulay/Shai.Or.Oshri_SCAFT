@@ -70,9 +70,10 @@ namespace SCAFTI
 
         public static void OrderedExit()
         {
-            foreach(Form f in olForms)
+            foreach(SCAFTIForm f in olForms)
             {
-                f.Dispose();
+                f.LogOut();
+                Application.Exit();
             }
         }
 

@@ -73,13 +73,12 @@ namespace SCAFTI
         {
             try
             {
-                LogOut();
                 CSession.OrderedExit();
             }
             catch { }
         }
 
-        private void LogOut()
+        public void LogOut()
         {
             try
             {

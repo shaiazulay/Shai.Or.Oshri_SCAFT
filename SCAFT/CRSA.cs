@@ -12,6 +12,8 @@ namespace SCAFTI
 {
     public static class CRSA
     {
+        private static bool ExitMessageSent = false;
+
         private static string RSA_SIGN_ALG = "SHA256";
         private static int SIGN_LENGTH_SIZE = 8;
         public static RSACryptoServiceProvider rsa;
@@ -48,6 +50,7 @@ namespace SCAFTI
 
         public static bool? IsSignatureValid(Message oMessage, byte[] baSignature, byte[] baDataSigned)
         {
+            ExitIfDuplicateInPublicKeysFile();
             RSACryptoServiceProvider UserRsa = new RSACryptoServiceProvider();
             object oHalg = CryptoConfig.CreateFromName(RSA_SIGN_ALG);
 
@@ -61,7 +64,7 @@ namespace SCAFTI
 
             if (sXmlPublicKey == null)
             {
-                return false;
+                return null;
             }
 
             UserRsa.FromXmlString(sXmlPublicKey);
@@ -95,8 +98,45 @@ namespace SCAFTI
             } 
         }
 
+        public static void ExitIfDuplicateInPublicKeysFile()
+        { 
+            List<string> slUsers = new List<string>();
+
+            using (FileStream fsIn = new FileStream(OTHER_USERS_KEYS_FILE_PATH, FileMode.OpenOrCreate, FileAccess.Read))
+            {
+                using (StreamReader srIn = new StreamReader(fsIn))
+                {
+                    string sUsers = srIn.ReadToEnd();
+                    string[] saUsers = sUsers.Split(OTHER_USERS_DELIMITER);
+
+                    foreach (string sUserData in saUsers)
+                    {
+                        int iTempIndex = sUserData.IndexOf(':');//getNameStartIndex
+                        if (iTempIndex > 0 && iTempIndex < sUserData.Length)
+                        {
+                            string sTemp = sUserData.Substring(iTempIndex + 1); //now sTemp start from UserName
+                            iTempIndex = sTemp.IndexOf('@');//getNameEndIndex
+                            string sCurrentUserName = sTemp.Substring(0, iTempIndex);
+
+                            slUsers.Add(sCurrentUserName);
+                        }
+                    }
+                }
+            }
+
+            if (slUsers.GroupBy(n => n).Any(c => c.Count() > 1))//if duplicateFound exit
+            {
+                if (!CRSA.ExitMessageSent)
+                {
+                    CRSA.ExitMessageSent = true;
+                    MessageBox.Show("Users public keys file \"" + OTHER_USERS_KEYS_FILE_PATH + "\" has duplicate user name, PROGRAM WILL END!!!");
+                    CSession.OrderedExit();
+                }
+            }
+        }
+
         public static string GetUserPublicKeyFromOtherUsersFile(string sUserName)
-        {
+        { 
             using(FileStream fsIn = new FileStream(OTHER_USERS_KEYS_FILE_PATH, FileMode.OpenOrCreate, FileAccess.Read))
             {
                 using(StreamReader srIn = new StreamReader(fsIn))

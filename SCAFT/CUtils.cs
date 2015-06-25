@@ -374,7 +374,7 @@ namespace SCAFTI
                                 break;
                         }
                         oLogMessage = new LogMessage(DateTime.Now, iPort, oMessage.oUser.oIP, oMessage.oUser.sUserName,
-                                                   oMessage.baRecievedIV, baHMAcInMsg, baExpectedHMAC, sMsgContent, false, eELOG_MESSAGE_TYPE);
+                                                   oMessage.baRecievedIV, baHMAcInMsg, baExpectedHMAC, sMsgContent, false, eELOG_MESSAGE_TYPE, eEBadSignType);
                        // MessageBox.Show("Warning!!!  Message with a "+sLogMsgType+" Received (See \"" + CLog.LOG_FILE_NAME + "\" file).");
                     }
                     CLog.WriteLineToLoge(oLogMessage);
